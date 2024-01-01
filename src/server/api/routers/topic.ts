@@ -1,5 +1,6 @@
 import {
   TopicCreateSchema,
+  TopicGetSchema,
   TopicItemSchema,
 } from "src/definitions/TopicDefinitions";
 import { ddbDocClient } from "~/server/db";
@@ -12,59 +13,79 @@ import { ZodError, ZodIssueCode } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const topicRouter = createTRPCRouter({
-  getTopics: protectedProcedure.query(async ({ ctx }) => {
-    try {
-      // Create a request to get the user's topics and send it
-      const res = await ddbDocClient.send(
-        new QueryCommand({
-          TableName: "Topic",
-          KeyConditionExpression: "User_ID = :user_id",
-          ExpressionAttributeValues: {
-            ":user_id": ctx.session?.userId,
-          },
-          ConsistentRead: false,
-        }),
-      );
+  getTopics: protectedProcedure
+    .input(TopicGetSchema)
+    .query(async ({ ctx, input }) => {
+      try {
+        console.log(input);
+        // Create a request to get the user's topics and send it
+        const res = await ddbDocClient.send(
+          new QueryCommand({
+            TableName: "Topic",
+            KeyConditionExpression: "User_ID = :user_id",
+            ExpressionAttributeValues: {
+              ":user_id": ctx.session?.userId,
+            },
+            ConsistentRead: false,
+            Limit: input?.limit ? input.limit + 1 : undefined,
 
-      // Format the response
-      const formattedResponse =
-        res.Items?.reduce(
-          (acc: Zod.TypeOf<typeof TopicItemSchema>[], topic) => {
-            const formattedTopic = {
-              Topic_ID: topic.Topic_ID as string,
-              User_ID: topic.User_ID as string,
-              Title: topic.Title as string,
-              Description: topic.Description as string | undefined,
-            };
+            ExclusiveStartKey: input?.lastEvaluatedKey
+              ? { User_ID: input?.lastEvaluatedKey }
+              : undefined,
+          }),
+        );
 
-            // Parse each topic to ensure it is valid
-            const parseResult = TopicItemSchema.safeParse(formattedTopic);
+        // Format the response
+        const formattedResponse =
+          res.Items?.reduce(
+            (acc: Zod.TypeOf<typeof TopicItemSchema>[], topic) => {
+              const formattedTopic = {
+                Topic_ID: topic.Topic_ID as string,
+                User_ID: topic.User_ID as string,
+                Title: topic.Title as string,
+                Description: topic.Description as string | undefined,
+              };
 
-            // Only add the topic to response array if it passes validation
-            if (parseResult.success) {
-              acc.push(formattedTopic);
-            } else {
-              // Log the errors if the topic fails validation
-              console.error(
-                "Topic failed validation in request to get topics for user with id",
-                ctx.session?.userId,
-              );
-              console.error("Errors:");
-              parseResult.error?.errors.forEach((err) => {
-                console.error(err);
-              });
-            }
-            return acc;
-          },
-          [],
-        ) ?? undefined;
+              // Parse each topic to ensure it is valid
+              const parseResult = TopicItemSchema.safeParse(formattedTopic);
 
-      return { topics: formattedResponse };
-    } catch (err) {
-      console.error(err);
-      throw new TRPCClientError("Failed to get topics");
-    }
-  }),
+              // Only add the topic to response array if it passes validation
+              if (parseResult.success) {
+                acc.push(formattedTopic);
+              } else {
+                // Log the errors if the topic fails validation
+                console.error(
+                  "Topic failed validation in request to get topics for user with id",
+                  ctx.session?.userId,
+                );
+                console.error("Errors:");
+                parseResult.error?.errors.forEach((err) => {
+                  console.error(err);
+                });
+              }
+              return acc;
+            },
+            [],
+          ) ?? undefined;
+
+        // Only include lastEvaluatedKey if there are more topics to get
+        const lastKey =
+          input?.limit &&
+          res.Count &&
+          res.Count >= input.limit + 1 &&
+          res.LastEvaluatedKey
+            ? (res.LastEvaluatedKey as { Topic_ID: string; User_ID: string })
+            : null;
+
+        return {
+          topics: formattedResponse?.slice(0, input?.limit ?? undefined),
+          lastEvaluatedKey: lastKey,
+        };
+      } catch (err) {
+        console.error(err);
+        throw new TRPCClientError("Failed to get topics");
+      }
+    }),
   createTopic: protectedProcedure
     .input(TopicCreateSchema)
     .mutation(async ({ ctx, input }) => {

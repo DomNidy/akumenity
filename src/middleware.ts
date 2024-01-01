@@ -10,7 +10,7 @@ export default authMiddleware({
   // Clerk will 401 unauthorized requests to these routes
   apiRoutes: ["/api/topic"],
 
-  debug: true,
+  // debug: true,
 });
 
 export const config = {

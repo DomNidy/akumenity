@@ -16,7 +16,9 @@ export default function TopicCard(topic: z.infer<typeof TopicItemSchema>) {
         <CardDescription>{topic.Description ?? ""}</CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Topic Card</p>
+        <p className="text-muted-foreground text-sm">
+          2 hours, 34 minutes this week.
+        </p>
       </CardContent>
     </Card>
   );
