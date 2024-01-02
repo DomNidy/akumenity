@@ -6,7 +6,7 @@ frontend:
         - npm ci
     build:
       commands:
-        - docker build -t akumenity .
+        - 'docker build -t akumenity .'
   artifacts:
     baseDirectory: .next
     files:
