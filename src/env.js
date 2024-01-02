@@ -21,6 +21,7 @@ export const env = createEnv({
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
     NEXT_PUBLIC_MAX_TOPICS_PER_USER: z.number().min(0).max(1000),
+    NEXT_PUBLIC_DEPLOYMENT_URL: z.string().url(),
   },
 
   /**
@@ -31,6 +32,7 @@ export const env = createEnv({
     // Public env vars
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NEXT_PUBLIC_MAX_TOPICS_PER_USER: parseInt(process.env.NEXT_PUBLIC_MAX_TOPICS_PER_USER ?? '0'),
+    NEXT_PUBLIC_DEPLOYMENT_URL: process.env.NEXT_PUBLIC_DEPLOYMENT_URL,
 
     // Private env vars
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
