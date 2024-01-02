@@ -6,6 +6,9 @@ frontend:
         - npm ci
     build:
       commands:
+        - nvm install 18.17.0
+        - nvm use 18.17.0
+        - node -v
         - npm run build
   artifacts:
     baseDirectory: .next
