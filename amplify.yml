@@ -6,11 +6,11 @@ frontend:
         - npm ci
     build:
       commands:
-        - 'docker build -t akumenity .'
+        - npm run build
   artifacts:
     baseDirectory: .next
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - node_modules/**/*
