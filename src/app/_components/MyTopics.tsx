@@ -1,37 +1,33 @@
 "use client";
-
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import TopicCard from "src/app/_components/TopicCard";
-import { z } from "zod";
 import { api } from "~/trpc/react";
-import { type RouterOutputs } from "~/trpc/shared";
+import { Button } from "./ui/button";
 
 export default function MyTopics() {
-  const [lastEvaluatedKey, setLastEvaluatedKey] = useState<
-    RouterOutputs["topic"]["getTopics"]["lastEvaluatedKey"] | null
-  >(null);
-
   // TODO: Figure out how to implement proper pagination, useInfiniteQuery etc..
-  const topics = api.topic.getTopics.useQuery(
-    { limit: 3, lastEvaluatedKey: lastEvaluatedKey },
+  const topics = api.topic.getTopics.useInfiniteQuery(
+    { limit: 3 },
+
     {
       getNextPageParam: (lastPage) => {
         console.log(lastPage);
-        if (lastPage.lastEvaluatedKey) {
-          setLastEvaluatedKey(lastPage.lastEvaluatedKey);
-        }
-        return lastPage.lastEvaluatedKey;
+        return lastPage.cursor;
       },
     },
   );
 
   return (
     <div className="grid w-screen grid-flow-row-dense grid-cols-1 items-center gap-4 rounded-lg px-8 sm:w-[80vw] sm:grid-cols-2 sm:px-2 md:grid-cols-3 lg:grid-cols-4 ">
-      {!topics.data?.topics ?? <p>You have no topics</p>}
-      {topics.data?.topics?.flatMap((topic) => (
-        <TopicCard key={topic.Topic_ID} {...topic} />
-      ))}
+      {!topics.data?.pages ?? <p>You have no topics</p>}
+      {topics.data?.pages?.flatMap(
+        (page) =>
+          page.topics?.map((topic) => (
+            <TopicCard key={topic.Topic_ID} {...topic} />
+          )),
+      )}
+      {topics.hasNextPage && (
+        <Button onClick={() => topics.fetchNextPage()}>Fetch more</Button>
+      )}
     </div>
   );
 }

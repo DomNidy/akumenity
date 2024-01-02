@@ -4,22 +4,15 @@ import { env } from "~/env";
 /**
  * Schema for a topic get request
  */
-export const TopicGetSchema = z
-  .object({
-    limit: z
-      .number()
-      .min(1)
-      .max(env.NEXT_PUBLIC_MAX_TOPICS_PER_USER)
-      .optional(), // The maximum number of topics to return
-    lastEvaluatedKey: z
-      .object({
-        User_ID: z.string(),
-        Topic_ID: z.string(),
-      })
-      .nullable(), // Effectively a cursor for dynamo db, points to the last item in the previous query
-  })
-  .nullable()
-  .optional();
+export const TopicGetSchema = z.object({
+  limit: z.number().min(1).max(env.NEXT_PUBLIC_MAX_TOPICS_PER_USER).optional(), // The maximum number of topics to return
+  cursor: z
+    .object({
+      User_ID: z.string(),
+      Topic_ID: z.string(),
+    })
+    .nullish(), // Effectively a cursor for dynamo db, points to the last item in the previous query
+});
 
 /**
  * Schema for a topic create request

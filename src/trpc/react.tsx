@@ -15,7 +15,6 @@ export function TRPCReactProvider(props: {
   cookies: string;
 }) {
   const [queryClient] = useState(() => new QueryClient());
-
   const [trpcClient] = useState(() =>
     api.createClient({
       transformer,
@@ -37,7 +36,6 @@ export function TRPCReactProvider(props: {
       ],
     }),
   );
-
   return (
     <QueryClientProvider client={queryClient}>
       <api.Provider client={trpcClient} queryClient={queryClient}>

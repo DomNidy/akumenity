@@ -27,11 +27,9 @@ export const topicRouter = createTRPCRouter({
               ":user_id": ctx.session?.userId,
             },
             ConsistentRead: false,
-            Limit: input?.limit ? input.limit + 1 : undefined,
+            Limit: input?.limit ? input.limit : undefined,
 
-            ExclusiveStartKey: input?.lastEvaluatedKey
-              ? { User_ID: input?.lastEvaluatedKey }
-              : undefined,
+            ExclusiveStartKey: input?.cursor ? { ...input.cursor } : undefined,
           }),
         );
 
@@ -68,18 +66,18 @@ export const topicRouter = createTRPCRouter({
             [],
           ) ?? undefined;
 
-        // Only include lastEvaluatedKey if there are more topics to get
+        // if the count is greater than the limit, there are more topics to get, otherwise dont return a cursor
         const lastKey =
           input?.limit &&
           res.Count &&
-          res.Count >= input.limit + 1 &&
+          res.Count >= input.limit &&
           res.LastEvaluatedKey
             ? (res.LastEvaluatedKey as { Topic_ID: string; User_ID: string })
             : null;
 
         return {
-          topics: formattedResponse?.slice(0, input?.limit ?? undefined),
-          lastEvaluatedKey: lastKey,
+          topics: formattedResponse,
+          cursor: lastKey,
         };
       } catch (err) {
         console.error(err);
