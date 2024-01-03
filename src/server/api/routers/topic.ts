@@ -1,16 +1,22 @@
 import {
   TopicCreateSchema,
+  TopicDeleteSchema,
   TopicGetSchema,
-  TopicItemSchema,
 } from "src/definitions/TopicDefinitions";
 import { ddbDocClient } from "~/server/db";
 
-import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  BatchWriteCommand,
+  PutCommand,
+  QueryCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { TRPCClientError } from "@trpc/client";
 import { randomUUID } from "crypto";
 import { TRPCError } from "@trpc/server";
-import { ZodError, ZodIssueCode } from "zod";
+import { ZodError, ZodIssueCode, type z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { dbConstants } from "~/definitions/dbConstants";
+import { chunkArray } from "~/lib/utils";
 
 export const topicRouter = createTRPCRouter({
   getTopics: protectedProcedure
@@ -21,8 +27,8 @@ export const topicRouter = createTRPCRouter({
         // Create a request to get the user's topics and send it
         const res = await ddbDocClient.send(
           new QueryCommand({
-            TableName: "Topic",
-            KeyConditionExpression: "User_ID = :user_id",
+            TableName: dbConstants.tables.topic.tableName,
+            KeyConditionExpression: `${dbConstants.tables.topic.partitionKey} = :user_id`,
             ExpressionAttributeValues: {
               ":user_id": ctx.session?.userId,
             },
@@ -36,16 +42,22 @@ export const topicRouter = createTRPCRouter({
         // Format the response
         const formattedResponse =
           res.Items?.reduce(
-            (acc: Zod.TypeOf<typeof TopicItemSchema>[], topic) => {
+            (
+              acc: Zod.TypeOf<typeof dbConstants.itemTypes.topic.itemSchema>[],
+              topic,
+            ) => {
               const formattedTopic = {
                 Topic_ID: topic.Topic_ID as string,
                 User_ID: topic.User_ID as string,
                 Title: topic.Title as string,
                 Description: topic.Description as string | undefined,
-              };
+              } as z.infer<typeof dbConstants.itemTypes.topic.itemSchema>;
 
               // Parse each topic to ensure it is valid
-              const parseResult = TopicItemSchema.safeParse(formattedTopic);
+              const parseResult =
+                dbConstants.itemTypes.topic.itemSchema.safeParse(
+                  formattedTopic,
+                );
 
               // Only add the topic to response array if it passes validation
               if (parseResult.success) {
@@ -89,8 +101,8 @@ export const topicRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const findTopics = new QueryCommand({
-          TableName: "Topic",
-          KeyConditionExpression: "User_ID = :user_id",
+          TableName: dbConstants.tables.topic.tableName,
+          KeyConditionExpression: `${dbConstants.tables.topic.partitionKey} = :user_id`,
           ExpressionAttributeValues: {
             ":user_id": ctx.session?.userId,
           },
@@ -143,13 +155,15 @@ export const topicRouter = createTRPCRouter({
           throw mockedError;
         }
 
-        const topicToCreate = TopicCreateSchema.safeParse({
-          Topic_ID: randomUUID(),
+        // Parse the input to ensure it matches the schema
+        const topicToCreate = dbConstants.itemTypes.topic.itemSchema.safeParse({
           User_ID: ctx.session?.userId,
-          Title: input.Title,
+          Topic_ID: `${dbConstants.itemTypes.topic.typeName}${randomUUID()}`,
+          Title: `${input.Title}`,
           Description: input.Description,
         });
 
+        // Handle schema validation errors
         if (!topicToCreate.success) {
           console.log("Failed to create topic");
           throw new TRPCError({
@@ -162,20 +176,15 @@ export const topicRouter = createTRPCRouter({
         // Create a request to create a topic and send it
         const command = new PutCommand({
           TableName: "Topic",
-          Item: {
-            Topic_ID: randomUUID(),
-            User_ID: ctx.session?.userId,
-            Title: topicToCreate.data.Title,
-            Description: topicToCreate.data.Description,
-          },
+          Item: topicToCreate.data,
         });
 
+        //* Send the request to create the topic
         await ddbDocClient.send(command);
 
         return { success: true };
       } catch (err) {
         console.error(err);
-
         if (err instanceof TRPCError) {
           throw err;
         }
@@ -192,5 +201,40 @@ export const topicRouter = createTRPCRouter({
   // editTopic: protectedProcedure.input(TopicItemSchema).mutation(async () => {}),
 
   //TODO: Implement deleteTopic
-  // deleteTopic: protectedProcedure.input(TopicItemSchema).mutation(async () => {}),
+  deleteTopic: protectedProcedure
+    .input(TopicDeleteSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Create a request to delete the topic
+        const topicIDChunks = chunkArray(input.Topic_IDS, 25);
+
+        // Send a batch of 25 delete requests at a time
+        for (const chunk of topicIDChunks) {
+          // Create the delete requests from the topic ids
+          const deleteRequests = chunk.map((topicID) => ({
+            DeleteRequest: {
+              Key: {
+                User_ID: ctx.session?.userId,
+                Topic_ID: topicID,
+              },
+            },
+          }));
+
+          // Create the batched request
+          const command = new BatchWriteCommand({
+            RequestItems: {
+              Topic: deleteRequests,
+            },
+          });
+
+          //* Send a the batched request to delete the topic
+          await ddbDocClient.send(command);
+        }
+
+        return { success: true };
+      } catch (err) {
+        console.error(err);
+        throw new TRPCClientError("Failed to delete topic");
+      }
+    }),
 });

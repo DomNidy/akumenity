@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 export default function MyTopics() {
   // TODO: Figure out how to implement proper pagination, useInfiniteQuery etc..
   const topics = api.topic.getTopics.useInfiniteQuery(
-    { limit: 3 },
+    { limit: 20 },
 
     {
       getNextPageParam: (lastPage) => {
