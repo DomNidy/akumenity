@@ -2,6 +2,7 @@ import {
   TopicCreateSchema,
   TopicDeleteSchema,
   TopicGetSchema,
+  TopicUpdateSchema,
 } from "src/definitions/TopicDefinitions";
 import { ddbDocClient } from "~/server/db";
 
@@ -9,6 +10,7 @@ import {
   BatchWriteCommand,
   PutCommand,
   QueryCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { TRPCClientError } from "@trpc/client";
 import { randomUUID } from "crypto";
@@ -197,10 +199,67 @@ export const topicRouter = createTRPCRouter({
       }
     }),
 
-  // TODO: Implement editTopic
-  // editTopic: protectedProcedure.input(TopicItemSchema).mutation(async () => {}),
+  // TODO: Implement updateTopic
+  updateTopic: protectedProcedure
+    .input(TopicUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Parse the input to ensure it matches the schema
+        const topicToUpdate = dbConstants.itemTypes.topic.itemSchema.safeParse({
+          User_ID: ctx.session?.userId,
+          Topic_ID: input.Topic_ID,
+          Title: input.Title,
+          Description: input.Description,
+        });
 
-  //TODO: Implement deleteTopic
+        // Handle schema validation errors
+        if (!topicToUpdate.success) {
+          console.log("Failed to update topic");
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Failed to update topic",
+            cause: topicToUpdate.error,
+          });
+        }
+
+        // Create a request to update the topic and send it
+        const command = new UpdateCommand({
+          TableName: dbConstants.tables.topic.tableName,
+          Key: {
+            User_ID: ctx.session?.userId,
+            Topic_ID: input.Topic_ID,
+          },
+          AttributeUpdates: {
+            Title: {
+              Action: "PUT",
+              Value: input.Title,
+            },
+            Description: {
+              Action: "PUT",
+              Value: input.Description,
+            },
+          },
+        });
+
+        //* Send the request to update the topic
+        const updateResult = await ddbDocClient.send(command);
+        console.log(JSON.stringify(updateResult));
+
+        return { success: true };
+      } catch (err) {
+        console.error(err);
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update topic, please try again",
+          cause: err,
+        });
+      }
+    }),
+
   deleteTopic: protectedProcedure
     .input(TopicDeleteSchema)
     .mutation(async ({ ctx, input }) => {

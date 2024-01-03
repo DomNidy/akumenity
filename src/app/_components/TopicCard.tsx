@@ -9,32 +9,14 @@ import {
 import { type dbConstants } from "~/definitions/dbConstants";
 import { MoreHorizontal } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from "./ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "./ui/alert-dialog";
-import { Button } from "./ui/button";
-import { api } from "~/trpc/react";
-import { useQueryClient } from "@tanstack/react-query";
+
+import TopicUpdateForm from "./forms/topic-update-form";
+import { useState } from "react";
 
 export default function TopicCard(
   topic: z.infer<typeof dbConstants.itemTypes.topic.itemSchema>,
 ) {
-  const queryClient = useQueryClient();
-
-  const deleteTopic = api.topic.deleteTopic.useMutation({
-    onSettled: () => {
-      // Invalidate topics query
-      void queryClient.refetchQueries([["topic", "getTopics"]]);
-    },
-  });
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
     <Card className="h-full w-full">
@@ -43,46 +25,25 @@ export default function TopicCard(
           <CardTitle className="overflow-x-hidden pb-1">
             {topic.Title}
           </CardTitle>
-          <Dialog>
+          <Dialog open={open}>
             <DialogTrigger className="ml-auto self-start">
-              <MoreHorizontal />
+              <MoreHorizontal onClick={() => setOpen(!open)} />
             </DialogTrigger>
             <DialogContent>
               <DialogClose />
+              <div className="flex flex-col">
+                {" "}
+                <TopicUpdateForm
+                  closeParentDialog={() => setOpen(false)}
+                  topic={{
+                    Topic_ID: topic.Topic_ID,
+                    Title: topic.Title,
+                    Description: topic.Description,
+                    User_ID: topic.User_ID,
+                  }}
+                />
+              </div>
               {/** TODO: Add Topic edit form here */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button>Delete</Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  {deleteTopic.isLoading ? (
-                    <p>Deleting...</p>
-                  ) : (
-                    <>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Are you sure you wish to delete this topic?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() =>
-                            deleteTopic.mutate({
-                              Topic_IDS: [topic.Topic_ID],
-                            })
-                          }
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </>
-                  )}
-                </AlertDialogContent>
-              </AlertDialog>
             </DialogContent>
           </Dialog>
         </div>

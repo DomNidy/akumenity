@@ -1,4 +1,4 @@
-import TopicCreateForm from "src/app/_components/forms/TopicCreateForm";
+import TopicCreateForm from "~/app/_components/forms/topic-create-form";
 import MyTopics from "src/app/_components/MyTopics";
 import { UserButton } from "@clerk/nextjs";
 
