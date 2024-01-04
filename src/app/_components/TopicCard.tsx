@@ -25,7 +25,7 @@ export default function TopicCard(
           <CardTitle className="overflow-x-hidden pb-1">
             {topic.Title}
           </CardTitle>
-          <Dialog open={open}>
+          <Dialog open={open} onOpenChange={(op) => setOpen(op)}>
             <DialogTrigger className="ml-auto self-start">
               <MoreHorizontal onClick={() => setOpen(!open)} />
             </DialogTrigger>

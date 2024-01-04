@@ -1,6 +1,6 @@
-import TopicCreateForm from "~/app/_components/forms/topic-create-form";
 import MyTopics from "src/app/_components/MyTopics";
 import { UserButton } from "@clerk/nextjs";
+import Timeclock from "../_components/timeclock";
 
 export default function Dashboard() {
   return (
@@ -13,7 +13,21 @@ export default function Dashboard() {
       </div>
 
       <MyTopics />
-      <TopicCreateForm />
+
+      <div className="mt-4 w-screen px-8 sm:w-[80vw] sm:px-2">
+        <Timeclock
+          topicSession={{
+            SessionStatus: "active",
+            SessionDuration: 1000 * 60 * 32.8,
+            SessionID: "123",
+            SessionSpans: ["1234", "1235"],
+            SessionStart: Date.now() - 1000 * 60 * 32.8,
+            Topic_ID: "123",
+            Topic_Title: "Calculus",
+            User_ID: "123",
+          }}
+        />
+      </div>
     </main>
   );
 }

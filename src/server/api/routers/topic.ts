@@ -215,6 +215,7 @@ export const topicRouter = createTRPCRouter({
         // Handle schema validation errors
         if (!topicToUpdate.success) {
           console.log("Failed to update topic");
+
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: "Failed to update topic",

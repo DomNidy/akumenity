@@ -41,8 +41,6 @@ export default function TopicUpdateForm({
   topic: z.infer<typeof dbConstants.itemTypes.topic.itemSchema>;
   closeParentDialog: () => void;
 }) {
-  const [open, setOpen] = useState<boolean>(false);
-
   const queryClient = useQueryClient();
   const updateTopic = api.topic.updateTopic.useMutation();
 

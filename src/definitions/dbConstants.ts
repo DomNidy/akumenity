@@ -20,8 +20,11 @@ export const dbConstants = {
       itemSchema: z.object({
         User_ID: z.string(), //* Partition key, The user that this topic belongs to
         Topic_ID: z.string().startsWith(dbConstantsTypeNames.topic), //* Sort key, The unique ID of this topic
-        Title: z.string().min(1),
-        Description: z.string().optional(),
+        Title: z.string().min(1, "Title must be at least 1 character."), // The title of the topic
+        Description: z
+          .string()
+          .max(256, "Description must be at most 256 characters long.")
+          .optional(),
       }),
     },
     topicSession: {
@@ -31,6 +34,7 @@ export const dbConstants = {
         SessionID: z.string().startsWith(dbConstantsTypeNames.topicSession), // * Sort key, The unique ID of this Topic Session
         Topic_ID: z.string().nullable(), //* GSI partition key, The topic that this session is for, if it is null, the related topic may have been deleted
         SessionStart: z.number(), //* GSI sort key, The time in miliseconds the user started this session
+        SessionStatus: z.enum(["active", "paused", "stopped"]), // The status of the session, active means the user is currently working on the topic, paused means the user is not currently working on the topic, but has not stopped the session, stopped means the user has stopped the session
         Topic_Title: z.string(), // The title of the topic that this session is for (effectively snapshotting the topic title at the time of the session start)
         SessionDuration: z.number(), // The total time the user was actively working on this topic (sums up the session spans)
         SessionSpans: z.array(

@@ -2,6 +2,7 @@
 import TopicCard from "src/app/_components/TopicCard";
 import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
+import TopicCreateForm from "./forms/topic-create-form";
 
 export default function MyTopics() {
   // TODO: Figure out how to implement proper pagination, useInfiniteQuery etc..
@@ -25,6 +26,8 @@ export default function MyTopics() {
             <TopicCard key={topic.Topic_ID} {...topic} />
           )),
       )}
+      <TopicCreateForm />
+
       {topics.hasNextPage && (
         <Button onClick={() => topics.fetchNextPage()}>Fetch more</Button>
       )}
