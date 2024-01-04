@@ -23,7 +23,7 @@ export default function MyTopics() {
       {topics.data?.pages?.flatMap(
         (page) =>
           page.topics?.map((topic) => (
-            <TopicCard key={topic.Topic_ID} {...topic} />
+            <TopicCard key={topic.ItemType_ID} {...topic} />
           )),
       )}
       <TopicCreateForm />

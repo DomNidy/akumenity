@@ -17,14 +17,13 @@ export default function Dashboard() {
       <div className="mt-4 w-screen px-8 sm:w-[80vw] sm:px-2">
         <Timeclock
           topicSession={{
-            SessionStatus: "active",
-            SessionDuration: 1000 * 60 * 32.8,
-            SessionID: "123",
-            SessionSpans: ["1234", "1235"],
-            SessionStart: Date.now() - 1000 * 60 * 32.8,
-            Topic_ID: "123",
+            Session_End: null,
+            Session_Start: Date.now() - 1000 * 60 * 32.8,
+            ItemType_ID: "123",
             Topic_Title: "Calculus",
             User_ID: "123",
+            Session_Status: "active",
+            Topic_ID: "123",
           }}
         />
       </div>

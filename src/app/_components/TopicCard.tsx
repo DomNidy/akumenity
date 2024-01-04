@@ -36,7 +36,7 @@ export default function TopicCard(
                 <TopicUpdateForm
                   closeParentDialog={() => setOpen(false)}
                   topic={{
-                    Topic_ID: topic.Topic_ID,
+                    ItemType_ID: topic.ItemType_ID,
                     Title: topic.Title,
                     Description: topic.Description,
                     User_ID: topic.User_ID,

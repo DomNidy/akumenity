@@ -9,7 +9,7 @@ export const TopicGetSchema = z.object({
   cursor: z
     .object({
       User_ID: z.string(),
-      Topic_ID: z.string(),
+      ItemType_ID: z.string(),
     })
     .nullish(), // Effectively a cursor for dynamo db, points to the last item in the previous query
 });
@@ -18,7 +18,7 @@ export const TopicGetSchema = z.object({
  * Schema for a topic delete request
  */
 export const TopicDeleteSchema = z.object({
-  Topic_IDS: z
+  ItemType_IDS: z
     .array(z.string().min(1).max(128))
     .min(1, "At least 1 Topic ID is required for a delete request.")
     .max(50, "Cannot delete more than 50 topics at once."), // The ids of the topic to delete
@@ -28,7 +28,7 @@ export const TopicDeleteSchema = z.object({
  * Schema for an update topic request
  */
 export const TopicUpdateSchema = z.object({
-  Topic_ID: z.string().min(1).max(128), // The id of the topic to update
+  ItemType_ID: z.string().min(1).max(128), // The id of the topic to update
   Title: z
     .string()
     .min(1, "Must be at least 1 character long")

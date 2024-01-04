@@ -49,7 +49,7 @@ export const topicRouter = createTRPCRouter({
               topic,
             ) => {
               const formattedTopic = {
-                Topic_ID: topic.Topic_ID as string,
+                ItemType_ID: topic.ItemType_ID as string,
                 User_ID: topic.User_ID as string,
                 Title: topic.Title as string,
                 Description: topic.Description as string | undefined,
@@ -86,7 +86,7 @@ export const topicRouter = createTRPCRouter({
           res.Count &&
           res.Count >= input.limit &&
           res.LastEvaluatedKey
-            ? (res.LastEvaluatedKey as { Topic_ID: string; User_ID: string })
+            ? (res.LastEvaluatedKey as { ItemType_ID: string; User_ID: string })
             : null;
 
         return {
@@ -115,7 +115,6 @@ export const topicRouter = createTRPCRouter({
         // Run the query to find duplicates
         const topics = await ddbDocClient.send(findTopics);
 
-        // TODO: Figure out how/when topics.Count can be undefined
         if (
           !!topics.Count &&
           topics.Count >= parseInt(process.env.MAX_TOPICS_PER_USER ?? "50")
@@ -160,7 +159,7 @@ export const topicRouter = createTRPCRouter({
         // Parse the input to ensure it matches the schema
         const topicToCreate = dbConstants.itemTypes.topic.itemSchema.safeParse({
           User_ID: ctx.session?.userId,
-          Topic_ID: `${dbConstants.itemTypes.topic.typeName}${randomUUID()}`,
+          ItemType_ID: `${dbConstants.itemTypes.topic.typeName}${randomUUID()}`,
           Title: `${input.Title}`,
           Description: input.Description,
         });
@@ -177,7 +176,7 @@ export const topicRouter = createTRPCRouter({
 
         // Create a request to create a topic and send it
         const command = new PutCommand({
-          TableName: "Topic",
+          TableName: dbConstants.tables.topic.tableName,
           Item: topicToCreate.data,
         });
 
@@ -199,7 +198,6 @@ export const topicRouter = createTRPCRouter({
       }
     }),
 
-  // TODO: Implement updateTopic
   updateTopic: protectedProcedure
     .input(TopicUpdateSchema)
     .mutation(async ({ ctx, input }) => {
@@ -207,7 +205,7 @@ export const topicRouter = createTRPCRouter({
         // Parse the input to ensure it matches the schema
         const topicToUpdate = dbConstants.itemTypes.topic.itemSchema.safeParse({
           User_ID: ctx.session?.userId,
-          Topic_ID: input.Topic_ID,
+          ItemType_ID: input.ItemType_ID,
           Title: input.Title,
           Description: input.Description,
         });
@@ -228,7 +226,7 @@ export const topicRouter = createTRPCRouter({
           TableName: dbConstants.tables.topic.tableName,
           Key: {
             User_ID: ctx.session?.userId,
-            Topic_ID: input.Topic_ID,
+            ItemType_ID: input.ItemType_ID,
           },
           AttributeUpdates: {
             Title: {
@@ -266,7 +264,7 @@ export const topicRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         // Create a request to delete the topic
-        const topicIDChunks = chunkArray(input.Topic_IDS, 25);
+        const topicIDChunks = chunkArray(input.ItemType_IDS, 25);
 
         // Send a batch of 25 delete requests at a time
         for (const chunk of topicIDChunks) {
@@ -275,15 +273,17 @@ export const topicRouter = createTRPCRouter({
             DeleteRequest: {
               Key: {
                 User_ID: ctx.session?.userId,
-                Topic_ID: topicID,
+                ItemType_ID: topicID,
               },
             },
           }));
 
+          console.log(JSON.stringify(deleteRequests));
+
           // Create the batched request
           const command = new BatchWriteCommand({
             RequestItems: {
-              Topic: deleteRequests,
+              [dbConstants.tables.topic.tableName]: deleteRequests,
             },
           });
 

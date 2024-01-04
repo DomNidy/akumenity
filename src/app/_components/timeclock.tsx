@@ -1,8 +1,10 @@
+"use client";
 import { type z } from "zod";
 import { type dbConstants } from "~/definitions/dbConstants";
 import { Card } from "./ui/card";
 import { timeSince } from "~/lib/utils";
-import { Pause, PauseIcon, Play, Square, Timer } from "lucide-react";
+import { Square } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Timeclock({
   topicSession,
@@ -10,13 +12,25 @@ export default function Timeclock({
   topicSession: z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
 }) {
   const {
-    SessionDuration,
-    SessionID,
-    SessionSpans,
-    SessionStart,
-    Topic_ID,
+    Session_End,
+    Session_Start,
+    Session_Status,
+    ItemType_ID,
     Topic_Title,
+    Topic_ID,
+    User_ID,
   } = topicSession;
+
+  const [timeElapsed, setTimeElapsed] = useState(Date.now() - Session_Start);
+  const intervalRef = useRef<NodeJS.Timeout | undefined>();
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setTimeElapsed(Date.now() - Session_Start);
+    }, 1000);
+
+    return () => clearInterval(intervalRef.current);
+  }, []);
 
   // TODO: Continue implementing timeclock
   return (
@@ -31,13 +45,16 @@ export default function Timeclock({
           </span>
 
           <p className="text-md ordinal text-muted-foreground">
-            {timeSince(Date.now(), SessionStart)}
+            {timeSince(timeElapsed, 0)}
           </p>
 
           <div className="flex flex-row">
-            <Square strokeWidth={1.75} size={24} />
-            <Pause size={24} strokeWidth={1.75} />
-            <Play strokeWidth={1.75} size={24} />
+            <Square
+              strokeWidth={3}
+              size={24}
+              className="cursor-pointer rounded-full bg-red-500 p-1 hover:bg-red-400"
+              onClick={() => clearInterval(intervalRef.current)}
+            />
           </div>
         </div>
       </div>
