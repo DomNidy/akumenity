@@ -30,9 +30,10 @@ export const topicRouter = createTRPCRouter({
         const res = await ddbDocClient.send(
           new QueryCommand({
             TableName: dbConstants.tables.topic.tableName,
-            KeyConditionExpression: `${dbConstants.tables.topic.partitionKey} = :user_id`,
+            KeyConditionExpression: `${dbConstants.tables.topic.partitionKey} = :user_id AND begins_with(${dbConstants.tables.topic.sortKey}, :topic_id)`,
             ExpressionAttributeValues: {
               ":user_id": ctx.session?.userId,
+              ":topic_id": dbConstants.itemTypes.topic.typeName,
             },
             ConsistentRead: false,
             Limit: input?.limit ? input.limit : undefined,
@@ -49,8 +50,8 @@ export const topicRouter = createTRPCRouter({
               topic,
             ) => {
               const formattedTopic = {
-                ItemType_ID: topic.ItemType_ID as string,
-                User_ID: topic.User_ID as string,
+                PK: topic.PK as string,
+                SK: topic.SK as string,
                 Title: topic.Title as string,
                 Description: topic.Description as string | undefined,
               } as z.infer<typeof dbConstants.itemTypes.topic.itemSchema>;
@@ -158,11 +159,11 @@ export const topicRouter = createTRPCRouter({
 
         // Parse the input to ensure it matches the schema
         const topicToCreate = dbConstants.itemTypes.topic.itemSchema.safeParse({
-          User_ID: ctx.session?.userId,
-          ItemType_ID: `${dbConstants.itemTypes.topic.typeName}${randomUUID()}`,
+          PK: ctx.session?.userId,
+          SK: `${dbConstants.itemTypes.topic.typeName}${randomUUID()}`,
           Title: `${input.Title}`,
           Description: input.Description,
-        });
+        } as z.infer<typeof dbConstants.itemTypes.topic.itemSchema>);
 
         // Handle schema validation errors
         if (!topicToCreate.success) {
@@ -204,8 +205,8 @@ export const topicRouter = createTRPCRouter({
       try {
         // Parse the input to ensure it matches the schema
         const topicToUpdate = dbConstants.itemTypes.topic.itemSchema.safeParse({
-          User_ID: ctx.session?.userId,
-          ItemType_ID: input.ItemType_ID,
+          PK: ctx.session?.userId,
+          SK: input.Topic_ID,
           Title: input.Title,
           Description: input.Description,
         });
@@ -225,8 +226,8 @@ export const topicRouter = createTRPCRouter({
         const command = new UpdateCommand({
           TableName: dbConstants.tables.topic.tableName,
           Key: {
-            User_ID: ctx.session?.userId,
-            ItemType_ID: input.ItemType_ID,
+            PK: ctx.session?.userId,
+            SK: input.Topic_ID,
           },
           AttributeUpdates: {
             Title: {
@@ -264,7 +265,7 @@ export const topicRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         // Create a request to delete the topic
-        const topicIDChunks = chunkArray(input.ItemType_IDS, 25);
+        const topicIDChunks = chunkArray(input.Topic_IDS, 25);
 
         // Send a batch of 25 delete requests at a time
         for (const chunk of topicIDChunks) {

@@ -49,7 +49,7 @@ export default function TopicUpdateForm({
     defaultValues: {
       Title: topic.Title,
       Description: topic.Description,
-      ItemType_ID: topic.ItemType_ID,
+      Topic_ID: topic.SK,
     },
     shouldUnregister: false,
   });
@@ -159,7 +159,7 @@ export default function TopicUpdateForm({
                     <AlertDialogAction
                       onClick={() =>
                         deleteTopic.mutate({
-                          ItemType_IDS: [topic.ItemType_ID],
+                          Topic_IDS: [topic.SK],
                         })
                       }
                     >

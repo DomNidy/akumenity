@@ -12,13 +12,13 @@ export default function Timeclock({
   topicSession: z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
 }) {
   const {
+    PK,
+    SK,
     Session_End,
     Session_Start,
     Session_Status,
-    ItemType_ID,
     Topic_Title,
     Topic_ID,
-    User_ID,
   } = topicSession;
 
   const [timeElapsed, setTimeElapsed] = useState(Date.now() - Session_Start);

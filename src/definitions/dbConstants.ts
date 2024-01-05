@@ -2,9 +2,10 @@ import { z } from "zod";
 
 // Define the names of different types of items we can store in the database
 export const dbConstantsTypeNames = {
-  topic: "Topic_",
-  topicSession: "TopicSession_",
-  topicSessionSpan: "TopicSessionSpan_",
+  topic: "Topic|",
+  topicSession: "TopicSession|",
+  topicSessionSpan: "TopicSessionSpan|",
+  userID: "user_",
 } as const;
 
 // Define constants used in db tables
@@ -13,8 +14,8 @@ export const dbConstants = {
   tables: {
     topic: {
       tableName: "Akumenity",
-      partitionKey: "User_ID",
-      sortKey: "ItemType_ID",
+      partitionKey: "PK",
+      sortKey: "SK",
     },
   },
   // The different types of items we can store in the database
@@ -22,8 +23,8 @@ export const dbConstants = {
     topic: {
       typeName: dbConstantsTypeNames.topic,
       itemSchema: z.object({
-        User_ID: z.string(), //* Partition key, The user that this topic belongs to
-        ItemType_ID: z.string().startsWith(dbConstantsTypeNames.topic), //* Sort key, The unique ID of this topic
+        PK: z.string().startsWith(dbConstantsTypeNames.userID), //* Partition key, For a topic, this is the user id of the user that created the topic
+        SK: z.string().startsWith(dbConstantsTypeNames.topic), //* Sort key, For a topic, this is the unique ID of this topic
         Title: z.string().min(1, "Title must be at least 1 character."), // The title of the topic
         Description: z
           .string()
@@ -34,8 +35,8 @@ export const dbConstants = {
     topicSession: {
       typeName: dbConstantsTypeNames.topicSession,
       itemSchema: z.object({
-        User_ID: z.string(), // * Partition key, The user that this session is for
-        ItemType_ID: z.string().startsWith(dbConstantsTypeNames.topicSession), //* Sort key, The topic that this session is for, if it is null, the related topic may have been deleted
+        PK: z.string().startsWith(dbConstantsTypeNames.userID), // * Partition key, For a topic session, this is the user id of the user that created the topic session
+        SK: z.string().startsWith(dbConstantsTypeNames.topicSession), // * Sort key, For a topic session, this is the unique ID of this topic session
         Topic_Title: z.string(), // The title of the topic that this session is for (effectively snapshotting the topic title at the time of the session start)
         Topic_ID: z.string().startsWith(dbConstantsTypeNames.topic), //* GSI partition key The ID of the topic that this session is for (effectively snapshotting the topic ID at the time of the session start)
         Session_Start: z.number(), //* GSI sort key, The time in miliseconds the user started this session
@@ -45,3 +46,20 @@ export const dbConstants = {
     },
   },
 } as const;
+
+// const exampleTopic = {
+//   PK: "user_12345",
+//   SK: "Topic|ABCDEF",
+//   Title: "My Topic",
+//   Description: "This is a description of my topic.",
+// } as z.infer<typeof dbConstants.itemTypes.topic.itemSchema>;
+
+// const exampleTopicSession = {
+//   PK: "user_12345",
+//   SK: "TopicSession|ABCDEF",
+//   Topic_Title: "My Topic",
+//   Topic_ID: "Topic|12349",
+//   Session_Start: 161800000000,
+//   Session_End: 1620000000000,
+//   Session_Status: "active",
+// } as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
