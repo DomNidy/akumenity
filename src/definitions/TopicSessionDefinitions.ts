@@ -11,3 +11,5 @@ export const TopicSessionCreateSchema = z.object({
     .min(1)
     .max(128), // The id of the topic to create a session for
 });
+
+

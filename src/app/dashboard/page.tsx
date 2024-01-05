@@ -8,6 +8,9 @@ import { useState } from "react";
 import { type dbConstants } from "~/definitions/dbConstants";
 import { api } from "~/trpc/react";
 import { Button } from "../_components/ui/button";
+import { useToast } from "../_components/ui/use-toast";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Dashboard() {
   // Stores the ongoing topic session returned from the query (if one exists)
@@ -15,11 +18,29 @@ export default function Dashboard() {
     typeof dbConstants.itemTypes.topicSession.itemSchema
   > | null>(null);
 
+  const queryClient = useQueryClient();
+
   // Fetches the active topic session
   const activeTopicSessionQuery =
     api.topicSession.getActiveTopicSession.useQuery();
 
-  const createTopicSession = api.topicSession.createTopicSession.useMutation();
+  const createTopicSession = api.topicSession.createTopicSession.useMutation({
+    onError(error, variables) {
+      console.log(error, "ERR");
+
+      toast.error("Failed to create topic session", {
+        description: error.message,
+        position: "top-right",
+        descriptionClassName: "text-muted-foreground/10",
+        action: {
+          label: "Retry",
+          onClick: () => {
+            createTopicSession.mutate(variables);
+          },
+        },
+      });
+    },
+  });
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
@@ -32,12 +53,17 @@ export default function Dashboard() {
 
       <MyTopics />
 
+      {/** TODO: Allow the user to select one of their topics from a list instead of hardcoding this */}
       <Button
-        onClick={() =>
-          createTopicSession.mutate({
+        onClick={async () => {
+          await createTopicSession.mutateAsync({
             Topic_ID: "Topic|3b1bb44e-1817-4c52-93f4-98b68a1713d8",
-          })
-        }
+          });
+
+          await queryClient.refetchQueries([
+            ["topicSession", "getActiveTopicSession"],
+          ]);
+        }}
       >
         Create topic session
       </Button>

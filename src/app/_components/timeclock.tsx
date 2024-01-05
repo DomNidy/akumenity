@@ -5,32 +5,39 @@ import { Card } from "./ui/card";
 import { timeSince } from "~/lib/utils";
 import { Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { api } from "~/trpc/react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Timeclock({
   topicSession,
 }: {
   topicSession: z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
 }) {
-  const {
-    PK,
-    SK,
-    Session_End,
-    Session_Start,
-    Session_Status,
-    Topic_Title,
-    Topic_ID,
-  } = topicSession;
+  const { PK, SK, Session_Start, Session_Status, Topic_Title } = topicSession;
+
+  const stopSession = api.topicSession.endTopicSession.useMutation();
+  const queryClient = useQueryClient();
 
   const [timeElapsed, setTimeElapsed] = useState(Date.now() - Session_Start);
   const intervalRef = useRef<NodeJS.Timeout | undefined>();
 
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setTimeElapsed(Date.now() - Session_Start);
-    }, 1000);
+  // When the user stops the session, we'll set this to false in order to instantly hide the timeclock
+  const [active, setActive] = useState(true);
 
+  // When this component receives a new topic session, we'll set the active state to true
+  useEffect(() => {
+    if (Session_Status !== "stopped") {
+      setActive(true);
+      setTimeElapsed(Date.now() - Session_Start);
+
+      intervalRef.current = setInterval(() => {
+        setTimeElapsed(Date.now() - Session_Start);
+      }, 1000);
+    }
     return () => clearInterval(intervalRef.current);
-  }, []);
+  }, [PK, SK, Session_Start]);
+
+  if (!active) return null;
 
   // TODO: Continue implementing timeclock
   return (
@@ -53,7 +60,14 @@ export default function Timeclock({
               strokeWidth={3}
               size={24}
               className="cursor-pointer rounded-full bg-red-500 p-1 hover:bg-red-400"
-              onClick={() => clearInterval(intervalRef.current)}
+              onClick={() => {
+                stopSession.mutate();
+                clearInterval(intervalRef.current);
+                setActive(false);
+                void queryClient.refetchQueries([
+                  ["topicSession", "getActiveTopicSession"],
+                ]);
+              }}
             />
           </div>
         </div>

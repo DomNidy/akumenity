@@ -14,17 +14,22 @@ export const topicSessionRouter = createTRPCRouter({
   getActiveTopicSession: protectedProcedure.query(async ({ ctx }) => {
     try {
       const queryCommand = new QueryCommand({
-        KeyConditionExpression: "PK = :pk and begins_with(SK, :sk)",
+        KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
+        FilterExpression: `Session_Status = :sessionStatus`,
+        ConsistentRead: true, // * This is required because if we do not use consistent reads, we may incorrectly assume the user does not have an active topic session when they do
         ExpressionAttributeValues: {
           ":pk": `${ctx.session.userId}`,
           ":sk": `${dbConstants.itemTypes.topicSession.typeName}`,
+          ":sessionStatus":
+            "active" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
         },
         TableName: dbConstants.tables.topic.tableName,
-        Limit: 1,
       });
 
+      console.log("queryCommand", queryCommand);
       const result = await ddbDocClient.send(queryCommand);
-      console.log(JSON.stringify(result));
+
+      console.log("result", result);
 
       return result?.Items?.at(0) ?? null;
     } catch (err) {
@@ -47,6 +52,36 @@ export const topicSessionRouter = createTRPCRouter({
       try {
         // TODO: Ensure that an active topic session does not already exist before creating a new one
 
+        // Create the query command to check if an active topic session already exists
+        const queryCommand = new QueryCommand({
+          KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
+          FilterExpression: `Session_Status = :sessionStatus`,
+          ConsistentRead: true, // * This is required because if we do not use consistent reads, we may incorrectly assume the user does not have an active topic session when they do
+          ExpressionAttributeValues: {
+            ":pk": `${ctx.session.userId}`,
+            ":sk": `${dbConstants.itemTypes.topicSession.typeName}`,
+            ":sessionStatus":
+              "active" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
+          },
+          TableName: dbConstants.tables.topic.tableName,
+        });
+
+        const activeTopicSessionAlreadyExists = await ddbDocClient
+          .send(queryCommand)
+          .then((result) => result.Items?.length !== 0);
+
+        console.log(
+          "activeTopicSessionAlreadyExists",
+          activeTopicSessionAlreadyExists,
+        );
+        if (activeTopicSessionAlreadyExists) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "An active topic session already exists for this user, please end it before creating a new one",
+          });
+        }
+
         // Get title of the topic using its topic id
         const topicTitle = await ddbDocClient.send(
           new GetCommand({
@@ -56,14 +91,6 @@ export const topicSessionRouter = createTRPCRouter({
             },
             AttributesToGet: ["Title"],
             TableName: dbConstants.tables.topic.tableName,
-          }),
-        );
-
-        console.log(topicTitle.Item, "topic title");
-        console.log(
-          JSON.stringify({
-            PK: `${ctx.session.userId}`,
-            SK: `${dbConstants.itemTypes.topic.typeName}${input.Topic_ID}`,
           }),
         );
 
@@ -103,4 +130,59 @@ export const topicSessionRouter = createTRPCRouter({
         });
       }
     }),
+
+  endTopicSession: protectedProcedure.mutation(async ({ ctx }) => {
+    try {
+      // Create the query command to find the active topic session for the user
+      const queryCommand = new QueryCommand({
+        KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
+        FilterExpression: `Session_Status = :sessionStatus`,
+        ConsistentRead: true, // * This is required because if we do not use consistent reads, we may incorrectly assume the user does not have an active topic session when they do
+        ExpressionAttributeValues: {
+          ":pk": `${ctx.session.userId}`,
+          ":sk": `${dbConstants.itemTypes.topicSession.typeName}`,
+          ":sessionStatus":
+            "active" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
+        },
+        TableName: dbConstants.tables.topic.tableName,
+      });
+
+      const activeTopicSession = await ddbDocClient
+        .send(queryCommand)
+        .then((result) => result.Items?.at(0));
+
+      if (!activeTopicSession) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No active topic session exists.",
+        });
+      }
+
+      // Create the update command to end the topic session
+      const updateCommand = new PutCommand({
+        Item: {
+          ...activeTopicSession,
+          Session_End: Date.now(),
+          Session_Status:
+            "stopped" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
+        },
+        TableName: dbConstants.tables.topic.tableName,
+      });
+
+      await ddbDocClient.send(updateCommand);
+
+      return { success: true };
+    } catch (err) {
+      console.error(err);
+      if (err instanceof TRPCError) {
+        throw err;
+      }
+
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to end topic session, please try again",
+        cause: err,
+      });
+    }
+  }),
 });

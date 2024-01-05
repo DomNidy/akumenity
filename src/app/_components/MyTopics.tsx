@@ -11,7 +11,6 @@ export default function MyTopics() {
 
     {
       getNextPageParam: (lastPage) => {
-        console.log(lastPage);
         return lastPage.cursor;
       },
     },
