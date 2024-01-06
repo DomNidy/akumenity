@@ -16,6 +16,10 @@ export const dbConstants = {
       tableName: "Akumenity",
       partitionKey: "PK",
       sortKey: "SK",
+      GSI1: {
+        partitionKey: "GSI1_PK",
+        sortKey: "GSI1_SK",
+      },
     },
   },
   // The different types of items we can store in the database

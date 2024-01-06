@@ -24,6 +24,7 @@ export const topicSessionRouter = createTRPCRouter({
             "active" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
         },
         TableName: dbConstants.tables.topic.tableName,
+    
       });
 
       console.log("queryCommand", queryCommand);
@@ -56,6 +57,7 @@ export const topicSessionRouter = createTRPCRouter({
         const queryCommand = new QueryCommand({
           KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
           FilterExpression: `Session_Status = :sessionStatus`,
+
           ConsistentRead: true, // * This is required because if we do not use consistent reads, we may incorrectly assume the user does not have an active topic session when they do
           ExpressionAttributeValues: {
             ":pk": `${ctx.session.userId}`,
@@ -103,6 +105,8 @@ export const topicSessionRouter = createTRPCRouter({
           Session_Status: "active",
           Topic_ID: input.Topic_ID,
           Topic_Title: topicTitle.Item?.Title as string,
+          [dbConstants.tables.topic.GSI1.partitionKey]: input.Topic_ID,
+          [dbConstants.tables.topic.GSI1.sortKey]: Date.now(),
         } as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
 
         // Validate the topic session object
