@@ -25,7 +25,6 @@ export const topicRouter = createTRPCRouter({
     .input(TopicGetSchema)
     .query(async ({ ctx, input }) => {
       try {
-        console.log(input);
         // Create a request to get the user's topics and send it
         const res = await ddbDocClient.send(
           new QueryCommand({
@@ -243,7 +242,6 @@ export const topicRouter = createTRPCRouter({
 
         //* Send the request to update the topic
         const updateResult = await ddbDocClient.send(command);
-        console.log(JSON.stringify(updateResult));
 
         return { success: true };
       } catch (err) {
@@ -279,7 +277,6 @@ export const topicRouter = createTRPCRouter({
             },
           }));
 
-          console.log(JSON.stringify(deleteRequests));
 
           // Create the batched request
           const command = new BatchWriteCommand({

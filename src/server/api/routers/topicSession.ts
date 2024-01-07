@@ -1,4 +1,7 @@
-import { TopicSessionCreateSchema } from "~/definitions/TopicSessionDefinitions";
+import {
+  TopicSessionCreateSchema,
+  TopicSessionGetSchema,
+} from "~/definitions/TopicSessionDefinitions";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { dbConstants } from "~/definitions/dbConstants";
@@ -24,13 +27,9 @@ export const topicSessionRouter = createTRPCRouter({
             "active" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
         },
         TableName: dbConstants.tables.topic.tableName,
-    
       });
 
-      console.log("queryCommand", queryCommand);
       const result = await ddbDocClient.send(queryCommand);
-
-      console.log("result", result);
 
       return result?.Items?.at(0) ?? null;
     } catch (err) {
@@ -72,10 +71,6 @@ export const topicSessionRouter = createTRPCRouter({
           .send(queryCommand)
           .then((result) => result.Items?.length !== 0);
 
-        console.log(
-          "activeTopicSessionAlreadyExists",
-          activeTopicSessionAlreadyExists,
-        );
         if (activeTopicSessionAlreadyExists) {
           throw new TRPCError({
             code: "BAD_REQUEST",
@@ -189,4 +184,44 @@ export const topicSessionRouter = createTRPCRouter({
       });
     }
   }),
+
+  getTopicsTimeSummary: protectedProcedure
+    .input(TopicSessionGetSchema)
+    .query(async ({ ctx, input }) => {
+      try {
+        // Query using the table primary key and gsi sort key
+        const queryCommand = new QueryCommand({
+          TableName: dbConstants.tables.topic.tableName,
+          KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
+          FilterExpression: `${dbConstants.tables.topic.GSI1.sortKey} > :start and ${dbConstants.tables.topic.GSI1.sortKey} < :end`,
+          ExpressionAttributeValues: {
+            ":pk": `${ctx.session.userId}`,
+            ":sk": `${dbConstants.itemTypes.topicSession.typeName}`,
+            ":start": input.dateRange.startTimeMS,
+            ":end": input.dateRange.endTimeMS ?? Date.now(),
+          },
+          ScanIndexForward: true,
+        });
+
+        const result = await ddbDocClient.send(queryCommand);
+        console.log(result, "get topic time summary");
+
+        return (
+          (result?.Items as z.infer<
+            typeof dbConstants.itemTypes.topicSession.itemSchema
+          >[]) ?? []
+        );
+      } catch (err) {
+        console.error(err);
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to get topic time summary, please try again",
+          cause: err,
+        });
+      }
+    }),
 });

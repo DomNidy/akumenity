@@ -33,3 +33,32 @@ export function timeSince(current: number, previous: number) {
 
   return `${hoursStr}:${minutesStr}:${secondsStr}`;
 }
+
+// Function which formats a number of miliseconds into a human readable format.
+// Example format: (1030 * 60 * 60 * 10 should format to 10 hours, 30 minutes)
+
+export function formatTime(milliseconds: number): string {
+  // Calculate hours, minutes, and seconds from milliseconds
+  const seconds = Math.floor(milliseconds / 1000);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  // Construct the formatted string
+  let formattedTime = "";
+  if (hours > 0) {
+    formattedTime += `${hours} hour${hours !== 1 ? "s" : ""}`;
+  }
+  if (minutes > 0) {
+    if (formattedTime.length > 0) {
+      formattedTime += `, `;
+    }
+    formattedTime += `${minutes} minute${minutes !== 1 ? "s" : ""}`;
+  }
+
+  // If no hours or minutes, display '0 minutes'
+  if (formattedTime.length === 0) {
+    formattedTime = `0 minutes`;
+  }
+
+  return formattedTime;
+}

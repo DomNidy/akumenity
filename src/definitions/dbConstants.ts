@@ -17,6 +17,7 @@ export const dbConstants = {
       partitionKey: "PK",
       sortKey: "SK",
       GSI1: {
+        indexName: "GSI1_PK-GSI1_SK-index",
         partitionKey: "GSI1_PK",
         sortKey: "GSI1_SK",
       },

@@ -9,8 +9,8 @@ import { cn } from "~/lib/utils";
 import { Card } from "./ui/card";
 import { toast } from "sonner";
 import Timeclock from "./timeclock";
-import { z } from "zod";
-import { dbConstants } from "~/definitions/dbConstants";
+import { type z } from "zod";
+import { type dbConstants } from "~/definitions/dbConstants";
 
 export default function TopicSessionManager() {
 
@@ -34,7 +34,7 @@ export default function TopicSessionManager() {
 
     const queryClient = useQueryClient();
     const createTopicSession = api.topicSession.createTopicSession.useMutation({
-        onError(error, variables, context) {
+        onError(error, variables) {
             toast.error("Failed to create topic session", {
                 description: error.message,
                 position: "top-right",
