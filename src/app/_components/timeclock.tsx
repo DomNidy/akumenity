@@ -67,6 +67,8 @@ export default function Timeclock({
                 void queryClient.refetchQueries([
                   ["topicSession", "getActiveTopicSession"],
                 ]);
+
+                void queryClient.refetchQueries([['topicSession', 'getTopicSessionsInDateRange']]);
               }}
             />
           </div>

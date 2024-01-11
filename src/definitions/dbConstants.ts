@@ -30,12 +30,27 @@ export const dbConstants = {
       itemSchema: z.object({
         PK: z.string().startsWith(dbConstantsTypeNames.userID), //* Partition key, For a topic, this is the user id of the user that created the topic
         SK: z.string().startsWith(dbConstantsTypeNames.topic), //* Sort key, For a topic, this is the unique ID of this topic
+        ColorCode: z.enum([
+          "red",
+          "orange",
+          "yellow",
+          "green",
+          "blue",
+          "purple",
+          "pink",
+          "indigo"
+        ]), // The color code of the topic
         Title: z.string().min(1, "Title must be at least 1 character."), // The title of the topic
         Description: z
           .string()
           .max(256, "Description must be at most 256 characters long.")
           .optional(),
       }),
+      propertyNames: {
+        ColorCode: "ColorCode",
+        Title: "Title",
+        Description: "Description",
+      },
     },
     topicSession: {
       typeName: dbConstantsTypeNames.topicSession,
@@ -48,6 +63,13 @@ export const dbConstants = {
         Session_End: z.number().nullable(), // The time in miliseconds at which this session was stopped, if it is null, the session is still active
         Session_Status: z.enum(["active", "stopped"]), // The status of the session, active means the user is currently working on the topic, paused means the user is not currently working on the topic, but has not stopped the session, stopped means the user has stopped the session
       }),
+      propertyNames: {
+        Topic_Title: "Topic_Title",
+        Topic_ID: "Topic_ID",
+        Session_Start: "Session_Start",
+        Session_End: "Session_End",
+        Session_Status: "Session_Status",
+      },
     },
   },
 } as const;

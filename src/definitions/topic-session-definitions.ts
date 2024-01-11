@@ -56,3 +56,14 @@ export const TopicSessionGetSchema = z.object({
   limit: z.number().min(1).max(50).optional(),
 });
 
+export const TopicSessionGetSessionsForTopicSchema = z.object({
+  dateRange: z.object({
+    startTimeMS: z.number().min(0).optional(),
+    endTimeMS: z.number().min(0).optional(),
+  }),
+  Topic_ID: z
+    .string()
+    .startsWith(dbConstants.itemTypes.topic.typeName)
+    .min(1)
+    .max(128),
+});

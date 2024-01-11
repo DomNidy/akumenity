@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 import { type inferFlattenedErrors, type z } from "zod";
-import { TopicUpdateSchema } from "src/definitions/TopicDefinitions";
+import { TopicUpdateSchema } from "~/definitions/topic-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "src/app/_components/ui/button";

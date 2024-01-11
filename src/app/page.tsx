@@ -1,4 +1,4 @@
-import { DashboardButton } from "src/app/_components/DashboardButton";
+import { DashboardButton } from "~/app/_components/login-button";
 import { UserButton } from "@clerk/nextjs";
 
 export default function Home() {

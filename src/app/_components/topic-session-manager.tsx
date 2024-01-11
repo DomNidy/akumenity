@@ -52,11 +52,6 @@ export default function TopicSessionManager() {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("")
 
-    // await queryClient.refetchQueries([
-    //     ["topicSession", "getActiveTopicSession"],
-    // ]);
-
-
     return <Card className="w-fit p-2 space-x-2 space-y-2">
         <h2 className="text-2xl font-semibold tracking-tight">Begin session</h2>
         <Popover open={open} onOpenChange={setOpen}>
@@ -89,6 +84,9 @@ export default function TopicSessionManager() {
                 </Command>
             </PopoverContent>
         </Popover>
+
+
+        {/**  TODO: Implement optimistic updates here (so that when the user clicks the button, the timeclock instantly appears) **/}
 
         {!!value && <Button
             onClick={async () => {

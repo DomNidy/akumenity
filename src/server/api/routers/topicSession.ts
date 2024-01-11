@@ -1,9 +1,15 @@
 import {
   TopicSessionCreateSchema,
   TopicSessionGetSchema,
-} from "~/definitions/TopicSessionDefinitions";
+  TopicSessionGetSessionsForTopicSchema,
+} from "~/definitions/topic-session-definitions";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  BatchGetCommand,
+  GetCommand,
+  PutCommand,
+  QueryCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { dbConstants } from "~/definitions/dbConstants";
 import { TRPCError } from "@trpc/server";
 import { type z } from "zod";
@@ -185,7 +191,7 @@ export const topicSessionRouter = createTRPCRouter({
     }
   }),
 
-  getTopicsTimeSummary: protectedProcedure
+  getTopicSessionsInDateRange: protectedProcedure
     .input(TopicSessionGetSchema)
     .query(async ({ ctx, input }) => {
       try {
@@ -204,10 +210,124 @@ export const topicSessionRouter = createTRPCRouter({
         });
 
         const result = await ddbDocClient.send(queryCommand);
-        console.log(result, "get topic time summary");
+
+        // Find the colorcode associated with each topic
+        const topicIDS = new Set<string>();
+        result?.Items?.forEach((item) => {
+          topicIDS.add(item.Topic_ID as string);
+        });
+
+        // Get the colorcode for each topic
+        const colorCodeQueryCommand = new BatchGetCommand({
+          RequestItems: {
+            [dbConstants.tables.topic.tableName]: {
+              Keys: Array.from(topicIDS).map((id) => ({
+                PK: `${ctx.session.userId}`,
+                SK: id,
+              })),
+              ProjectionExpression: `${dbConstants.itemTypes.topic.propertyNames.ColorCode}, ${dbConstants.tables.topic.sortKey} `,
+            },
+          },
+        });
+
+        // Send the query to get the colorcodes
+        const colorCodeResult = await ddbDocClient.send(colorCodeQueryCommand);
+
+        // Return the sessions with their colorcodes
+        const sessions = result.Items?.map((session) => {
+          return {
+            ...((session?.Topic_Title as string) && {
+              Topic_Title: session.Topic_Title as string,
+            }),
+            ...((session?.Topic_ID as string) && {
+              Topic_ID: session.Topic_ID as string,
+            }),
+            ...((session?.Session_Start as number) && {
+              Session_Start: session.Session_Start as number,
+            }),
+            ...((session?.Session_End as number) && {
+              Session_End: session.Session_End as number,
+            }),
+
+            ColorCode:
+              (colorCodeResult?.Responses?.[
+                dbConstants.tables.topic.tableName
+              ]?.find((item) => item.SK === session.Topic_ID)
+                ?.ColorCode as string) ?? "blue",
+          };
+        }) as (z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema> & {
+          ColorCode: z.infer<
+            typeof dbConstants.itemTypes.topic.itemSchema.shape.ColorCode
+          >;
+        })[];
+
+        return sessions;
+      } catch (err) {
+        console.error(err);
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to get topic time summary, please try again",
+          cause: err,
+        });
+      }
+    }),
+
+  // Retrieve all sessions for a topic within a date range
+  getSessionsForTopic: protectedProcedure
+    .input(TopicSessionGetSessionsForTopicSchema)
+    .query(async ({ ctx, input }) => {
+      try {
+        // TODO: Ensure user owns the topic we will retrieve sessions for
+
+        // Query using GSI partition key
+        const getSessionIDSCommand = new QueryCommand({
+          IndexName: dbConstants.tables.topic.GSI1.indexName,
+          TableName: dbConstants.tables.topic.tableName,
+          KeyConditionExpression: `${dbConstants.tables.topic.GSI1.partitionKey} = :topicID and ${dbConstants.tables.topic.GSI1.sortKey} BETWEEN :start AND :end`,
+          ExpressionAttributeValues: {
+            ":topicID": input.Topic_ID,
+            ":start": input.dateRange.startTimeMS ?? 0,
+            ":end": input.dateRange.endTimeMS ?? Date.now(),
+          },
+          ScanIndexForward: false,
+        });
+
+        // Get a list of topic session ids
+        const topicSessionIDS = (
+          await ddbDocClient.send(getSessionIDSCommand)
+        ).Items?.map((item) => item.SK as string);
+
+        // Return start and end times for each session
+        // If a session is ongoing, do not return that session
+        // Return all items that match the topic session ids
+        const getSessionsCommand = new BatchGetCommand({
+          RequestItems: {
+            [dbConstants.tables.topic.tableName]: {
+              Keys: topicSessionIDS?.map((id) => ({
+                PK: `${ctx.session.userId}`,
+                SK: id,
+              })),
+              ProjectionExpression: `${dbConstants.itemTypes.topicSession.propertyNames.Session_Start}, 
+              ${dbConstants.itemTypes.topicSession.propertyNames.Session_End}, 
+              ${dbConstants.itemTypes.topicSession.propertyNames.Topic_Title}, 
+              ${dbConstants.itemTypes.topicSession.propertyNames.Topic_ID}`,
+            },
+          },
+        });
+
+        // These returned sessions are:
+        // In the date range
+        // For the topic
+        // Not ongoing
+        // Owned by the user who requested them
+        const result = await ddbDocClient.send(getSessionsCommand);
 
         return (
-          (result?.Items as z.infer<
+          (result?.Responses?.[dbConstants.tables.topic.tableName] as z.infer<
             typeof dbConstants.itemTypes.topicSession.itemSchema
           >[]) ?? []
         );
@@ -219,7 +339,7 @@ export const topicSessionRouter = createTRPCRouter({
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get topic time summary, please try again",
+          message: "Failed to get sessions for topic, please try again",
           cause: err,
         });
       }

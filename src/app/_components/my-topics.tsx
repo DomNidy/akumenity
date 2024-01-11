@@ -1,14 +1,14 @@
 "use client";
-import TopicCard from "src/app/_components/TopicCard";
+import TopicCard from "src/app/_components/topic-card";
 import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
 import TopicCreateForm from "./forms/topic-create-form";
 import { useMemo } from "react";
-import { z } from "zod";
-import { dbConstants } from "~/definitions/dbConstants";
+import { type z } from "zod";
+import { type dbConstants } from "~/definitions/dbConstants";
 
 
-
+const queryRangeStartTime = Date.now() - 7 * 24 * 60 * 60 * 1000
 
 export default function MyTopics() {
   // TODO: Implement proper pagination, useInfiniteQuery etc..
@@ -21,15 +21,11 @@ export default function MyTopics() {
     },
   );
 
-  // Use memo to prevent re-rendering (as Date.now() changing would cause a re-render and re-query)
-  const queryRangeStartTime = useMemo(() => Date.now() - 7 * 24 * 60 * 60 * 1000, []);
-
   // Stores the amount of time spent on each topic in the past 7 days
-  const topicsTimeSummary = api.topicSession.getTopicsTimeSummary.useQuery({
+  const topicsTimeSummary = api.topicSession.getTopicSessionsInDateRange.useQuery({
     dateRange: {
       startTimeMS: queryRangeStartTime,
     },
-    cursor: null
   });
 
   return (
@@ -48,7 +44,7 @@ export default function MyTopics() {
               }
             ) as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>[] | null | undefined;
 
-            return <TopicCard key={topic.SK} topic={topic} recentSessions={matchingSessions ?? null} />;
+            return <TopicCard key={topic.Title} topic={topic} recentSessions={matchingSessions ?? null} />;
           }),
       )}
       <TopicCreateForm />

@@ -3,7 +3,7 @@ import {
   TopicDeleteSchema,
   TopicGetSchema,
   TopicUpdateSchema,
-} from "src/definitions/TopicDefinitions";
+} from "~/definitions/topic-definitions";
 import { ddbDocClient } from "~/server/db";
 
 import {
@@ -53,6 +53,7 @@ export const topicRouter = createTRPCRouter({
                 SK: topic.SK as string,
                 Title: topic.Title as string,
                 Description: topic.Description as string | undefined,
+                ColorCode: topic.ColorCode as string,
               } as z.infer<typeof dbConstants.itemTypes.topic.itemSchema>;
 
               // Parse each topic to ensure it is valid
@@ -162,6 +163,7 @@ export const topicRouter = createTRPCRouter({
           SK: `${dbConstants.itemTypes.topic.typeName}${randomUUID()}`,
           Title: `${input.Title}`,
           Description: input.Description,
+          ColorCode: "blue",
         } as z.infer<typeof dbConstants.itemTypes.topic.itemSchema>);
 
         // Handle schema validation errors
@@ -208,6 +210,7 @@ export const topicRouter = createTRPCRouter({
           SK: input.Topic_ID,
           Title: input.Title,
           Description: input.Description,
+          ColorCode: input.ColorCode,
         });
 
         // Handle schema validation errors
@@ -232,6 +235,10 @@ export const topicRouter = createTRPCRouter({
             Title: {
               Action: "PUT",
               Value: input.Title,
+            },
+            ColorCode: {
+              Action: "PUT",
+              Value: input.ColorCode,
             },
             Description: {
               Action: "PUT",
@@ -276,7 +283,6 @@ export const topicRouter = createTRPCRouter({
               },
             },
           }));
-
 
           // Create the batched request
           const command = new BatchWriteCommand({

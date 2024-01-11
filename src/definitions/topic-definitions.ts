@@ -29,20 +29,11 @@ export const TopicDeleteSchema = z.object({
  * Schema for an update topic request
  */
 export const TopicUpdateSchema = z.object({
-  Topic_ID: z
-    .string()
-    .startsWith(dbConstants.itemTypes.topic.typeName)
-    .min(1)
-    .max(128), // The id of the topic to update
-  Title: z
-    .string()
-    .min(1, "Must be at least 1 character long")
-    .max(128, "Maximum length is 128 characters")
-    .optional(),
-  Description: z
-    .string()
-    .max(256, "Maximum length is 256 characters")
-    .optional(),
+  Topic_ID: dbConstants.itemTypes.topic.itemSchema.shape.SK, // The id of the topic to update
+  Title: dbConstants.itemTypes.topic.itemSchema.shape.Title.optional(),
+  Description:
+    dbConstants.itemTypes.topic.itemSchema.shape.Description.optional(),
+  ColorCode: dbConstants.itemTypes.topic.itemSchema.shape.ColorCode.optional(),
 });
 
 /**
