@@ -44,16 +44,6 @@ export const TopicSessionGetSchema = z.object({
         .max(128),
     )
     .optional(),
-
-  cursor: z
-    .object({
-      User_ID: z.string(),
-      TopicSession_ID: z.string(),
-    })
-    .nullish(),
-
-  // The maximum amount of topics to retrieve
-  limit: z.number().min(1).max(50).optional(),
 });
 
 export const TopicSessionGetSessionsForTopicSchema = z.object({

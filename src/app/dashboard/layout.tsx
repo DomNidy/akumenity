@@ -1,3 +1,4 @@
+import Sidebar from "../_components/sidebar";
 import { Toaster } from "../_components/ui/sonner";
 
 export default function DashboardLayout({
@@ -5,10 +6,13 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+
+
   return (
     <div>
-      {children}
-      <Toaster richColors  />
+      <Sidebar children={children} />
+      <Toaster richColors />
     </div>
   );
 }

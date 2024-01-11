@@ -3,7 +3,6 @@ import TopicCard from "src/app/_components/topic-card";
 import { api } from "~/trpc/react";
 import { Button } from "./ui/button";
 import TopicCreateForm from "./forms/topic-create-form";
-import { useMemo } from "react";
 import { type z } from "zod";
 import { type dbConstants } from "~/definitions/dbConstants";
 
