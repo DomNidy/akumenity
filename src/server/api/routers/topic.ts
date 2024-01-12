@@ -205,9 +205,8 @@ export const topicRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         // Parse the input to ensure it matches the schema
-        const topicToUpdate = dbConstants.itemTypes.topic.itemSchema.safeParse({
-          PK: ctx.session?.userId,
-          SK: input.Topic_ID,
+        const topicToUpdate = TopicUpdateSchema.safeParse({
+          Topic_ID: input.Topic_ID,
           Title: input.Title,
           Description: input.Description,
           ColorCode: input.ColorCode,
@@ -236,10 +235,16 @@ export const topicRouter = createTRPCRouter({
               Action: "PUT",
               Value: input.Title,
             },
-            ColorCode: {
-              Action: "PUT",
-              Value: input.ColorCode,
-            },
+
+            ...(input.ColorCode
+              ? {
+                  ColorCode: {
+                    Action: "PUT",
+                    Value: input.ColorCode,
+                  },
+                }
+              : {}),
+
             Description: {
               Action: "PUT",
               Value: input.Description,
@@ -248,7 +253,7 @@ export const topicRouter = createTRPCRouter({
         });
 
         //* Send the request to update the topic
-        const updateResult = await ddbDocClient.send(command);
+        await ddbDocClient.send(command);
 
         return { success: true };
       } catch (err) {
