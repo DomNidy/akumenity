@@ -7,6 +7,7 @@ frontend:
     build:
       commands:
         - env | grep -e NEXT_PUBLIC_ >> .env
+        - env | grep -e AMAZON_ >> .env
         - env | grep -e CLERK_SECRET_KEY -e DYNAMO_DB_REGION >> .env
         - nvm install 18.17.0
         - nvm use 18.17.0
