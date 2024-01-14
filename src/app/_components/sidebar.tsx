@@ -28,7 +28,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
         // When the window itsself is resized, update the sidebar accordingly
         const handleResize = () => {
             const newMinSize = window.innerWidth < 768 ? 10 : 5;
-            const collapsedSize = window.innerWidth < 768 ? 2 : 1;
+            const collapsedSize = window.innerWidth < 768 ? 3 : 1;
 
             setScreenWidth(window.innerWidth)
             setShowLabels(window.innerWidth > 850 && sidebarCurrentSize > 13)
