@@ -71,13 +71,12 @@ export default function TopicCard({ topic, recentSessions }: {
                 </PopoverTrigger>
                 <PopoverContent hideWhenDetached onFocusOutside={() => { setPopoverOpen(false) }} className="p-1 border-border border-2" >
 
-                  <h2 className="font-semibold text-lg">Pick a label for {topic.Title}</h2>
-                  <div className="grid grid-cols-3 gap-2 ">
+                  <div className="grid grid-cols-3 gap-4 justify-items-center content-center">
                     {
                       // Map out all the color codes and make a div for each one
                       dbConstants.itemTypes.topic.itemSchema.shape.ColorCode.options.map((colorCode) => {
                         return (
-                          <div key={colorCode} className={`col-span-1 w-5 h-5 rounded-full ${getLabelColor(colorCode)}`}
+                          <div key={colorCode} className={`col-span-1 w-5 h-5 rounded-full ${getLabelColor(colorCode)} cursor-pointer hover:saturate-150`}
                             onClick={() => {
                               updateTopic.mutate({
                                 Title: topic.Title,
@@ -94,6 +93,7 @@ export default function TopicCard({ topic, recentSessions }: {
                     }
 
                   </div>
+                  <p className="font-semibold" mt-1>Choose a new label</p>
                 </PopoverContent>
               </Popover>
             </span>
