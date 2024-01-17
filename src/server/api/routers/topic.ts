@@ -87,7 +87,9 @@ export const topicRouter = createTRPCRouter({
           res.Count &&
           res.Count >= input.limit &&
           res.LastEvaluatedKey
-            ? (res.LastEvaluatedKey as { ItemType_ID: string; User_ID: string })
+            ? // TODO: Ensure that the PK and SK get assigned to the correct fields
+              // TODO: Replace ItemType_ID with PK and User_ID with SK
+              (res.LastEvaluatedKey as { ItemType_ID: string; User_ID: string })
             : null;
 
         return {
@@ -283,8 +285,8 @@ export const topicRouter = createTRPCRouter({
           const deleteRequests = chunk.map((topicID) => ({
             DeleteRequest: {
               Key: {
-                User_ID: ctx.session?.userId,
-                ItemType_ID: topicID,
+                PK: ctx.session?.userId,
+                SK: topicID,
               },
             },
           }));

@@ -36,7 +36,6 @@ export function timeSince(current: number, previous: number) {
 
 // Function which formats a number of miliseconds into a human readable format.
 // Example format: (1030 * 60 * 60 * 10 should format to 10 hours, 30 minutes)
-
 export function formatTime(milliseconds: number): string {
   // Calculate hours, minutes, and seconds from milliseconds
   const seconds = Math.floor(milliseconds / 1000);
@@ -61,4 +60,68 @@ export function formatTime(milliseconds: number): string {
   }
 
   return formattedTime;
+}
+
+// Utility function that returns the time at which the week (in which the date passed as an argument falls) starts and ends.
+// * Since this function interacts with the backend (used in TopicSession query), we convert the passed date to UTC time.
+export function getWeekStartAndEnd(date: Date) {
+  // Start with a date object at 12:00:00 AM on the given date
+  const start = new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  );
+  const end = new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  );
+
+  // Adjust the start date to the beginning of the week (Sunday)
+  start.setDate(start.getUTCDate() - start.getUTCDay());
+
+  // Adjust the end date to the end of the week (Saturday)
+  end.setDate(end.getUTCDate() + (6 - end.getUTCDay()));
+
+  // Set the start time to 12:00:00.000
+  start.setUTCHours(0, 0, 0, 0);
+
+  // Set the end time to 23:59:59.999
+  end.setUTCHours(23, 59, 59, 999);
+
+  return {
+    startTimeMS: start.getTime(),
+    endTimeMS: end.getTime(),
+  };
+}
+
+// TODO: Make tests for this function
+// Function which returns the week number (number of weeks that have occured since epoch) in which the date passed as an argument falls.
+// The passed date is assumed to be local time.
+export function getWeekNumberSinceUnixEpoch(date: Date) {
+  // We convert the date to local time just to be safe
+  const { startTimeMS } = getWeekStartAndEnd(UTCToLocalDate(date));
+
+  return Math.floor(startTimeMS / (7 * 24 * 60 * 60 * 1000)) + 1;
+}
+
+// Function that converts UTC date to local time date
+export function UTCToLocalDate(date: Date) {
+  const offset = date.getTimezoneOffset();
+  const newDate = new Date(date.getTime() - offset * 60 * 1000);
+  return newDate;
+}
+
+// Function that converts local time date to UTC date
+export function localToUTCDate(date: Date) {
+  const offset = date.getTimezoneOffset();
+  const newDate = new Date(date.getTime() + offset * 60 * 1000);
+  return newDate;
+}
+
+// When given a an integer n, returns the date n days from the current date
+export function getDateForDayRelativeToCurrentDate(day: number) {
+  const date = new Date();
+  const diff = date.getDate() - date.getDay() + day;
+  return new Date(date.setDate(diff));
 }

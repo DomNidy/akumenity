@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { type AppRouter } from "~/server/api/root";
 import { getUrl, transformer } from "./shared";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 export const api = createTRPCReact<AppRouter>();
 
@@ -45,3 +46,7 @@ export function TRPCReactProvider(props: {
     </QueryClientProvider>
   );
 }
+
+export type RouterOutputs = inferRouterOutputs<AppRouter>;
+
+export type RouterInputs = inferRouterInputs<AppRouter>;

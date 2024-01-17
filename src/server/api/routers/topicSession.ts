@@ -195,6 +195,16 @@ export const topicSessionRouter = createTRPCRouter({
     .input(TopicSessionGetSchema)
     .query(async ({ ctx, input }) => {
       try {
+        if (input.dateRange.startTimeMS && input.dateRange.endTimeMS) {
+          console.log("Querying for topic sessions within date range:")
+          console.log(
+            "Start date:",
+            new Date(input.dateRange.startTimeMS ?? 0),
+            "\nEnd date:",
+            new Date(input.dateRange.endTimeMS ?? 0),
+          );
+        }
+
         // Query using the table primary key and gsi sort key
         const queryCommand = new QueryCommand({
           TableName: dbConstants.tables.topic.tableName,
@@ -210,6 +220,11 @@ export const topicSessionRouter = createTRPCRouter({
         });
 
         const result = await ddbDocClient.send(queryCommand);
+
+        // If no sessions exist, return an empty array
+        if (!result?.Items?.length) {
+          return [];
+        }
 
         // Find the colorcode associated with each topic
         const topicIDS = new Set<string>();

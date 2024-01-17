@@ -46,11 +46,10 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
 
     return <ResizablePanelGroup
         direction="horizontal"
-        className="min-h-screen fixed rounded-lg border"
+        className="min-h-screen  rounded-lg border"
     >
         <ResizablePanel
             onResize={(e) => {
-                console.log('Panel resized', e);
                 // Set this just so we can track the current sidebar size
                 setSidebarCurrentSize(e);
                 // When the sidebar is resized, update the showLabels state accordingly

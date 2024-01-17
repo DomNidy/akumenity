@@ -28,7 +28,7 @@ export default function MyTopics() {
   });
 
   return (
-    <div className="grid w-screen grid-flow-row-dense grid-cols-1 items-center gap-4 rounded-lg px-8 sm:w-[80vw] sm:grid-cols-2 sm:px-2 md:grid-cols-3 lg:grid-cols-4 ">
+    <div className="sm:px-2 px-8 grid w-screen grid-flow-row-dense grid-cols-1 items-center gap-4 rounded-lg sm:w-[80vw] sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-4 ">
       {!topics.data?.pages ?? <p>You have no topics</p>}
       {topics.data?.pages?.flatMap(
         (page) =>
