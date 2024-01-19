@@ -55,7 +55,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                 // When the sidebar is resized, update the showLabels state accordingly
                 setShowLabels(window.innerWidth > 850 && sidebarCurrentSize > 13)
             }}
-            className="sm:min-w-[50px]"
+            className="sm:min-w-[50px] "
             defaultSize={minSize}
             minSize={minSize}
             collapsedSize={collapsedSize}

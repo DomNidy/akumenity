@@ -3,7 +3,7 @@ import { type z } from "zod";
 import { createContext, useState } from "react";
 import { type dbConstants } from "~/definitions/dbConstants";
 import { type RouterOutputs, api } from "~/trpc/react";
-import { getDateForDayRelativeToCurrentDate, getWeekNumberSinceUnixEpoch, getWeekStartAndEnd } from "~/lib/utils";
+import { getDateForDayRelativeToCurrentDate, getWeekNumberSinceUnixEpoch, getWeekStartAndEnd, mapSessionsToDays } from "~/lib/utils";
 
 // The type of the data stored in the context
 interface CalendarGridContextType {
@@ -25,16 +25,24 @@ interface CalendarGridContextType {
 
     // Map of day of week to sessions on that day
     daySessionsMap: Record<number, { day: Date, topicSessions: RouterOutputs['topicSession']['getTopicSessionsInDateRange'] }>;
+
+    // The height (in pixels) of a single cell
+    // This is important because it is used to calculate the height of the calendar grid and align the time column
+    cellHeightPx: number;
+    // Update the cell height
+    setCellHeightPx: (cellHeightPx: number) => void;
 }
 
 // The calendar grid and its child components read data from this context (avoiding prop drilling)
 export const CalendarGridContext = createContext<CalendarGridContextType>({
-    currentWeek: 0,
     setWeek: () => { throw new Error("setWeek not implemented") },
     setZoomLevel: () => { throw new Error("setZoomLevel not implemented") },
+    setCellHeightPx: () => { throw new Error("setCellHeightPx not implemented") },
+    currentWeek: 0,
     zoomLevel: 0,
     topicSessions: [],
     daySessionsMap: {},
+    cellHeightPx: 40,
 })
 
 // This component is used to wrap the calendar grid and its child components
@@ -43,6 +51,9 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
     // The current week of the year
     const [currentWeek, _setCurrentWeek] = useState<number>(getWeekNumberSinceUnixEpoch(new Date()));
 
+    // Height of a single cell in the calendar grid
+    const [cellHeightPx, _setCellHeightPx] = useState(40);
+
     // The zoom level
     const [zoomLevel, _setZoomLevel] = useState(1);
     const topicSessionsQuery = api.topicSession.getTopicSessionsInDateRange.useQuery({
@@ -50,40 +61,18 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
         dateRange: getWeekStartAndEnd(new Date(currentWeek * 7 * 24 * 60 * 60 * 1000)),
     })
 
+
     // The context value
     const value: CalendarGridContextType = {
         currentWeek,
         setWeek: _setCurrentWeek,
         zoomLevel,
         // Ensure zoom level is always at least 1
-        setZoomLevel: (lvl: number) => _setZoomLevel(lvl <= 0 ? 1 : lvl),
+        setZoomLevel: (lvl: number) => _setZoomLevel(lvl <= 0 ? 1 : lvl >= 12 ? 11 : lvl),
         topicSessions: topicSessionsQuery.data ?? [],
-
-        daySessionsMap: (topicSessionsQuery.data?.reduce((acc, session) => {
-            const dayOfWeek = new Date(session.Session_Start).getDay();
-
-            const map: Record<number, { day: Date, topicSessions: RouterOutputs['topicSession']['getTopicSessionsInDateRange'] }> = {
-                ...acc,
-                [dayOfWeek]: { day: new Date(new Date(session.Session_Start).setHours(0, 0, 0, 0)), topicSessions: [session, ...(acc[dayOfWeek]?.topicSessions ?? [])] }
-            }
-
-            return map;
-        }, Array.from({ length: 7 }, (val, index) => ({
-            day:
-                // TODO: Refactor this and the above code to be more readable
-                // This is really confusing, but basically we want to get the date for a day N days away from the current date
-                // The index ranges from 0 to 6, since we are mapping over an array of length 7
-                // We then calculate the difference between the currentWeek the calendar is displaying data for, and the current week (in real time)
-                // We then multiply that difference by 7, since there are 7 days in a week
-                // Then we subtract that difference from the index
-                // * currentWeek is the week the calendar is displaying data for, not the actual current week (in real time) 
-                new Date(getDateForDayRelativeToCurrentDate(index - (
-                    7 * (
-                        getWeekNumberSinceUnixEpoch(new Date()) - currentWeek
-                    )
-                )).setHours(0, 0, 0, 0)),
-            topicSessions: []
-        })) as Record<number, { day: Date, topicSessions: RouterOutputs['topicSession']['getTopicSessionsInDateRange'] }>) ?? {}),
+        daySessionsMap: mapSessionsToDays(topicSessionsQuery.data ?? [], currentWeek),
+        cellHeightPx: 45,
+        setCellHeightPx: _setCellHeightPx,
     }
 
 

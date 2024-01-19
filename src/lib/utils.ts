@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { RouterOutputs } from "~/trpc/shared";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -124,4 +125,57 @@ export function getDateForDayRelativeToCurrentDate(day: number) {
   const date = new Date();
   const diff = date.getDate() - date.getDay() + day;
   return new Date(date.setDate(diff));
+}
+
+// Creates the daySessionMap (used in CalendarGridContext) when given a list of sessions
+export function mapSessionsToDays(
+  topicSessions: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"],
+  currentWeek: number,
+) {
+  return (
+    topicSessions?.reduce(
+      (acc, session) => {
+        const dayOfWeek = new Date(session.Session_Start).getDay();
+
+        const map: Record<
+          number,
+          {
+            day: Date;
+            topicSessions: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"];
+          }
+        > = {
+          ...acc,
+          [dayOfWeek]: {
+            day: new Date(new Date(session.Session_Start).setHours(0, 0, 0, 0)),
+            topicSessions: [session, ...(acc[dayOfWeek]?.topicSessions ?? [])],
+          },
+        };
+
+        return map;
+      },
+      Array.from({ length: 7 }, (val, index) => ({
+        day:
+          // TODO: Refactor this and the above code to be more readable
+          // This is really confusing, but basically we want to get the date for a day N days away from the current date
+          // The index ranges from 0 to 6, since we are mapping over an array of length 7
+          // We then calculate the difference between the currentWeek the calendar is displaying data for, and the current week (in real time)
+          // We then multiply that difference by 7, since there are 7 days in a week
+          // Then we subtract that difference from the index
+          // * currentWeek is the week the calendar is displaying data for, not the actual current week (in real time)
+          new Date(
+            getDateForDayRelativeToCurrentDate(
+              index -
+                7 * (getWeekNumberSinceUnixEpoch(new Date()) - currentWeek),
+            ).setHours(0, 0, 0, 0),
+          ),
+        topicSessions: [],
+      })) as Record<
+        number,
+        {
+          day: Date;
+          topicSessions: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"];
+        }
+      >,
+    ) ?? {}
+  );
 }
