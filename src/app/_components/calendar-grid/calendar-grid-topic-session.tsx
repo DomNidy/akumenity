@@ -5,7 +5,7 @@ import { getLabelColor } from "~/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 
-export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { topicSessionSlice: TopicSessionSlice, columnDomRef: React.RefObject<HTMLDivElement>}) {
+export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { topicSessionSlice: TopicSessionSlice, columnDomRef: React.RefObject<HTMLDivElement> }) {
     const topicSessionDomRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
     const { cellHeightPx, zoomLevel } = useContext(CalendarGridContext);
@@ -20,17 +20,19 @@ export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { 
     // Calculate the duration of the session in milliseconds
     // Calculate the height of this session, it should be relative to the duration of the session
     // TODO: Uncomment the math.max call, that is what calculates the appropriate height for the session
-    const sessionCellHeightPx = 15 //Math.max(5, (sessionDurationMS / (1000 * 60 * 60)) * cellHeightPx * zoomLevel);
+    const sessionCellHeightPx = 13 //Math.max(5, (sessionDurationMS / (1000 * 60 * 60)) * cellHeightPx * zoomLevel);
 
     // * columnHeight is the height of the column this session is rendered over, in pixels
     const columnHeight = columnDomRef.current?.clientHeight ?? cellHeightPx * zoomLevel * 24;
     // * hourInPixels is the amount of pixels in height that represent a single hour (based on the current dimensions & zoom lvl)
     const hourInPixels = zoomLevel * cellHeightPx;
     // * relativePosition is a ratio between 0 and 1 which represents how far down the column the session should be positioned
-    const relativePosition = hourInPixels * hourSessionOccurred / (columnHeight);
+    const relativePosition = ((hourInPixels * hourSessionOccurred) / (columnHeight));
 
 
-    console.log("Relative position", relativePosition)
+    console.log("Data for session", topicSessionSlice)
+    console.log(`Column height for (${topicSessionSlice.SK})`, columnHeight)
+    console.log(`Relative position for (${topicSessionSlice.SK})`, relativePosition)
 
 
     return <Popover>
@@ -38,9 +40,11 @@ export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { 
             <div
                 ref={topicSessionDomRef}
                 onClick={() => setOpen(!open)}
-                className={`relative flex flex-col ${getLabelColor(topicSessionSlice.ColorCode)} cursor-pointer  overflow-hidden hover:border-2 rounded-lg`} style={{
+                className={`absolute flex flex-col ${getLabelColor(topicSessionSlice.ColorCode)} cursor-pointer overflow-hidden hover:border-2 rounded-lg`} style={{
                     height: `${sessionCellHeightPx}px`,
                     width: `${columnDomRef.current?.clientWidth ?? 100}px`,
+                    top: `${relativePosition * columnHeight}px`,
+                 
                 }}>
                 <p>{topicSessionSlice.Topic_Title}</p>
                 <p>{topicSessionSlice.SK}</p>

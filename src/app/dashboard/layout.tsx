@@ -11,8 +11,7 @@ export default function DashboardLayout({
 
   return (
     <div>
-      <Sidebar children={children} />
-
+      {children}
       <Toaster richColors />
     </div>
   );
