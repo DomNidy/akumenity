@@ -7,11 +7,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
 
-
-
   return (
     <div>
-      {children}
+      <Sidebar children={children} />
       <Toaster richColors />
     </div>
   );

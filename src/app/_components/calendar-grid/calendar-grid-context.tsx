@@ -4,7 +4,6 @@ import { type RouterOutputs, api } from "~/trpc/react";
 import { getWeekNumberSinceUnixEpoch, getWeekStartAndEndMS, sliceTopicSession } from "~/lib/utils";
 import { useDaySessionMap } from "~/app/hooks/use-day-session-map";
 
-
 // We break down topic sessions into slices so that we can display sessions that span multiple days
 // This object is the same as a topic session, but it will have a new start and end time to the start and end of the day which it belongs to
 export type TopicSessionSlice = RouterOutputs['topicSession']['getTopicSessionsInDateRange'][0] & { sliceStartMS: number, sliceEndMS: number };
@@ -46,7 +45,7 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
     zoomLevel: 0,
     topicSessions: [],
     daySessionSliceMap: {},
-    cellHeightPx: 45,
+    cellHeightPx: 60,
 })
 
 // This component is used to wrap the calendar grid and its child components
@@ -56,7 +55,7 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
     const [currentWeek, _setCurrentWeek] = useState<number>(getWeekNumberSinceUnixEpoch(new Date()));
 
     // Height of a single cell in the calendar grid
-    const [cellHeightPx, _setCellHeightPx] = useState(45);
+    const [cellHeightPx, _setCellHeightPx] = useState(60);
 
     // The zoom level
     const [zoomLevel, _setZoomLevel] = useState(1);
@@ -71,7 +70,6 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
     // Slice the topic sessions, and then add them to the daySessionMap when query data changes
     useEffect(() => {
         topicSessionsQuery.data?.forEach((topicSession) => {
-
             // If the session has already been processed, skip it
             if (daySessionMap.isSessionIdProcessed(topicSession.SK)) return
             sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
@@ -90,7 +88,7 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
         setZoomLevel: (lvl: number) => _setZoomLevel(lvl <= 0 ? 1 : lvl >= 12 ? 11 : lvl),
         topicSessions: topicSessionsQuery.data ?? [],
         daySessionSliceMap: daySessionMap.daySessionMap,
-        cellHeightPx: 65, // TODO: Make the actual state available
+        cellHeightPx: cellHeightPx,
         setCellHeightPx: _setCellHeightPx,
     }
 

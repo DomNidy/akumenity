@@ -7,7 +7,6 @@ import {
   type CalendarGridContextType,
   type TopicSessionSlice,
 } from "../_components/calendar-grid/calendar-grid-context";
-import { RouterOutputs } from "~/trpc/shared";
 
 export function useDaySessionMap() {
   // If complexity grows too high and difficult to debug, we should move this to a reducer

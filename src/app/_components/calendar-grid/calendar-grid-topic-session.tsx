@@ -17,10 +17,10 @@ export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { 
     // This calculates the position of the event in the day as a value (0-24)
     // This is then used to calculate the absolute position of the event in the day
     const hourSessionOccurred = milliseconds / (1000 * 60 * 60);
+    const sessionDurationMS = topicSessionSlice.sliceEndMS - topicSessionSlice.sliceStartMS;
     // Calculate the duration of the session in milliseconds
     // Calculate the height of this session, it should be relative to the duration of the session
-    // TODO: Uncomment the math.max call, that is what calculates the appropriate height for the session
-    const sessionCellHeightPx = 13 //Math.max(5, (sessionDurationMS / (1000 * 60 * 60)) * cellHeightPx * zoomLevel);
+    const sessionCellHeightPx = Math.max(5, (sessionDurationMS / (1000 * 60 * 60)) * cellHeightPx * zoomLevel);
 
     // * columnHeight is the height of the column this session is rendered over, in pixels
     const columnHeight = columnDomRef.current?.clientHeight ?? cellHeightPx * zoomLevel * 24;
@@ -44,7 +44,8 @@ export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { 
                     height: `${sessionCellHeightPx}px`,
                     width: `${columnDomRef.current?.clientWidth ?? 100}px`,
                     top: `${relativePosition * columnHeight}px`,
-                 
+                    left: `${33}px`,
+
                 }}>
                 <p>{topicSessionSlice.Topic_Title}</p>
                 <p>{topicSessionSlice.SK}</p>

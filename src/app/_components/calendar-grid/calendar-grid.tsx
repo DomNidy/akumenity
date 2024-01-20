@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useRef } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { Button } from "../ui/button";
 import { ZoomIn, ZoomOut } from "lucide-react";
@@ -11,25 +11,6 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 export function CalendarGrid() {
     const calendarGridContext = useContext(CalendarGridContext);
     const calendarGridDomRef = useRef<HTMLDivElement>(null);
-
-    // Watch for changes in the calendar grid's height
-    useEffect(() => {
-        const resizeObserver = new ResizeObserver((entries) => {
-            if (calendarGridDomRef.current) {
-                console.log('setting cell height', calendarGridDomRef.current.clientHeight / (24 * calendarGridContext.zoomLevel));
-                calendarGridContext.setCellHeightPx(calendarGridDomRef.current.clientHeight / (24 * calendarGridContext.zoomLevel))
-            }
-        })
-
-        if (calendarGridDomRef.current) {
-            resizeObserver.observe(calendarGridDomRef.current);
-        }
-
-        return () => {
-            resizeObserver.disconnect();
-        }
-    })
-
 
     return <div className="bg-blue-500 rounded-lg sm:px-2 px-8 w-full h-fit mt-2" ref={calendarGridDomRef}>
         <p>Current week: {calendarGridContext.currentWeek}</p>
@@ -44,6 +25,7 @@ export function CalendarGrid() {
             }}>Next</Button>
         </div>
 
+
         <p>Zoom level: {calendarGridContext.zoomLevel}</p>
         <div className="flex flex-row justify-between">
             <Button className="aspect-square p-0" disabled={calendarGridContext.zoomLevel <= 1} onClick={() => {
@@ -54,9 +36,25 @@ export function CalendarGrid() {
             }}><ZoomIn /></Button>
         </div>
 
+        <p>Cell height: {calendarGridContext.cellHeightPx}</p>
+        <div className="flex flex-row justify-between">
+            <Button className="aspect-square p-0" disabled={calendarGridContext.cellHeightPx <= 6} onClick={() => {
+                calendarGridContext.setCellHeightPx(calendarGridContext.cellHeightPx - 5)
+            }}>-</Button>
+            <Button className="aspect-square p-0" onClick={() => {
+                calendarGridContext.setCellHeightPx(calendarGridContext.cellHeightPx + 5)
+            }}>+</Button>
+        </div>
+
+        <Button className="mt-2" onClick={() => {
+            calendarGridContext.setCellHeightPx(60)
+            calendarGridContext.setZoomLevel(1)
+        }}>Reset view</Button>
+
+
         <p>Sessions in this week: {calendarGridContext.topicSessions.length}</p>
         <ScrollArea className="h-fit">
-            <ScrollBar className="z-[60]"/>
+            <ScrollBar className="z-[60]" />
             <div className="flex w-full max-h-[900px] ">
                 <CalendarGridTimeColumn />
                 {[...Array(7).keys()].map((value, index) => {
