@@ -5,7 +5,7 @@ import { getWeekNumberSinceUnixEpoch, getWeekStartAndEndMS, sliceTopicSession } 
 import { useDaySessionMap } from "~/app/hooks/use-day-session-map";
 
 // We break down topic sessions into slices so that we can display sessions that span multiple days
-// This object is the same as a topic session, but it will have a new start and end time to the start and end of the day which it belongs to
+// This object is the same as a topic session, but with two new properties, sliceStartMS and sliceEndMS (which indicate the start and end of the slice in ms)
 export type TopicSessionSlice = RouterOutputs['topicSession']['getTopicSessionsInDateRange'][0] & { sliceStartMS: number, sliceEndMS: number };
 
 // The type of the data stored in the context
@@ -48,8 +48,7 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
     cellHeightPx: 60,
 })
 
-// This component is used to wrap the calendar grid and its child components
-// It provides the context to the calendar grid and its child components
+// This component wraps & provides the context to the calendar grid and its child components
 export function CalendarGridProvider({ children }: { children: React.ReactNode }) {
     // The current week of the year
     const [currentWeek, _setCurrentWeek] = useState<number>(getWeekNumberSinceUnixEpoch(new Date()));
@@ -65,6 +64,7 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
         dateRange: getWeekStartAndEndMS(new Date(currentWeek * 7 * 24 * 60 * 60 * 1000)),
     })
 
+    // Custom hook which manages the daySessionMap & its state
     const daySessionMap = useDaySessionMap();
 
     // Slice the topic sessions, and then add them to the daySessionMap when query data changes
@@ -79,7 +79,7 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
         })
     }, [topicSessionsQuery.data, currentWeek])
 
-    // The context value
+    // The context made available to child components
     const value: CalendarGridContextType = {
         currentWeek,
         setWeek: _setCurrentWeek,
@@ -91,7 +91,6 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
         cellHeightPx: cellHeightPx,
         setCellHeightPx: _setCellHeightPx,
     }
-
 
     // This component provides the context to its child components
     return (

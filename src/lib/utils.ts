@@ -1,10 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { z } from "zod";
-import {
-  type CalendarGridContextType,
-  type TopicSessionSlice,
-} from "~/app/_components/calendar-grid/calendar-grid-context";
+import { type z } from "zod";
+import { type TopicSessionSlice } from "~/app/_components/calendar-grid/calendar-grid-context";
 import { type dbConstants } from "~/definitions/dbConstants";
 import { type RouterOutputs } from "~/trpc/shared";
 
@@ -140,45 +137,6 @@ export function getWeekNumberSinceUnixEpoch(date: Date) {
   const { startTimeMS } = getWeekStartAndEndMS(date);
 
   return Math.floor(startTimeMS / (7 * 24 * 60 * 60 * 1000)) + 1;
-}
-
-
-// Creates the daySessionMap (used in CalendarGridContext) when given a list of sessions
-export function mapSessionsToSessionSliceMap(
-  topicSessions: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"],
-) {
-  return (
-    topicSessions?.reduce(
-      (acc, session) => {
-        // Split every topicSession into topicSessionSlices (incase they span multiple days)
-        const slicesFromSession = sliceTopicSession(session);
-
-        const map: CalendarGridContextType["daySessionSliceMap"] = { ...acc };
-
-        // Insert each slice into the map, keyed by the day of the slice
-        for (const slice of slicesFromSession) {
-          const _sliceDate = new Date(slice.sliceStartMS);
-          _sliceDate.setHours(0,0,0,0)
-          const dayOfSlice = getDaysSinceUnixEpoch(_sliceDate);
-
-          map[dayOfSlice] = {
-            day: _sliceDate,
-            topicSessionSlices: [
-              {
-                ...slice,
-              },
-              // If there are already slices for this day, keep them
-              ...(acc[dayOfSlice]?.topicSessionSlices ?? []),
-            ],
-          };
-        }
-
-        return map;
-      },
-      // Initial value is just an empty dictionary
-      {} as CalendarGridContextType["daySessionSliceMap"],
-    ) ?? {}
-  );
 }
 
 // Function which creates TopicSessionSlice objects from a given TopicSession

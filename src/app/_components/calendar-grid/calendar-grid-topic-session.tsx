@@ -44,8 +44,8 @@ export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { 
                     height: `${sessionCellHeightPx}px`,
                     width: `${columnDomRef.current?.clientWidth ?? 100}px`,
                     top: `${relativePosition * columnHeight}px`,
-                    left: `${33}px`,
-
+                    // TODO: Use the left,right,width properties to position elements that are overlapping
+                    // left: `${}px`,
                 }}>
                 <p>{topicSessionSlice.Topic_Title}</p>
                 <p>{topicSessionSlice.SK}</p>

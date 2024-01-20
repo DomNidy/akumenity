@@ -1,6 +1,4 @@
 // This hook manages the state of the daySessionMap
-// Exposes a function which accepts a `TopicSessionSlice` and adds it to the map
-
 import { useCallback, useState } from "react";
 import { getDaysSinceUnixEpoch } from "~/lib/utils";
 import {
