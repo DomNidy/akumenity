@@ -12,7 +12,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { dbConstants } from "~/definitions/dbConstants";
 import { TRPCError } from "@trpc/server";
-import { type z } from "zod";
+import { z } from "zod";
 import { ddbDocClient } from "~/server/db";
 import { randomUUID } from "crypto";
 
@@ -196,7 +196,7 @@ export const topicSessionRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       try {
         if (input.dateRange.startTimeMS && input.dateRange.endTimeMS) {
-          console.log("Querying for topic sessions within date range:")
+          console.log("Querying for topic sessions within date range:");
           console.log(
             "Start date:",
             new Date(input.dateRange.startTimeMS ?? 0),
@@ -209,12 +209,13 @@ export const topicSessionRouter = createTRPCRouter({
         const queryCommand = new QueryCommand({
           TableName: dbConstants.tables.topic.tableName,
           KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
-          FilterExpression: `${dbConstants.tables.topic.GSI1.sortKey} > :start and ${dbConstants.tables.topic.GSI1.sortKey} < :end`,
+          // Get sessions that were started before the end of the date range, but exclude sessions that do not end before the start of the date range
+          FilterExpression: `${dbConstants.tables.topic.GSI1.sortKey} < :end and ${dbConstants.itemTypes.topicSession.propertyNames.Session_End} > :start`,
           ExpressionAttributeValues: {
             ":pk": `${ctx.session.userId}`,
             ":sk": `${dbConstants.itemTypes.topicSession.typeName}`,
-            ":start": input.dateRange.startTimeMS,
             ":end": input.dateRange.endTimeMS ?? Date.now(),
+            ":start": input.dateRange.startTimeMS ?? 0,
           },
           ScanIndexForward: true,
         });
@@ -251,6 +252,10 @@ export const topicSessionRouter = createTRPCRouter({
         // Return the sessions with their colorcodes
         const sessions = result.Items?.map((session) => {
           return {
+            ...((session?.PK as string) && { PK: session.PK as string }),
+
+            ...((session?.SK as string) && { SK: session.SK as string }),
+
             ...((session?.Topic_Title as string) && {
               Topic_Title: session.Topic_Title as string,
             }),
@@ -296,8 +301,6 @@ export const topicSessionRouter = createTRPCRouter({
     .input(TopicSessionGetSessionsForTopicSchema)
     .query(async ({ ctx, input }) => {
       try {
-        // TODO: Ensure user owns the topic we will retrieve sessions for
-
         // Query using GSI partition key
         const getSessionIDSCommand = new QueryCommand({
           IndexName: dbConstants.tables.topic.GSI1.indexName,

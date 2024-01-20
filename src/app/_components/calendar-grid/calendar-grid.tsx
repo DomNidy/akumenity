@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { Button } from "../ui/button";
 import { Calendar, ZoomIn, ZoomOut } from "lucide-react";
-import { getWeekStartAndEnd } from "~/lib/utils";
+import { getDateFromDaySinceUnixEpoch, getDaysSinceUnixEpoch, getWeekStartAndEndMS } from "~/lib/utils";
 import { CalendarGridColumn } from "./calendar-grid-column";
 import { CalendarGridTimeColumn } from "./calendar-grid-time-column";
 
@@ -33,8 +33,8 @@ export function CalendarGrid() {
 
     return <div className="bg-blue-500 rounded-lg sm:px-2 px-8  w-full s mt-2" ref={calendarGridDomRef}>
         <p>Current week: {calendarGridContext.currentWeek}</p>
-        <p>Start of week: {new Date(getWeekStartAndEnd(new Date(calendarGridContext.currentWeek * 7 * 24 * 60 * 60 * 1000)).startTimeMS).toDateString()}</p>
-        <p>End of week: {new Date(getWeekStartAndEnd(new Date(calendarGridContext.currentWeek * 7 * 24 * 60 * 60 * 1000)).endTimeMS).toDateString()}</p>
+        <p>Start of week: {new Date(getWeekStartAndEndMS(new Date(calendarGridContext.currentWeek * 7 * 24 * 60 * 60 * 1000)).startTimeMS).toDateString()}</p>
+        <p>End of week: {new Date(getWeekStartAndEndMS(new Date(calendarGridContext.currentWeek * 7 * 24 * 60 * 60 * 1000)).endTimeMS).toDateString()}</p>
         <div className="flex flex-row justify-between">
             <Button className="aspect-square p-0" onClick={() => {
                 calendarGridContext.setWeek(calendarGridContext.currentWeek - 1)
@@ -61,13 +61,16 @@ export function CalendarGrid() {
             <CalendarGridTimeColumn />
 
             {[...Array(7).keys()].map((value, index) => {
-                // TODO: Implement extra error handling here, even though the daySessionsMap is guaranteed to have a value for each index
-                const daySession = calendarGridContext.daySessionsMap[index];
-                if (daySession?.day) {
-                    return <div key={index} className="flex-grow">
-                        <CalendarGridColumn day={daySession.day} topicSessions={daySession.topicSessions} />
-                    </div>
-                }
+                // TODO: Implement extra error handling here, even though the daySessionSliceMap is guaranteed to have a value for each index
+                // The day this column will represent data for (-2 to display the week starting on monday)
+                const columnDay = index + (calendarGridContext.currentWeek * 7) - 2;
+
+                const day = getDateFromDaySinceUnixEpoch(columnDay);
+                return <div key={index} className="flex-grow">
+                    <CalendarGridColumn day={day} />
+                </div>
+
+
             })}
 
         </div>

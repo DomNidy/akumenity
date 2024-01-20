@@ -1,12 +1,17 @@
 "use client";
 import { type z } from "zod";
-import { createContext, useState } from "react";
-import { type dbConstants } from "~/definitions/dbConstants";
+import { createContext, useEffect, useState } from "react";
 import { type RouterOutputs, api } from "~/trpc/react";
-import { getDateForDayRelativeToCurrentDate, getWeekNumberSinceUnixEpoch, getWeekStartAndEnd, mapSessionsToDays } from "~/lib/utils";
+import { getWeekNumberSinceUnixEpoch, getWeekStartAndEndMS, mapSessionsToSessionSliceMap, sliceTopicSession } from "~/lib/utils";
+import { useDaySessionMap } from "~/app/hooks/use-day-session-map";
+
+
+// We break down topic sessions into slices so that we can display sessions that span multiple days
+// This object is the same as a topic session, but it will have a new start and end time to the start and end of the day which it belongs to
+export type TopicSessionSlice = RouterOutputs['topicSession']['getTopicSessionsInDateRange'][0] & { sliceStartMS: number, sliceEndMS: number };
 
 // The type of the data stored in the context
-interface CalendarGridContextType {
+export interface CalendarGridContextType {
     // The week (since unit epoch) data is being displayed / fetched for
     currentWeek: number;
 
@@ -23,8 +28,8 @@ interface CalendarGridContextType {
     // Our react query hook will handle the fetching and caching of this data
     topicSessions: RouterOutputs['topicSession']['getTopicSessionsInDateRange'];
 
-    // Map of day of week to sessions on that day
-    daySessionsMap: Record<number, { day: Date, topicSessions: RouterOutputs['topicSession']['getTopicSessionsInDateRange'] }>;
+    // Map of day of week to session slices within that day
+    daySessionSliceMap: Record<number, { day: Date, topicSessionSlices: TopicSessionSlice[] }>;
 
     // The height (in pixels) of a single cell
     // This is important because it is used to calculate the height of the calendar grid and align the time column
@@ -41,8 +46,8 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
     currentWeek: 0,
     zoomLevel: 0,
     topicSessions: [],
-    daySessionsMap: {},
-    cellHeightPx: 40,
+    daySessionSliceMap: {},
+    cellHeightPx: 45,
 })
 
 // This component is used to wrap the calendar grid and its child components
@@ -52,15 +57,38 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
     const [currentWeek, _setCurrentWeek] = useState<number>(getWeekNumberSinceUnixEpoch(new Date()));
 
     // Height of a single cell in the calendar grid
-    const [cellHeightPx, _setCellHeightPx] = useState(40);
+    const [cellHeightPx, _setCellHeightPx] = useState(45);
 
     // The zoom level
     const [zoomLevel, _setZoomLevel] = useState(1);
     const topicSessionsQuery = api.topicSession.getTopicSessionsInDateRange.useQuery({
         // Get the current week number, then multiply it to get a millisecond timestamp for when that week started
-        dateRange: getWeekStartAndEnd(new Date(currentWeek * 7 * 24 * 60 * 60 * 1000)),
+        dateRange: getWeekStartAndEndMS(new Date(currentWeek * 7 * 24 * 60 * 60 * 1000)),
     })
 
+
+    const [daySessionSliceMap, _setDaySessionSliceMap] = useState<Record<number, { day: Date, topicSessionSlices: TopicSessionSlice[] }>>({});
+
+
+    // const dmp = useDaySessionMap();
+
+    // TODO: Convert this logic to useMemo
+    // Update day session slice map when topic sessions change
+    useEffect(() => {
+        // topicSessionsQuery.data?.forEach((topicSession) => {
+        //     sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
+        //         dmp.addSessionSliceToMap(topicSessionSlice);
+        //     })
+        // })
+
+        // Merge with previous state
+        _setDaySessionSliceMap((prev) => {
+            return {
+                ...prev,
+                ...mapSessionsToSessionSliceMap(topicSessionsQuery.data ?? [])
+            }
+        })
+    }, [topicSessionsQuery.data, currentWeek])
 
     // The context value
     const value: CalendarGridContextType = {
@@ -70,8 +98,8 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
         // Ensure zoom level is always at least 1
         setZoomLevel: (lvl: number) => _setZoomLevel(lvl <= 0 ? 1 : lvl >= 12 ? 11 : lvl),
         topicSessions: topicSessionsQuery.data ?? [],
-        daySessionsMap: mapSessionsToDays(topicSessionsQuery.data ?? [], currentWeek),
-        cellHeightPx: 45,
+        daySessionSliceMap: daySessionSliceMap,
+        cellHeightPx: 45, // TODO: Make the actual state available
         setCellHeightPx: _setCellHeightPx,
     }
 

@@ -12,7 +12,7 @@ import { Dialog, DialogClose, DialogContent, DialogTrigger } from "./ui/dialog";
 
 import TopicUpdateForm from "./forms/topic-update-form";
 import { useState } from "react";
-import { formatTime } from "~/lib/utils";
+import { formatTime, getLabelColor } from "~/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { api } from "~/trpc/react";
 
@@ -35,28 +35,7 @@ export default function TopicCard({ topic, recentSessions }: {
     return total + difference;
   }, 0);
 
-  function getLabelColor(colorCode: z.infer<typeof dbConstants.itemTypes.topic.itemSchema>["ColorCode"]) {
-    switch (colorCode) {
-      case "blue":
-        return "bg-blue-600";
-      case "red":
-        return "bg-red-600";
-      case "green":
-        return "bg-green-600";
-      case "orange":
-        return "bg-orange-600";
-      case "pink":
-        return "bg-pink-600";
-      case "purple":
-        return "bg-purple-600";
-      case "yellow":
-        return "bg-yellow-600";
-      case "indigo":
-        return "bg-indigo-600";
-      default:
-        return "bg-blue-600";
-    }
-  }
+  
 
 
   return (

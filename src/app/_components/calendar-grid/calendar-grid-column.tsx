@@ -5,19 +5,21 @@
 // - Allowing the user to delete a `TopicSession` by clicking on the **CalendarGridTopicSession** component.
 "use client";
 
-import { useContext, useEffect, useState } from "react";
-import { type RouterOutputs } from "~/trpc/react";
+import { useContext } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { CalendarGridTopicSession } from "./calendar-grid-topic-session";
+import { getDaysSinceUnixEpoch } from "~/lib/utils";
 
-export function CalendarGridColumn({ day, topicSessions }: { day: Date, topicSessions: RouterOutputs['topicSession']['getTopicSessionsInDateRange'] }) {
+export function CalendarGridColumn({ day }: { day: Date }) {
     const calendarGridContext = useContext(CalendarGridContext);
 
     return <div>
+        <p className="bg-blue-800">{day.toDateString()} {getDaysSinceUnixEpoch(day)}</p>
         {/** TODO: Map out each topicsession, calculate the absolute position based on the time that it occured */}
+        {/** TODO: Figure out why the week is now starting on a wednesday */}
         {/** 23.2 here is the hour at which the event occurred during the day, so it would be around 11pm */}
-        {calendarGridContext.daySessionsMap[day.getDay()]?.topicSessions.map((topicSession, index) => {
-            return <CalendarGridTopicSession key={index} topicSession={topicSession} />
+        {calendarGridContext.daySessionSliceMap[getDaysSinceUnixEpoch(day)]?.topicSessionSlices.map((topicSessionSlice, index) => {
+            return <CalendarGridTopicSession key={index} topicSessionSlice={topicSessionSlice} />
         })}
 
         {/** TODO: Apply whitespace-nowrap without breaking the display of the calendar */}

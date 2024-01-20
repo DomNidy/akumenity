@@ -1,9 +1,42 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { RouterOutputs } from "~/trpc/shared";
+import { z } from "zod";
+import {
+  type CalendarGridContextType,
+  type TopicSessionSlice,
+} from "~/app/_components/calendar-grid/calendar-grid-context";
+import { type dbConstants } from "~/definitions/dbConstants";
+import { type RouterOutputs } from "~/trpc/shared";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function getLabelColor(
+  colorCode: z.infer<
+    typeof dbConstants.itemTypes.topic.itemSchema
+  >["ColorCode"],
+) {
+  switch (colorCode) {
+    case "blue":
+      return "bg-blue-600";
+    case "red":
+      return "bg-red-600";
+    case "green":
+      return "bg-green-600";
+    case "orange":
+      return "bg-orange-600";
+    case "pink":
+      return "bg-pink-600";
+    case "purple":
+      return "bg-purple-600";
+    case "yellow":
+      return "bg-yellow-600";
+    case "indigo":
+      return "bg-indigo-600";
+    default:
+      return "bg-blue-600";
+  }
 }
 
 // chunkArray is a local convenience function. It takes an array and returns a generator that yields every N items.
@@ -65,7 +98,7 @@ export function formatTime(milliseconds: number): string {
 
 // Utility function that returns the time at which the week (in which the date passed as an argument falls) starts and ends.
 // * Since this function interacts with the backend (used in TopicSession query), we convert the passed date to UTC time.
-export function getWeekStartAndEnd(date: Date) {
+export function getWeekStartAndEndMS(date: Date) {
   // Start with a date object at 12:00:00 AM on the given date
   const start = new Date(
     date.getUTCFullYear(),
@@ -96,86 +129,131 @@ export function getWeekStartAndEnd(date: Date) {
   };
 }
 
+// Utility function that returns a date from a day since unix epoch (January 1, 1970)
+export function getDateFromDaySinceUnixEpoch(day: number) {
+  return new Date(day * 24 * 60 * 60 * 1000);
+}
+
 // TODO: Make tests for this function
 // Function which returns the week number (number of weeks that have occured since epoch) in which the date passed as an argument falls.
-// The passed date is assumed to be local time.
 export function getWeekNumberSinceUnixEpoch(date: Date) {
-  // We convert the date to local time just to be safe
-  const { startTimeMS } = getWeekStartAndEnd(UTCToLocalDate(date));
+  const { startTimeMS } = getWeekStartAndEndMS(date);
 
   return Math.floor(startTimeMS / (7 * 24 * 60 * 60 * 1000)) + 1;
 }
 
-// Function that converts UTC date to local time date
-export function UTCToLocalDate(date: Date) {
-  const offset = date.getTimezoneOffset();
-  const newDate = new Date(date.getTime() - offset * 60 * 1000);
-  return newDate;
-}
-
-// Function that converts local time date to UTC date
-export function localToUTCDate(date: Date) {
-  const offset = date.getTimezoneOffset();
-  const newDate = new Date(date.getTime() + offset * 60 * 1000);
-  return newDate;
-}
-
-// When given a an integer n, returns the date n days from the current date
-export function getDateForDayRelativeToCurrentDate(day: number) {
-  const date = new Date();
-  const diff = date.getDate() - date.getDay() + day;
-  return new Date(date.setDate(diff));
-}
 
 // Creates the daySessionMap (used in CalendarGridContext) when given a list of sessions
-export function mapSessionsToDays(
+export function mapSessionsToSessionSliceMap(
   topicSessions: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"],
-  currentWeek: number,
 ) {
   return (
     topicSessions?.reduce(
       (acc, session) => {
-        const dayOfWeek = new Date(session.Session_Start).getDay();
+        // Split every topicSession into topicSessionSlices (incase they span multiple days)
+        const slicesFromSession = sliceTopicSession(session);
 
-        const map: Record<
-          number,
-          {
-            day: Date;
-            topicSessions: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"];
-          }
-        > = {
-          ...acc,
-          [dayOfWeek]: {
-            day: new Date(new Date(session.Session_Start).setHours(0, 0, 0, 0)),
-            topicSessions: [session, ...(acc[dayOfWeek]?.topicSessions ?? [])],
-          },
-        };
+        const map: CalendarGridContextType["daySessionSliceMap"] = { ...acc };
+
+        // Insert each slice into the map, keyed by the day of the slice
+        for (const slice of slicesFromSession) {
+          const _sliceDate = new Date(slice.sliceStartMS);
+          _sliceDate.setHours(0,0,0,0)
+          const dayOfSlice = getDaysSinceUnixEpoch(_sliceDate);
+
+          map[dayOfSlice] = {
+            day: _sliceDate,
+            topicSessionSlices: [
+              {
+                ...slice,
+              },
+              // If there are already slices for this day, keep them
+              ...(acc[dayOfSlice]?.topicSessionSlices ?? []),
+            ],
+          };
+        }
 
         return map;
       },
-      Array.from({ length: 7 }, (val, index) => ({
-        day:
-          // TODO: Refactor this and the above code to be more readable
-          // This is really confusing, but basically we want to get the date for a day N days away from the current date
-          // The index ranges from 0 to 6, since we are mapping over an array of length 7
-          // We then calculate the difference between the currentWeek the calendar is displaying data for, and the current week (in real time)
-          // We then multiply that difference by 7, since there are 7 days in a week
-          // Then we subtract that difference from the index
-          // * currentWeek is the week the calendar is displaying data for, not the actual current week (in real time)
-          new Date(
-            getDateForDayRelativeToCurrentDate(
-              index -
-                7 * (getWeekNumberSinceUnixEpoch(new Date()) - currentWeek),
-            ).setHours(0, 0, 0, 0),
-          ),
-        topicSessions: [],
-      })) as Record<
-        number,
-        {
-          day: Date;
-          topicSessions: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"];
-        }
-      >,
+      // Initial value is just an empty dictionary
+      {} as CalendarGridContextType["daySessionSliceMap"],
     ) ?? {}
+  );
+}
+
+// Function which creates TopicSessionSlice objects from a given TopicSession
+export function sliceTopicSession(
+  topicSession: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"][0],
+): TopicSessionSlice[] {
+  // If this topic session spans multiple days, we need to split it into multiple slices
+  // We do this by calculating the number of days between the start and end of the session
+  // Then we create a slice for each day, and set the start and end times accordingly
+  const sessionStart = new Date(topicSession.Session_Start);
+  const sessionEnd = topicSession.Session_End
+    ? new Date(topicSession.Session_End)
+    : new Date();
+
+  // if sessionEnd is not on a different day than sessionStart, early return a single slice
+  if (sessionStart.getUTCDate() === sessionEnd.getUTCDate()) {
+    return [
+      {
+        ...topicSession,
+        sliceStartMS: sessionStart.getTime(),
+        sliceEndMS: sessionEnd.getTime(),
+      },
+    ];
+  }
+
+  // This only runs when the passed session spans multiple days
+  const slices: TopicSessionSlice[] = [];
+  const sliceStartTime = sessionStart;
+  // Initial sliceEndTime is the end of the day of the session start
+  let sliceEndTime = new Date(sessionStart);
+  sliceEndTime.setHours(23, 59, 59, 999);
+
+  while (sliceEndTime.getTime() < sessionEnd.getTime()) {
+    slices.push({
+      ...topicSession,
+      sliceStartMS: sliceStartTime.getTime(),
+      sliceEndMS: sliceEndTime.getTime(),
+    });
+
+    // Update slice time for the next slice in the following iteration
+    sliceStartTime.setDate(sliceStartTime.getDate() + 1);
+    sliceStartTime.setHours(0, 0, 0, 0);
+    // sliceEndTime should be the end of the next day, or the end of the session, whichever comes first
+    // get the end of the next day
+    if (sliceEndTime.getTime() > sessionEnd.getTime()) {
+      sliceEndTime = new Date(sliceStartTime);
+      sliceEndTime.setHours(23, 59, 59, 999);
+    } else {
+      sliceEndTime.setDate(sliceEndTime.getDate() + 1);
+    }
+
+    if (slices.length === 0) {
+      sliceStartTime.setHours(0, 0, 0, 0);
+    }
+
+    if (sliceEndTime.getTime() > sessionEnd.getTime()) {
+      sliceEndTime = sessionEnd;
+    }
+  }
+
+  slices.push({
+    ...topicSession,
+    sliceStartMS: sliceStartTime.getTime(),
+    sliceEndMS: sliceEndTime.getTime(),
+  });
+
+  return slices;
+}
+
+// Function which returns the days since unix epoch (January 1, 1970) for a given date
+export function getDaysSinceUnixEpoch(date: Date) {
+  // Becuase the local timezone might not be UTC, we should add an offset so we get the correct day
+  const timezoneOffsetMS = date.getTimezoneOffset() * 60 * 1000;
+
+  return Math.floor(
+    (date.getTime() - timezoneOffsetMS) / (24 * 60 * 60 * 1000),
   );
 }

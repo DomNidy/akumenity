@@ -1,34 +1,10 @@
 import { describe, expect, it } from "vitest";
-import {
-  UTCToLocalDate,
-  getWeekNumberSinceUnixEpoch,
-  getWeekStartAndEnd,
-  localToUTCDate,
-} from "~/lib/utils";
+import { getWeekNumberSinceUnixEpoch, getWeekStartAndEndMS } from "~/lib/utils";
 
-describe("UTC -> Local date conversion function", () => {
-  it("converts UTC date to local date", () => {
-    const date = new Date("2024-01-17T06:01:00.000Z");
-    const localDate = UTCToLocalDate(date);
-    expect(localDate).toEqual(
-      new Date(date.setMinutes(date.getMinutes() - date.getTimezoneOffset())),
-    );
-  });
-});
-
-describe("Local -> UTC date conversion function", () => {
-  it("converts local date to UTC date", () => {
-    const date = new Date("2024-01-17T06:01:00.000Z");
-    const localDate = UTCToLocalDate(date);
-    const utcDate = localToUTCDate(localDate);
-    expect(utcDate).toEqual(date);
-  });
-});
-
-describe("getWeekStartAndEnd returns correct timespans", () => {
+describe("getWeekStartAndEndMS returns correct timespans", () => {
   it("handles a date on a Sunday", () => {
     const date = new Date("2024-01-17T06:01:00.000Z");
-    const { startTimeMS, endTimeMS } = getWeekStartAndEnd(date);
+    const { startTimeMS, endTimeMS } = getWeekStartAndEndMS(date);
 
     const startOfWeekDate = new Date(startTimeMS);
     const endOfWeekDate = new Date(endTimeMS);
@@ -41,7 +17,7 @@ describe("getWeekStartAndEnd returns correct timespans", () => {
 
   it("handles date prior to unix epoch", () => {
     const date = new Date("1930-01-01T00:00:00.000Z");
-    const { startTimeMS, endTimeMS } = getWeekStartAndEnd(date);
+    const { startTimeMS, endTimeMS } = getWeekStartAndEndMS(date);
     console.log(new Date(-1262545200000));
 
     const startOfWeekDate = new Date(startTimeMS);

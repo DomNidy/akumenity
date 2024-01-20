@@ -7,7 +7,8 @@ export function CalendarGridTimeColumn() {
 
     // TODO: The user should be able to have a preference for time format (12 hour vs 24 hour)
 
-    return <div className="grid grid-cols-1 w-fit pr-2 bg-blue-400">
+    return <div className="grid grid-cols-1 w-fit pr-2 bg-blue-800">
+        <p>Time</p>
         {/** TODO: This <p> element is what is giving us the proper spacing between grid columns and time column */}
         {[...Array(24 * calendarGridContext.zoomLevel).keys()].map((value, index) => {
             const rowTime = new Date()
