@@ -1,8 +1,7 @@
 "use client";
-import { type z } from "zod";
 import { createContext, useEffect, useState } from "react";
 import { type RouterOutputs, api } from "~/trpc/react";
-import { getWeekNumberSinceUnixEpoch, getWeekStartAndEndMS, mapSessionsToSessionSliceMap, sliceTopicSession } from "~/lib/utils";
+import { getWeekNumberSinceUnixEpoch, getWeekStartAndEndMS, sliceTopicSession } from "~/lib/utils";
 import { useDaySessionMap } from "~/app/hooks/use-day-session-map";
 
 
@@ -61,32 +60,24 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
 
     // The zoom level
     const [zoomLevel, _setZoomLevel] = useState(1);
+
     const topicSessionsQuery = api.topicSession.getTopicSessionsInDateRange.useQuery({
         // Get the current week number, then multiply it to get a millisecond timestamp for when that week started
         dateRange: getWeekStartAndEndMS(new Date(currentWeek * 7 * 24 * 60 * 60 * 1000)),
     })
 
+    const daySessionMap = useDaySessionMap();
 
-    const [daySessionSliceMap, _setDaySessionSliceMap] = useState<Record<number, { day: Date, topicSessionSlices: TopicSessionSlice[] }>>({});
-
-
-    // const dmp = useDaySessionMap();
-
-    // TODO: Convert this logic to useMemo
-    // Update day session slice map when topic sessions change
+    // Slice the topic sessions, and then add them to the daySessionMap when query data changes
     useEffect(() => {
-        // topicSessionsQuery.data?.forEach((topicSession) => {
-        //     sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
-        //         dmp.addSessionSliceToMap(topicSessionSlice);
-        //     })
-        // })
+        topicSessionsQuery.data?.forEach((topicSession) => {
 
-        // Merge with previous state
-        _setDaySessionSliceMap((prev) => {
-            return {
-                ...prev,
-                ...mapSessionsToSessionSliceMap(topicSessionsQuery.data ?? [])
-            }
+            // If the session has already been processed, skip it
+            if (daySessionMap.isSessionIdProcessed(topicSession.SK)) return
+            sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
+                daySessionMap.addSessionSliceToMap(topicSessionSlice);
+            })
+            daySessionMap.markSessionIdAsProcessed(topicSession.SK)
         })
     }, [topicSessionsQuery.data, currentWeek])
 
@@ -98,8 +89,8 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
         // Ensure zoom level is always at least 1
         setZoomLevel: (lvl: number) => _setZoomLevel(lvl <= 0 ? 1 : lvl >= 12 ? 11 : lvl),
         topicSessions: topicSessionsQuery.data ?? [],
-        daySessionSliceMap: daySessionSliceMap,
-        cellHeightPx: 45, // TODO: Make the actual state available
+        daySessionSliceMap: daySessionMap.daySessionMap,
+        cellHeightPx: 65, // TODO: Make the actual state available
         setCellHeightPx: _setCellHeightPx,
     }
 

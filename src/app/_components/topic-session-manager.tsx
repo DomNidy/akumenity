@@ -97,6 +97,8 @@ export default function TopicSessionManager() {
                 await queryClient.refetchQueries([
                     ["topicSession", "getActiveTopicSession"],
                 ]);
+
+                await queryClient.refetchQueries([["topicSession", "getTopicSessionsInDateRange"]])
             }}
         >
             Begin {value ? usersTopics.data?.find((topic) => (topic.value.toLowerCase() === value.toLowerCase()))?.label : "Select Topic"} session
