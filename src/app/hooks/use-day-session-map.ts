@@ -1,10 +1,8 @@
 // This hook manages the state of the daySessionMap
 import { useCallback, useState } from "react";
 import { getDaysSinceUnixEpoch } from "~/lib/utils";
-import {
-  type CalendarGridContextType,
-  type TopicSessionSlice,
-} from "../_components/calendar-grid/calendar-grid-context";
+import { type CalendarGridContextType, type TopicSessionSlice } from "../_components/calendar-grid/calendar-grid-definitions";
+
 
 export function useDaySessionMap() {
   // If complexity grows too high and difficult to debug, we should move this to a reducer

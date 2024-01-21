@@ -1,46 +1,23 @@
 "use client";
 import { createContext, useEffect, useState } from "react";
-import { type RouterOutputs, api } from "~/trpc/react";
-import { getWeekNumberSinceUnixEpoch, getWeekStartAndEndMS, sliceTopicSession } from "~/lib/utils";
+import { api } from "~/trpc/react";
+import { getDisplayDateBounds, getPageNumber, getWeeksSinceUnixEpoch, getWeekStartAndEndMS, sliceTopicSession } from "~/lib/utils";
 import { useDaySessionMap } from "~/app/hooks/use-day-session-map";
+import { type CalendarGridContextType, CalendarGridDisplayMode, DaysOfTheWeek } from "./calendar-grid-definitions";
 
-// We break down topic sessions into slices so that we can display sessions that span multiple days
-// This object is the same as a topic session, but with two new properties, sliceStartMS and sliceEndMS (which indicate the start and end of the slice in ms)
-export type TopicSessionSlice = RouterOutputs['topicSession']['getTopicSessionsInDateRange'][0] & { sliceStartMS: number, sliceEndMS: number };
-
-// The type of the data stored in the context
-export interface CalendarGridContextType {
-    // The week (since unit epoch) data is being displayed / fetched for
-    currentWeek: number;
-
-    // Used to set the current week
-    setWeek: (week: number) => void;
-
-    // Wrapper which controls the zoomLevel state
-    setZoomLevel: (zoomLevel: number) => void;
-    // This corresponds to the amount of cells needed to display a single hour
-    // In other words, it is a cellToHourRatio. For example, if zoomLevel is 2, then 2 cells are needed to display a single hour (48 cells for 24 hours)
-    zoomLevel: number;
-
-    // An array of all topic sessions associated with the current week and year
-    // Our react query hook will handle the fetching and caching of this data
-    topicSessions: RouterOutputs['topicSession']['getTopicSessionsInDateRange'];
-
-    // Map of day of week to session slices within that day
-    daySessionSliceMap: Record<number, { day: Date, topicSessionSlices: TopicSessionSlice[] }>;
-
-    // The height (in pixels) of a single cell
-    // This is important because it is used to calculate the height of the calendar grid and align the time column
-    cellHeightPx: number;
-    // Update the cell height
-    setCellHeightPx: (cellHeightPx: number) => void;
-}
 
 // The calendar grid and its child components read data from this context (avoiding prop drilling)
 export const CalendarGridContext = createContext<CalendarGridContextType>({
+    page: getWeeksSinceUnixEpoch(new Date()),
+    incrementPage: () => { throw new Error("incrementPage not implemented") },
+    decrementPage: () => { throw new Error("decrementPage not implemented") },
+    displayMode: CalendarGridDisplayMode.WEEK_DISPLAY,
+    displayPreferences: { weekStartsOn: DaysOfTheWeek.Monday },
+    setDisplayMode: () => { throw new Error("setDisplayMode not implemented") },
     setWeek: () => { throw new Error("setWeek not implemented") },
     setZoomLevel: () => { throw new Error("setZoomLevel not implemented") },
     setCellHeightPx: () => { throw new Error("setCellHeightPx not implemented") },
+    displayDateBounds: getDisplayDateBounds(CalendarGridDisplayMode.WEEK_DISPLAY, new Date()),
     currentWeek: 0,
     zoomLevel: 0,
     topicSessions: [],
@@ -50,8 +27,21 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
 
 // This component wraps & provides the context to the calendar grid and its child components
 export function CalendarGridProvider({ children }: { children: React.ReactNode }) {
+    // The display mode of the calendar grid
+    const [displayMode, _setDisplayMode] = useState<CalendarGridDisplayMode>(CalendarGridDisplayMode.WEEK_DISPLAY);
+
+    // The page we are currently on
+    const [page, _setPage] = useState<number>(getWeeksSinceUnixEpoch(new Date()));
+
+    // The user's display preferences (read from local storage)
+    // TODO: Find hook to use local storage
+    const [displayPreferences, _setDisplayPreferences] = useState<CalendarGridContextType['displayPreferences']>({ weekStartsOn: DaysOfTheWeek.Monday });
+
+    // Bounds (date range) of the data being displayed
+    const [displayDateBounds, _setDisplayDateBounds] = useState<CalendarGridContextType['displayDateBounds']>(getDisplayDateBounds(CalendarGridDisplayMode.WEEK_DISPLAY, new Date()));
+
     // The current week of the year
-    const [currentWeek, _setCurrentWeek] = useState<number>(getWeekNumberSinceUnixEpoch(new Date()));
+    const [currentWeek, _setCurrentWeek] = useState<number>(getWeeksSinceUnixEpoch(new Date()));
 
     // Height of a single cell in the calendar grid
     const [cellHeightPx, _setCellHeightPx] = useState(60);
@@ -61,7 +51,10 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
 
     const topicSessionsQuery = api.topicSession.getTopicSessionsInDateRange.useQuery({
         // Get the current week number, then multiply it to get a millisecond timestamp for when that week started
-        dateRange: getWeekStartAndEndMS(new Date(currentWeek * 7 * 24 * 60 * 60 * 1000)),
+        dateRange: {
+            startTimeMS: displayDateBounds.beginDate.getTime(),
+            endTimeMS: displayDateBounds.endDate.getTime()
+        },
     })
 
     // Custom hook which manages the daySessionMap & its state
@@ -79,8 +72,23 @@ export function CalendarGridProvider({ children }: { children: React.ReactNode }
         })
     }, [topicSessionsQuery.data, currentWeek])
 
+
+
     // The context made available to child components
     const value: CalendarGridContextType = {
+        decrementPage() {
+            // TODO: Implement decrementing page
+            console.log("decrementing page")
+        },
+        incrementPage() {
+            // TODO: Implement incrementing page
+            console.log("incrementing page")
+        },
+        page,
+        displayPreferences,
+        displayMode,
+        setDisplayMode: _setDisplayMode,
+        displayDateBounds,
         currentWeek,
         setWeek: _setCurrentWeek,
         zoomLevel,

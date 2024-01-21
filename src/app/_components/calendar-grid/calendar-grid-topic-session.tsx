@@ -1,8 +1,9 @@
 "use client";
 import { useContext, useRef, useState } from "react";
-import { CalendarGridContext, type TopicSessionSlice } from "./calendar-grid-context";
+import { CalendarGridContext} from "./calendar-grid-context";
 import { getLabelColor } from "~/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { type TopicSessionSlice } from "./calendar-grid-definitions";
 
 
 export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { topicSessionSlice: TopicSessionSlice, columnDomRef: React.RefObject<HTMLDivElement> }) {
@@ -28,12 +29,6 @@ export function CalendarGridTopicSession({ topicSessionSlice, columnDomRef }: { 
     const hourInPixels = zoomLevel * cellHeightPx;
     // * relativePosition is a ratio between 0 and 1 which represents how far down the column the session should be positioned
     const relativePosition = ((hourInPixels * hourSessionOccurred) / (columnHeight));
-
-
-    console.log("Data for session", topicSessionSlice)
-    console.log(`Column height for (${topicSessionSlice.SK})`, columnHeight)
-    console.log(`Relative position for (${topicSessionSlice.SK})`, relativePosition)
-
 
     return <Popover>
         <PopoverTrigger asChild>

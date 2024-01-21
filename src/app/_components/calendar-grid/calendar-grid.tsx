@@ -3,7 +3,7 @@ import { useContext, useRef } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { Button } from "../ui/button";
 import { ZoomIn, ZoomOut } from "lucide-react";
-import { getDateFromDaySinceUnixEpoch, getWeekStartAndEndMS } from "~/lib/utils";
+import { getDateFromDaySinceUnixEpoch } from "~/lib/utils";
 import { CalendarGridColumn } from "./calendar-grid-column";
 import { CalendarGridTimeColumn } from "./calendar-grid-time-column";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
@@ -14,14 +14,14 @@ export function CalendarGrid() {
 
     return <div className="bg-blue-500 rounded-lg sm:px-2 px-8 w-full h-fit mt-2" ref={calendarGridDomRef}>
         <p>Current week: {calendarGridContext.currentWeek}</p>
-        <p>Start of week: {new Date(getWeekStartAndEndMS(new Date(calendarGridContext.currentWeek * 7 * 24 * 60 * 60 * 1000)).startTimeMS).toDateString()}</p>
-        <p>End of week: {new Date(getWeekStartAndEndMS(new Date(calendarGridContext.currentWeek * 7 * 24 * 60 * 60 * 1000)).endTimeMS).toDateString()}</p>
+        <p>Start of week: {calendarGridContext.displayDateBounds.beginDate.toDateString()}</p>
+        <p>End of week: {calendarGridContext.displayDateBounds.endDate.toDateString()}</p>
         <div className="flex flex-row justify-between">
             <Button className="aspect-square p-0" onClick={() => {
-                calendarGridContext.setWeek(calendarGridContext.currentWeek - 1)
+                calendarGridContext.decrementPage()
             }}>Prev</Button>
             <Button className="aspect-square p-0" onClick={() => {
-                calendarGridContext.setWeek(calendarGridContext.currentWeek + 1)
+                calendarGridContext.incrementPage()
             }}>Next</Button>
         </div>
 

@@ -17,6 +17,7 @@ export function CalendarGridColumn({ day }: { day: Date }) {
     const gridColumnDomRef = useRef<HTMLDivElement>(null);
 
     return <div className={`flex flex-col relative bg-red-300 `} ref={gridColumnDomRef} style={{ height: `${24 * calendarGridContext.zoomLevel * calendarGridContext.cellHeightPx}px` }}>
+        <p className="z-50 bg-blue-800 w-full">{day.toDateString()}</p>
         {/** Map out cells */}
         {/** To position the topic sessions, we'll need to subtract the height of this flexbox (and the one that they are mapped into) from their computed positions */}
         {calendarGridContext.daySessionSliceMap[getDaysSinceUnixEpoch(day)]?.topicSessionSlices.map((topicSessionSlice) => {
