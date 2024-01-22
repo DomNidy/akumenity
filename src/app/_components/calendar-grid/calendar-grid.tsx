@@ -3,15 +3,12 @@ import { useContext, useRef } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { Button } from "../ui/button";
 import { ZoomIn, ZoomOut } from "lucide-react";
-import {
-  getDateFromDaySinceUnixEpoch,
-  getDayjsUnitFromDisplayMode,
-} from "~/lib/utils";
 import { CalendarGridColumn } from "./calendar-grid-column";
 import { CalendarGridTimeColumn } from "./calendar-grid-time-column";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { CalendarGridDisplayMode } from "./calendar-grid-definitions";
 import dayjs from "dayjs";
+import { CalendarGridPreferenceEditor } from "./calendar-grid-preference-editor";
 
 export function CalendarGrid() {
   const calendarGridContext = useContext(CalendarGridContext);
@@ -22,7 +19,7 @@ export function CalendarGrid() {
       className="mt-2 h-fit w-full rounded-lg bg-blue-500 px-8 sm:px-2"
       ref={calendarGridDomRef}
     >
-      <p>Current page: {calendarGridContext.page}</p>
+      <CalendarGridPreferenceEditor />
       <p>
         Start of week:{" "}
         {calendarGridContext.displayDateBounds.beginDate.toDateString()}
@@ -112,13 +109,24 @@ export function CalendarGrid() {
         <ScrollBar className="z-[60]" />
         <div className="flex max-h-[900px] w-full ">
           <CalendarGridTimeColumn />
-          {[...Array(1).keys()].map((value, index) => {
-            // TODO: Implement extra error handling here, even though the daySessionSliceMap is guaranteed to have a value for each index
+          {[
+            ...Array(
+              calendarGridContext.displayPreferences.displayMode ===
+                CalendarGridDisplayMode.MONTH_DISPLAY
+                ? dayjs().daysInMonth()
+                : calendarGridContext.displayPreferences.displayMode ===
+                    CalendarGridDisplayMode.WEEK_DISPLAY
+                  ? 7
+                  : 1,
+            ).keys(),
+          ].map((value, index) => {
             // The day this column will represent data for (-2 to display the week starting on monday)
             // Read day the bounds start
             const columnDay = dayjs(
               calendarGridContext.displayDateBounds.beginDate,
             ).add(index, "day");
+
+            console.log(index);
 
             return (
               <div key={index} className="w-full">

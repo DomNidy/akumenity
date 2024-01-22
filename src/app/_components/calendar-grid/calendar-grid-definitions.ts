@@ -32,15 +32,18 @@ export type TopicSessionSlice =
 
 // The type of the data stored in the context
 export interface CalendarGridContextType {
-  // The display mode of the calendar grid
-  displayMode: CalendarGridDisplayMode;
-  setDisplayMode: (displayMode: CalendarGridDisplayMode) => void;
   // Specifies user preferences for the calendar grid (such as when the week starts, etc.)
-  displayPreferences: { weekStartsOn: DaysOfTheWeek };
+  displayPreferences: {
+    // The day of the week that should be considered the start of the week
+    weekStartsOn: DaysOfTheWeek;
+    // The display mode of the calendar grid
+    displayMode: CalendarGridDisplayMode;
+    setDisplayMode: (displayMode: CalendarGridDisplayMode) => void;
+  };
+
   // The bounds (beginning and end) of the date range that is being displayed
   displayDateBounds: { beginDate: Date; endDate: Date };
-  // The current page of the calendar grid
-  page: number;
+
   // Functions which increments & decrement the page
   incrementPage: () => void;
   decrementPage: () => void;
@@ -66,4 +69,11 @@ export interface CalendarGridContextType {
   cellHeightPx: number;
   // Update the cell height
   setCellHeightPx: (cellHeightPx: number) => void;
+}
+
+// Preferences for how the user wants to view the calendar grid
+export interface CalendarGridUserPreferences {
+  weekStartsOn: DaysOfTheWeek;
+  displayMode: CalendarGridDisplayMode;
+  setDisplayMode: (displayMode: CalendarGridDisplayMode) => void;
 }

@@ -4,7 +4,6 @@ import { api } from "~/trpc/react";
 import {
   getDayjsUnitFromDisplayMode,
   getDisplayDateBounds,
-  getWeeksSinceUnixEpoch,
   sliceTopicSession,
 } from "~/lib/utils";
 import { useDaySessionMap } from "~/app/hooks/use-day-session-map";
@@ -17,18 +16,21 @@ import dayjs from "dayjs";
 
 // The calendar grid and its child components read data from this context (avoiding prop drilling)
 export const CalendarGridContext = createContext<CalendarGridContextType>({
-  page: getWeeksSinceUnixEpoch(new Date()),
   incrementPage: () => {
     throw new Error("incrementPage not implemented");
   },
   decrementPage: () => {
     throw new Error("decrementPage not implemented");
   },
-  displayMode: CalendarGridDisplayMode.WEEK_DISPLAY,
-  displayPreferences: { weekStartsOn: DaysOfTheWeek.Monday },
-  setDisplayMode: () => {
-    throw new Error("setDisplayMode not implemented");
+
+  displayPreferences: {
+    weekStartsOn: DaysOfTheWeek.Monday,
+    displayMode: CalendarGridDisplayMode.WEEK_DISPLAY,
+    setDisplayMode: () => {
+      throw new Error("setDisplayMode not implemented");
+    },
   },
+
   setZoomLevel: () => {
     throw new Error("setZoomLevel not implemented");
   },
@@ -52,26 +54,25 @@ export function CalendarGridProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // The display mode of the calendar grid
-  const [displayMode, _setDisplayMode] = useState<CalendarGridDisplayMode>(
-    CalendarGridDisplayMode.WEEK_DISPLAY,
-  );
-
-  // The page we are currently on
-  const [page, _setPage] = useState<number>(getWeeksSinceUnixEpoch(new Date()));
-
   // The user's display preferences (read from local storage)
+  // TODO: Extract this to a custom hook
   // TODO: Find hook to use local storage
   const [displayPreferences, _setDisplayPreferences] = useState<
     CalendarGridContextType["displayPreferences"]
-  >({ weekStartsOn: DaysOfTheWeek.Monday });
+  >({
+    weekStartsOn: DaysOfTheWeek.Monday,
+    displayMode: CalendarGridDisplayMode.WEEK_DISPLAY,
+    setDisplayMode: () => {
+      throw new Error("setDisplayMode not implemented");
+    },
+  });
 
   // Bounds (date range) of the data being displayed
   const [displayDateBounds, _setDisplayDateBounds] = useState<
     CalendarGridContextType["displayDateBounds"]
   >(
     getDisplayDateBounds(
-      CalendarGridDisplayMode.WEEK_DISPLAY,
+      displayPreferences.displayMode,
       new Date(),
       displayPreferences.weekStartsOn,
     ),
@@ -105,24 +106,30 @@ export function CalendarGridProvider({
       });
       daySessionMap.markSessionIdAsProcessed(topicSession.SK);
     });
-  }, [topicSessionsQuery.data, page]);
+  }, [topicSessionsQuery.data]);
 
   // The context made available to child components
   const value: CalendarGridContextType = {
     decrementPage() {
       const newBounds = getDisplayDateBounds(
-        displayMode,
+        displayPreferences.displayMode,
         displayDateBounds.beginDate,
         displayPreferences.weekStartsOn,
       );
 
       // Decrement beginDate and endDate of newBounds depending on display mode
       const _start = dayjs(newBounds.beginDate)
-        .subtract(1, getDayjsUnitFromDisplayMode(displayMode))
+        .subtract(
+          1,
+          getDayjsUnitFromDisplayMode(displayPreferences.displayMode),
+        )
         .toDate();
 
       const _end = dayjs(newBounds.endDate)
-        .subtract(1, getDayjsUnitFromDisplayMode(displayMode))
+        .subtract(
+          1,
+          getDayjsUnitFromDisplayMode(displayPreferences.displayMode),
+        )
         .toDate();
 
       // Decrement the display bounds by 1 week
@@ -133,18 +140,18 @@ export function CalendarGridProvider({
     },
     incrementPage() {
       const newBounds = getDisplayDateBounds(
-        displayMode,
+        displayPreferences.displayMode,
         displayDateBounds.beginDate,
         displayPreferences.weekStartsOn,
       );
 
       // Increment beginDate and endDate of newBounds depending on display mode
       const _start = dayjs(newBounds.beginDate)
-        .add(1, getDayjsUnitFromDisplayMode(displayMode))
+        .add(1, getDayjsUnitFromDisplayMode(displayPreferences.displayMode))
         .toDate();
 
       const _end = dayjs(newBounds.endDate)
-        .add(1, getDayjsUnitFromDisplayMode(displayMode))
+        .add(1, getDayjsUnitFromDisplayMode(displayPreferences.displayMode))
         .toDate();
 
       // Increment the display bounds by 1 week
@@ -153,10 +160,7 @@ export function CalendarGridProvider({
         endDate: _end,
       });
     },
-    page,
     displayPreferences,
-    displayMode,
-    setDisplayMode: _setDisplayMode,
     displayDateBounds,
     zoomLevel,
     // Ensure zoom level is always at least 1
