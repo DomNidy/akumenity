@@ -42,7 +42,7 @@ export default function Timeclock({
   // TODO: Continue implementing timeclock
   return (
     <Card className="w-fit p-2">
-      <div className="flex flex-row">
+      <div className="flex flex-row ">
         <div className="flex flex-col justify-start ">
           <span className="flex flex-row items-center gap-4">
             <p className="text-2xl font-bold">{Topic_Title}</p>
@@ -68,7 +68,9 @@ export default function Timeclock({
                   ["topicSession", "getActiveTopicSession"],
                 ]);
 
-                void queryClient.refetchQueries([['topicSession', 'getTopicSessionsInDateRange']]);
+                void queryClient.refetchQueries([
+                  ["topicSession", "getTopicSessionsInDateRange"],
+                ]);
               }}
             />
           </div>

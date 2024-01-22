@@ -1,8 +1,10 @@
 // This hook manages the state of the daySessionMap
 import { useCallback, useState } from "react";
 import { getDaysSinceUnixEpoch } from "~/lib/utils";
-import { type CalendarGridContextType, type TopicSessionSlice } from "../_components/calendar-grid/calendar-grid-definitions";
-
+import {
+  type CalendarGridContextType,
+  type TopicSessionSlice,
+} from "../_components/calendar-grid/calendar-grid-definitions";
 
 export function useDaySessionMap() {
   // If complexity grows too high and difficult to debug, we should move this to a reducer
@@ -44,9 +46,7 @@ export function useDaySessionMap() {
 
   // Function which returns true or false depending on whether a session has already been processed (sliced and added to the map)
   const isSessionIdProcessed = useCallback(
-    (
-      topicSessionId: string,
-    ) => {
+    (topicSessionId: string) => {
       return processedTopicSessionIds.has(topicSessionId);
     },
     [processedTopicSessionIds],
@@ -54,9 +54,7 @@ export function useDaySessionMap() {
 
   // Function which adds a topic session id to the processedTopicSessionIds set
   const markSessionIdAsProcessed = useCallback(
-    (
-      topicSessionId: string,
-    ) => {
+    (topicSessionId: string) => {
       setProcessedTopicSessionIds((prevSet) => {
         const set = new Set(prevSet);
         set.add(topicSessionId);
@@ -70,6 +68,6 @@ export function useDaySessionMap() {
     daySessionMap,
     addSessionSliceToMap,
     isSessionIdProcessed,
-    markSessionIdAsProcessed
+    markSessionIdAsProcessed,
   };
 }

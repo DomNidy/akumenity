@@ -5,8 +5,9 @@ import {
   type TopicSessionSlice,
   CalendarGridDisplayMode,
   type CalendarGridContextType,
+  type DaysOfTheWeek,
 } from "~/app/_components/calendar-grid/calendar-grid-definitions";
-
+import dayjs from "dayjs";
 import { type dbConstants } from "~/definitions/dbConstants";
 import { type RouterOutputs } from "~/trpc/shared";
 
@@ -101,30 +102,20 @@ export function formatTime(milliseconds: number): string {
 // Utility function that returns the time at which the week (in which the date passed as an argument falls) starts and ends.
 export function getWeekStartAndEndMS(date: Date) {
   // Start with a date object at 12:00:00 AM on the given date
-  const start = new Date(date);
-  const end = new Date(date);
+  const _date = dayjs(date);
 
-  // Adjust the start date to the beginning of the week (Sunday)
-  start.setDate(start.getUTCDate() - start.getUTCDay());
-
-  // Adjust the end date to the end of the week (Saturday)
-  end.setDate(end.getUTCDate() + (6 - end.getUTCDay()));
-
-  // Set the start time to 12:00:00.000
-  start.setUTCHours(0, 0, 0, 0);
-
-  // Set the end time to 23:59:59.999
-  end.setUTCHours(23, 59, 59, 999);
+  const startOf = _date.startOf("week");
+  const endOf = _date.endOf("week");
 
   return {
-    startTimeMS: start.getTime(),
-    endTimeMS: end.getTime(),
+    startTimeMS: startOf.unix() * 1000,
+    endTimeMS: endOf.unix() * 1000,
   };
 }
 
 // Utility function that returns a date from a day since unix epoch (January 1, 1970)
 export function getDateFromDaySinceUnixEpoch(day: number) {
-  return new Date(day * 24 * 60 * 60 * 1000);
+  return dayjs.unix(day * 24 * 60 * 60).toDate();
 }
 
 // TODO: Make tests for this function
@@ -134,32 +125,6 @@ export function getWeeksSinceUnixEpoch(date: Date) {
 
   return Math.floor(startTimeMS / (7 * 24 * 60 * 60 * 1000)) + 1;
 }
-
-// Utility function which gets the start of the nth week (in local time) from the unix epoch (January 1, 1970)
-export function getNthWeekBeginDate(n: number) {
-  const targetYear = new Date(0).getUTCFullYear() + Math.floor(n / 52);
-  const targetWeekInYear = n % 52;
-  const targetDate = getDateFromDaySinceUnixEpoch(targetWeekInYear * 7);
-  targetDate.setUTCFullYear(targetYear);
-  return targetDate;
-}
-
-// Utility function which returns the number of months that have occured since unix epoch (January 1, 1970) for a given date
-export function getMonthsSinceUnixEpoch(date: Date) {
-  // We need to calculate this instead of just using a constant because the unix epoch might be a different month in the local timezone
-  const unixEpoch = new Date(0);
-  const monthOfUnixEpoch = unixEpoch.getFullYear() * 12 + unixEpoch.getMonth();
-  const monthOfDate = date.getFullYear() * 12 + date.getMonth();
-  return monthOfDate - monthOfUnixEpoch;
-}
-
-// Utility function which gets the start of the nth month (in local time) from the unix epoch (January 1, 1970)
-export function getNthMonthBeginDate(n: number) {
-  const targetYear = new Date(0).getUTCFullYear() + Math.floor(n / 12);
-  const targetMonthInYear = n % 11;
-  return new Date(targetYear, targetMonthInYear);
-}
-
 // Function which returns the days since unix epoch (January 1, 1970) for a given date
 export function getDaysSinceUnixEpoch(date: Date) {
   // Becuase the local timezone might not be UTC, we should add an offset so we get the correct day
@@ -237,72 +202,55 @@ export function sliceTopicSession(
   return slices;
 }
 
-export function setDayOfWeek(date: Date, dayOfWeek: number): Date {
-  if (dayOfWeek < 0 || dayOfWeek > 6) {
-    throw new Error(
-      "Invalid day of week. Only 0 (Sunday) through 6 (Saturday) are allowed.",
-    );
-  }
-
-  const currentDay = date.getDay();
-  let distance = dayOfWeek - currentDay;
-
-  if (distance < 0) {
-    distance += 7;
-  }
-
-  date.setDate(date.getDate() + distance);
-  return date;
-}
 // Utility function which calculates the bounds based on the current date and a display mode
+// date: A day in which we should calculate the bounds
 export function getDisplayDateBounds(
   displayMode: CalendarGridDisplayMode,
   date: Date,
+  weekStartsOn: DaysOfTheWeek,
 ): CalendarGridContextType["displayDateBounds"] {
   switch (displayMode) {
     case CalendarGridDisplayMode.DAY_DISPLAY:
-      const startOfToday = new Date(date);
-      startOfToday.setHours(0, 0, 0, 0);
-      const endOfToday = new Date(date);
-      endOfToday.setHours(23, 59, 59, 999);
+      const startDay = dayjs(date).startOf("day").toDate();
+      const endDay = dayjs(date).endOf("day").toDate();
+
       return {
-        beginDate: startOfToday,
-        endDate: endOfToday,
+        beginDate: startDay,
+        endDate: endDay,
       };
     case CalendarGridDisplayMode.WEEK_DISPLAY:
       // Create a new date object at the beginning of the week
-      const newStart = setDayOfWeek(new Date(date), 0);
-      newStart.setHours(0, 0, 0, 0);
-      const newEnd = setDayOfWeek(new Date(date), 6);
-      newEnd.setHours(23, 59, 59, 999);
+      const startWeek = dayjs(date)
+        .startOf("week")
+        .add(weekStartsOn, "d")
+        .toDate();
+      const endWeek = dayjs(date).endOf("week").add(weekStartsOn, "d").toDate();
+
       return {
-        beginDate: newStart,
-        endDate: newEnd,
+        beginDate: startWeek,
+        endDate: endWeek,
       };
     case CalendarGridDisplayMode.MONTH_DISPLAY:
-      const start = new Date(date.getFullYear(), date.getMonth(), 1);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      end.setHours(23, 59, 59, 999);
-      console.log(start.toLocaleString(), end.toLocaleString());
+      const startMonth = dayjs(date).startOf("month").toDate();
+      const endMonth = dayjs(date).endOf("month").toDate();
+
       return {
-        beginDate: start,
-        endDate: end,
+        beginDate: startMonth,
+        endDate: endMonth,
       };
   }
 }
 
-// Utility function which calculates the page number based on the current display bounds and a display mode
-export function getPageNumber(
+// Utility function that maps a display mode to the relative dayjs unit
+export function getDayjsUnitFromDisplayMode(
   displayMode: CalendarGridDisplayMode,
-  displayDateBounds: CalendarGridContextType["displayDateBounds"],
-): number {
+): dayjs.ManipulateType {
   switch (displayMode) {
     case CalendarGridDisplayMode.DAY_DISPLAY:
-      return getDaysSinceUnixEpoch(displayDateBounds.beginDate);
+      return "day";
     case CalendarGridDisplayMode.WEEK_DISPLAY:
-      return getWeeksSinceUnixEpoch(displayDateBounds.beginDate);
+      return "week";
     case CalendarGridDisplayMode.MONTH_DISPLAY:
-      return getMonthsSinceUnixEpoch(displayDateBounds.beginDate);
+      return "month";
   }
 }
