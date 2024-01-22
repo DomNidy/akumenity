@@ -33,7 +33,7 @@ export type TopicSessionSlice =
 // The type of the data stored in the context
 export interface CalendarGridContextType {
   // Specifies user preferences for the calendar grid (such as when the week starts, etc.)
-  displayPreferences: {
+  userPreferences: {
     // The day of the week that should be considered the start of the week
     weekStartsOn: DaysOfTheWeek;
     // The display mode of the calendar grid
@@ -71,6 +71,7 @@ export interface CalendarGridContextType {
   setCellHeightPx: (cellHeightPx: number) => void;
 }
 
+// TODO: Move cellHeightPx, zoomLevel here
 // Preferences for how the user wants to view the calendar grid
 export interface CalendarGridUserPreferences {
   weekStartsOn: DaysOfTheWeek;

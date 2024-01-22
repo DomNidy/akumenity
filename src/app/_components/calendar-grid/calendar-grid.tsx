@@ -111,10 +111,10 @@ export function CalendarGrid() {
           <CalendarGridTimeColumn />
           {[
             ...Array(
-              calendarGridContext.displayPreferences.displayMode ===
+              calendarGridContext.userPreferences.displayMode ===
                 CalendarGridDisplayMode.MONTH_DISPLAY
                 ? dayjs().daysInMonth()
-                : calendarGridContext.displayPreferences.displayMode ===
+                : calendarGridContext.userPreferences.displayMode ===
                     CalendarGridDisplayMode.WEEK_DISPLAY
                   ? 7
                   : 1,

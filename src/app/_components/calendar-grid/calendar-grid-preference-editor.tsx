@@ -1,5 +1,5 @@
 "use client";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { CalendarGridDisplayMode } from "./calendar-grid-definitions";
 import { Popover, PopoverContent } from "../ui/popover";
@@ -10,38 +10,52 @@ import { Button } from "../ui/button";
 export function CalendarGridPreferenceEditor() {
   const calendarGridContext = useContext(CalendarGridContext);
 
+  const [displayModeOpen, setDisplayModeOpen] = useState(false);
+
   return (
     <div>
-      <Popover>
+      <Popover open={displayModeOpen}>
         <PopoverTrigger asChild>
-          <Button variant={"outline"}>Display Mode</Button>
+          <Button
+            variant={"outline"}
+            onClick={() => setDisplayModeOpen(!displayModeOpen)}
+          >
+            Display Mode
+          </Button>
         </PopoverTrigger>
         <PopoverContent>
-          <div className="flex flex-col">
+          <div
+            className="flex flex-col"
+            onBlur={() => {
+              console.log("blur");
+              setDisplayModeOpen(!displayModeOpen);
+            }}
+          >
             <Button
               variant={
-                calendarGridContext.displayPreferences.displayMode ===
+                calendarGridContext.userPreferences.displayMode ===
                 CalendarGridDisplayMode.WEEK_DISPLAY
                   ? "default"
                   : "outline"
               }
-              onClick={() => {
-                calendarGridContext.displayPreferences.setDisplayMode(
+              onClickCapture={() => {
+                calendarGridContext.userPreferences.setDisplayMode(
                   CalendarGridDisplayMode.WEEK_DISPLAY,
                 );
+                setDisplayModeOpen(!displayModeOpen)
               }}
             >
               Week
             </Button>
             <Button
               variant={
-                calendarGridContext.displayPreferences.displayMode ===
+                calendarGridContext.userPreferences.displayMode ===
                 CalendarGridDisplayMode.DAY_DISPLAY
                   ? "default"
                   : "outline"
               }
-              onClick={() => {
-                calendarGridContext.displayPreferences.setDisplayMode(
+              onClickCapture={() => {
+                calendarGridContext.userPreferences.setDisplayMode(
                   CalendarGridDisplayMode.DAY_DISPLAY,
                 );
               }}
