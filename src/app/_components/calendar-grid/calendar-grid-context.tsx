@@ -79,7 +79,7 @@ export function CalendarGridProvider({
 
   // The id of the element which should be highlighted as the current time
   const [currentTimeElementId, setCurrentTimeElementId] = useState<string>(
-    `${Math.floor(dayjs().hour() * zoomLevel)}`,
+    `${Math.floor((dayjs().hour() + dayjs().minute() / 59) * zoomLevel)}`,
   );
   // Dom ref to the current time element
   const currentTimeElementRef = useRef<HTMLDivElement>(null);
@@ -115,7 +115,8 @@ export function CalendarGridProvider({
     _setDisplayDateBounds(
       getDisplayDateBounds(
         userPreferences.displayMode,
-        displayDateBounds.beginDate,
+        // We use new Date() here instead of displayDateBounds.beginDate because if we swap from weekly to daily view, we want to start at the current day
+        new Date(),
         userPreferences.weekStartsOn,
       ),
     );
@@ -123,7 +124,9 @@ export function CalendarGridProvider({
 
   // Whenever the zoom level changes, update the current time element id (as more rows in the time column are mapped out when the zoom level is increased)
   useEffect(() => {
-    setCurrentTimeElementId(`${Math.floor(dayjs().hour() * zoomLevel)}`);
+    setCurrentTimeElementId(
+      `${Math.floor((dayjs().hour() + dayjs().minute() / 59) * zoomLevel)}`,
+    );
   }, [zoomLevel]);
 
   // The context made available to child components

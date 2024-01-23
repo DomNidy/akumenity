@@ -20,7 +20,7 @@ export function CalendarGridTimeColumn() {
             <div
               key={index}
               id={index.toString()}
-              // If this elements index cooresponds to the current time, set it as the currentTimeElementRef
+              // If this elements index corresponds to the current time, set it as the currentTimeElementRef
               ref={
                 calendarGridContext.currentTimeElementId === index.toString()
                   ? calendarGridContext.currentTimeElementRef
