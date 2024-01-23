@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import {
   getDayjsUnitFromDisplayMode,
@@ -47,6 +47,8 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   topicSessions: [],
   daySessionSliceMap: {},
   cellHeightPx: 60,
+  currentTimeElementId: "0",
+  currentTimeElementRef: null,
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -75,9 +77,17 @@ export function CalendarGridProvider({
   // The zoom level
   const [zoomLevel, _setZoomLevel] = useState(1);
 
+  // The id of the element which should be highlighted as the current time
+  const [currentTimeElementId, setCurrentTimeElementId] = useState<string>(
+    `${Math.floor(dayjs().hour() * zoomLevel)}`,
+  );
+  // Dom ref to the current time element
+  const currentTimeElementRef = useRef<HTMLDivElement>(null);
+
+  // This query is where all the topic sessions are fetched from
+  // React query handles caching and refetching automatically
   const topicSessionsQuery =
     api.topicSession.getTopicSessionsInDateRange.useQuery({
-      // Get the current week number, then multiply it to get a millisecond timestamp for when that week started
       dateRange: {
         startTimeMS: displayDateBounds.beginDate.getTime(),
         endTimeMS: displayDateBounds.endDate.getTime(),
@@ -87,7 +97,7 @@ export function CalendarGridProvider({
   // Custom hook which manages the daySessionMap & its state
   const daySessionMap = useDaySessionMap();
 
-  // Slice the topic sessions, and then add them to the daySessionMap when query data changes
+  // When the query data changes, slice the topic sessions, and then add them to the daySessionMap
   useEffect(() => {
     topicSessionsQuery.data?.forEach((topicSession) => {
       // If the session has already been processed, skip it
@@ -100,9 +110,8 @@ export function CalendarGridProvider({
   }, [topicSessionsQuery.data]);
 
   // Whenever the users display preferences change, update the display bounds
+  // This is important as the topic sessions query depends on the display bounds
   useEffect(() => {
-    console.log("display mode changed, effect ran");
-
     _setDisplayDateBounds(
       getDisplayDateBounds(
         userPreferences.displayMode,
@@ -111,6 +120,11 @@ export function CalendarGridProvider({
       ),
     );
   }, [userPreferences.displayMode, userPreferences.weekStartsOn]);
+
+  // Whenever the zoom level changes, update the current time element id (as more rows in the time column are mapped out when the zoom level is increased)
+  useEffect(() => {
+    setCurrentTimeElementId(`${Math.floor(dayjs().hour() * zoomLevel)}`);
+  }, [zoomLevel]);
 
   // The context made available to child components
   const value: CalendarGridContextType = {
@@ -168,6 +182,8 @@ export function CalendarGridProvider({
     daySessionSliceMap: daySessionMap.daySessionMap,
     cellHeightPx: cellHeightPx,
     setCellHeightPx: _setCellHeightPx,
+    currentTimeElementId: currentTimeElementId,
+    currentTimeElementRef,
   };
 
   // This component provides the context to its child components

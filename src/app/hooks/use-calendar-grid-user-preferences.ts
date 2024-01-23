@@ -16,7 +16,7 @@ export function useCalendarGridUserPreferences() {
   const [displayMode, setDisplayMode] =
     useLocalStorage<CalendarGridDisplayMode>(
       "displayMode",
-      CalendarGridDisplayMode.DAY_DISPLAY,
+      CalendarGridDisplayMode.WEEK_DISPLAY,
     );
 
   return {

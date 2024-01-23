@@ -33,13 +33,12 @@ export type TopicSessionSlice =
 // The type of the data stored in the context
 export interface CalendarGridContextType {
   // Specifies user preferences for the calendar grid (such as when the week starts, etc.)
-  userPreferences: {
-    // The day of the week that should be considered the start of the week
-    weekStartsOn: DaysOfTheWeek;
-    // The display mode of the calendar grid
-    displayMode: CalendarGridDisplayMode;
-    setDisplayMode: (displayMode: CalendarGridDisplayMode) => void;
-  };
+  userPreferences: CalendarGridUserPreferences;
+
+  // The id of the element (in the DOM, which is placed by GridTimeColumn) which displays the current time
+  currentTimeElementId: string;
+  // DOM ref to the current time element
+  currentTimeElementRef: React.RefObject<HTMLDivElement> | null;
 
   // The bounds (beginning and end) of the date range that is being displayed
   displayDateBounds: { beginDate: Date; endDate: Date };

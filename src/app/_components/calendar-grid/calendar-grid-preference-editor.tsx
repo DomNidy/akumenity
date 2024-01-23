@@ -42,7 +42,7 @@ export function CalendarGridPreferenceEditor() {
                 calendarGridContext.userPreferences.setDisplayMode(
                   CalendarGridDisplayMode.WEEK_DISPLAY,
                 );
-                setDisplayModeOpen(!displayModeOpen)
+                setDisplayModeOpen(!displayModeOpen);
               }}
             >
               Week

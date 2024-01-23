@@ -1,8 +1,3 @@
-// ###### This component is responsible for:
-// - Rendering out the columns of the calendar grid.
-// - Rendering out **CalendarGridTopicSession** components for each `TopicSession` received via props.
-// - Allowing the user to create a new `TopicSession` by clicking anywhere on any cell.
-// - Allowing the user to delete a `TopicSession` by clicking on the **CalendarGridTopicSession** component.
 "use client";
 
 import { useContext, useRef } from "react";
@@ -16,6 +11,7 @@ export function CalendarGridColumn({ day }: { day: Date }) {
   // ref to the gridcolumn so we can get its height
   const gridColumnDomRef = useRef<HTMLDivElement>(null);
 
+  // TODO: This element is probably causing the hydration error
   return (
     <div
       className={`relative flex flex-col bg-red-300 `}
@@ -26,7 +22,6 @@ export function CalendarGridColumn({ day }: { day: Date }) {
         }px`,
       }}
     >
-      <p className="z-50 w-full bg-blue-800">{day.toDateString()}</p>
       {/** Map out cells */}
       {/** To position the topic sessions, we'll need to subtract the height of this flexbox (and the one that they are mapped into) from their computed positions */}
       {calendarGridContext.daySessionSliceMap[
