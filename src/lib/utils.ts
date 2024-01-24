@@ -7,7 +7,7 @@ import {
   type CalendarGridContextType,
   type DaysOfTheWeek,
 } from "~/app/_components/calendar-grid/calendar-grid-definitions";
-import dayjs from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
 import { type dbConstants } from "~/definitions/dbConstants";
 import { type RouterOutputs } from "~/trpc/shared";
 
@@ -48,9 +48,8 @@ export function* chunkArray<T>(arr: T[], n: number) {
     yield arr.slice(i, i + n);
   }
 }
-
-// Function which returns the time since a current timestamp (in ms) and a previous timestamp (in ms) in a human readable format.
 // Example format: (1 hour, 30 minutes, 35 seconds would be 1:30:35)
+// Function which returns the time since a current timestamp (in ms) and a previous timestamp (in ms) in a human readable format.
 export function timeSince(current: number, previous: number) {
   const msPerSecond = 1000;
   const msPerMinute = msPerSecond * 60;
@@ -263,4 +262,19 @@ export function calculateTopicSessionHeightInPixels(
   hourHeightInPx: number,
 ) {
   return ((sessionEndMS - sessionStartMS) / (1000 * 60 * 60)) * hourHeightInPx;
+}
+
+// Utility function which returns the amount of grid columns that should be rendered based a display mode, and current date (for month display mode)
+export function calculateGridColumnCount(
+  displayMode: CalendarGridDisplayMode,
+  date: Dayjs,
+) {
+  switch (displayMode) {
+    case CalendarGridDisplayMode.DAY_DISPLAY:
+      return 1;
+    case CalendarGridDisplayMode.WEEK_DISPLAY:
+      return 7;
+    case CalendarGridDisplayMode.MONTH_DISPLAY:
+      return date.daysInMonth();
+  }
 }

@@ -13,7 +13,7 @@ import {
   DaysOfTheWeek,
 } from "./calendar-grid-definitions";
 import dayjs from "dayjs";
-import { useCalendarGridUserPreferences } from "~/app/hooks/use-calendar-grid-user-preferences";
+import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 
 // The calendar grid and its child components read data from this context (avoiding prop drilling)
 export const CalendarGridContext = createContext<CalendarGridContextType>({
@@ -24,20 +24,6 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
     throw new Error("decrementPage not implemented");
   },
 
-  userPreferences: {
-    weekStartsOn: DaysOfTheWeek.Monday,
-    displayMode: CalendarGridDisplayMode.WEEK_DISPLAY,
-    setDisplayMode: () => {
-      throw new Error("setDisplayMode not implemented");
-    },
-    dateTimeFormatOptions: {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    },
-  },
   setZoomLevel: () => {
     throw new Error("setZoomLevel not implemented");
   },
@@ -53,7 +39,6 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   topicSessions: [],
   daySessionSliceMap: {},
   cellHeightPx: 60,
-  currentTimeElementId: "0",
   currentTimeElementRef: null,
 });
 
@@ -64,7 +49,7 @@ export function CalendarGridProvider({
   children: React.ReactNode;
 }) {
   // The user's display preferences (read from local storage)
-  const userPreferences = useCalendarGridUserPreferences();
+  const userPreferences = useUserPreferences();
 
   // Bounds (date range) of the data being displayed
   const [displayDateBounds, _setDisplayDateBounds] = useState<
@@ -83,10 +68,6 @@ export function CalendarGridProvider({
   // The zoom level
   const [zoomLevel, _setZoomLevel] = useState(1);
 
-  // The id of the element which should be highlighted as the current time
-  const [currentTimeElementId, setCurrentTimeElementId] = useState<string>(
-    `${Math.floor((dayjs().hour() + dayjs().minute() / 59) * zoomLevel)}`,
-  );
   // Dom ref to the current time element
   const currentTimeElementRef = useRef<HTMLDivElement>(null);
 
@@ -127,13 +108,6 @@ export function CalendarGridProvider({
       ),
     );
   }, [userPreferences.displayMode, userPreferences.weekStartsOn]);
-
-  // Whenever the zoom level changes, update the current time element id (as more rows in the time column are mapped out when the zoom level is increased)
-  useEffect(() => {
-    setCurrentTimeElementId(
-      `${Math.round((dayjs().hour() + dayjs().minute() / 59) * zoomLevel)}`,
-    );
-  }, [zoomLevel]);
 
   // The context made available to child components
   const value: CalendarGridContextType = {
@@ -181,7 +155,6 @@ export function CalendarGridProvider({
         endDate: _end,
       });
     },
-    userPreferences,
     displayDateBounds,
     zoomLevel,
     // Ensure zoom level is always at least 1
@@ -191,7 +164,6 @@ export function CalendarGridProvider({
     daySessionSliceMap: daySessionMap.daySessionMap,
     cellHeightPx: cellHeightPx,
     setCellHeightPx: _setCellHeightPx,
-    currentTimeElementId: currentTimeElementId,
     currentTimeElementRef,
   };
 

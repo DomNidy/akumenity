@@ -32,12 +32,7 @@ export type TopicSessionSlice =
 
 // The type of the data stored in the context
 export interface CalendarGridContextType {
-  // Specifies user preferences for the calendar grid (such as when the week starts, etc.)
-  userPreferences: CalendarGridUserPreferences;
-
-  // The id of the element (in the DOM, which is placed by GridTimeColumn) which displays the current time
-  currentTimeElementId: string;
-  // DOM ref to the current time element
+  // DOM ref to the current time bar element
   currentTimeElementRef: React.RefObject<HTMLDivElement> | null;
 
   // The bounds (beginning and end) of the date range that is being displayed
@@ -68,13 +63,4 @@ export interface CalendarGridContextType {
   cellHeightPx: number;
   // Update the cell height
   setCellHeightPx: (cellHeightPx: number) => void;
-}
-
-// TODO: Move cellHeightPx, zoomLevel here
-// Preferences for how the user wants to view the calendar grid
-export interface CalendarGridUserPreferences {
-  weekStartsOn: DaysOfTheWeek;
-  displayMode: CalendarGridDisplayMode;
-  dateTimeFormatOptions: Intl.DateTimeFormatOptions;
-  setDisplayMode: (displayMode: CalendarGridDisplayMode) => void;
 }

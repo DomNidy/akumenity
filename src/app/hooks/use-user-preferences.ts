@@ -2,13 +2,20 @@
 import { useState } from "react";
 import {
   CalendarGridDisplayMode,
-  type CalendarGridUserPreferences,
   DaysOfTheWeek,
 } from "../_components/calendar-grid/calendar-grid-definitions";
 import { useLocalStorage } from "usehooks-ts";
 
+// Preferences for how the user on how the site and calendar grid should be displayed / behave
+export interface UserPreferences {
+  weekStartsOn: DaysOfTheWeek;
+  displayMode: CalendarGridDisplayMode;
+  dateTimeFormatOptions: Intl.DateTimeFormatOptions;
+  setDisplayMode: (displayMode: CalendarGridDisplayMode) => void;
+}
+
 // Custom hook which manages the users preferences for the calendar grid
-export function useCalendarGridUserPreferences() {
+export function useUserPreferences() {
   const [weekStartsOn, setWeekStartsOn] = useLocalStorage(
     "weekStartsOn",
     DaysOfTheWeek.Monday,
@@ -36,5 +43,5 @@ export function useCalendarGridUserPreferences() {
     setWeekStartsOn,
     dateTimeFormatOptions,
     setDateTimeFormatOptions,
-  } as CalendarGridUserPreferences;
+  } as UserPreferences;
 }

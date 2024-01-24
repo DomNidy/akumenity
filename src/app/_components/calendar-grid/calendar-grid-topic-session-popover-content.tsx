@@ -1,4 +1,4 @@
-import { useCalendarGridUserPreferences } from "~/app/hooks/use-calendar-grid-user-preferences";
+import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import { type TopicSessionSlice } from "./calendar-grid-definitions";
 
 // This renders out the popover content for a topic session
@@ -7,7 +7,7 @@ export function CalendarGridTopicSessionPopoverContent({
 }: {
   topicSessionSlice: TopicSessionSlice;
 }) {
-  const { dateTimeFormatOptions } = useCalendarGridUserPreferences();
+  const { dateTimeFormatOptions } = useUserPreferences();
 
   return (
     <div>

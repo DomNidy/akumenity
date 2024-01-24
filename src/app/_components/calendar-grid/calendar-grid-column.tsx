@@ -11,7 +11,8 @@ export function CalendarGridColumn({ day }: { day: Date }) {
   // ref to the gridcolumn so we can get its height
   const gridColumnDomRef = useRef<HTMLDivElement>(null);
 
-  // TODO: This element is probably causing the hydration error
+  console.log(gridColumnDomRef.current?.clientHeight, gridColumnDomRef);
+
   return (
     <div
       className={`relative flex flex-col bg-red-300 `}

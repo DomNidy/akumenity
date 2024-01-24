@@ -2,12 +2,17 @@
 import { useContext } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { CalendarGridTimeColumnRow } from "./calendar-grid-time-column-row";
+import { CalendarGridCurrentTimeBar } from "./calendar-grid-current-time-bar";
 
-export function CalendarGridTimeColumn() {
+export function CalendarGridTimeColumn({
+  calendarGridTimeColumnRef,
+}: {
+  calendarGridTimeColumnRef: React.RefObject<HTMLDivElement>;
+}) {
   const calendarGridContext = useContext(CalendarGridContext);
 
   return (
-    <div className="flex flex-col pr-2">
+    <div className="flex flex-col pr-2" ref={calendarGridTimeColumnRef}>
       {[...Array(24 * calendarGridContext.zoomLevel).keys()].map(
         (value, index) => {
           const rowTime = new Date();
@@ -22,7 +27,6 @@ export function CalendarGridTimeColumn() {
               key={index}
               timeString={timeString}
               cellHeightPx={calendarGridContext.cellHeightPx}
-              currentTimeElementRef={calendarGridContext.currentTimeElementRef}
               rowIndex={index}
             />
           );
