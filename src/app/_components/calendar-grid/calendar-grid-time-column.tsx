@@ -1,6 +1,7 @@
 "use client";
 import { useContext } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
+import { CalendarGridTimeColumnRow } from "./calendar-grid-time-column-row";
 
 export function CalendarGridTimeColumn() {
   const calendarGridContext = useContext(CalendarGridContext);
@@ -17,28 +18,13 @@ export function CalendarGridTimeColumn() {
             hour12: true,
           });
           return (
-            <div
+            <CalendarGridTimeColumnRow
               key={index}
-              id={index.toString()}
-              // If this elements index corresponds to the current time, set it as the currentTimeElementRef
-              ref={
-                calendarGridContext.currentTimeElementId === index.toString()
-                  ? calendarGridContext.currentTimeElementRef
-                  : null
-              }
-              className={`${
-                calendarGridContext.currentTimeElementId === index.toString()
-                  ? "bg-red-700 font-bold"
-                  : "bg-blue-700"
-              }`}
-              style={{
-                height: `${calendarGridContext.cellHeightPx}px`,
-                maxHeight: `${calendarGridContext.cellHeightPx}px`,
-                minHeight: `${calendarGridContext.cellHeightPx}px`,
-              }}
-            >
-              {timeString}
-            </div>
+              timeString={timeString}
+              cellHeightPx={calendarGridContext.cellHeightPx}
+              currentTimeElementRef={calendarGridContext.currentTimeElementRef}
+              rowIndex={index}
+            />
           );
         },
       )}

@@ -75,5 +75,6 @@ export interface CalendarGridContextType {
 export interface CalendarGridUserPreferences {
   weekStartsOn: DaysOfTheWeek;
   displayMode: CalendarGridDisplayMode;
+  dateTimeFormatOptions: Intl.DateTimeFormatOptions;
   setDisplayMode: (displayMode: CalendarGridDisplayMode) => void;
 }

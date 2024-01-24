@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import {
   CalendarGridDisplayMode,
   type CalendarGridUserPreferences,
@@ -19,10 +20,21 @@ export function useCalendarGridUserPreferences() {
       CalendarGridDisplayMode.WEEK_DISPLAY,
     );
 
+  const [dateTimeFormatOptions, setDateTimeFormatOptions] =
+    useState<Intl.DateTimeFormatOptions>({
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+
   return {
     displayMode,
     setDisplayMode,
     weekStartsOn,
     setWeekStartsOn,
+    dateTimeFormatOptions,
+    setDateTimeFormatOptions,
   } as CalendarGridUserPreferences;
 }

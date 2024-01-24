@@ -254,3 +254,13 @@ export function getDayjsUnitFromDisplayMode(
       return "month";
   }
 }
+
+// Calculates how many pixels of height a topic session should be based on the start and end times of the session
+// The duration of the session in ms, divided by the number of ms in an hour, multiplied by the height of an hour in pixels
+export function calculateTopicSessionHeightInPixels(
+  sessionStartMS: number,
+  sessionEndMS: number,
+  hourHeightInPx: number,
+) {
+  return ((sessionEndMS - sessionStartMS) / (1000 * 60 * 60)) * hourHeightInPx;
+}

@@ -30,8 +30,14 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
     setDisplayMode: () => {
       throw new Error("setDisplayMode not implemented");
     },
+    dateTimeFormatOptions: {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    },
   },
-
   setZoomLevel: () => {
     throw new Error("setZoomLevel not implemented");
   },
@@ -125,7 +131,7 @@ export function CalendarGridProvider({
   // Whenever the zoom level changes, update the current time element id (as more rows in the time column are mapped out when the zoom level is increased)
   useEffect(() => {
     setCurrentTimeElementId(
-      `${Math.floor((dayjs().hour() + dayjs().minute() / 59) * zoomLevel)}`,
+      `${Math.round((dayjs().hour() + dayjs().minute() / 59) * zoomLevel)}`,
     );
   }, [zoomLevel]);
 
