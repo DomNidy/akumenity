@@ -2,7 +2,6 @@
 import { useContext } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { CalendarGridTimeColumnRow } from "./calendar-grid-time-column-row";
-import { CalendarGridCurrentTimeBar } from "./calendar-grid-current-time-bar";
 
 export function CalendarGridTimeColumn({
   calendarGridTimeColumnRef,

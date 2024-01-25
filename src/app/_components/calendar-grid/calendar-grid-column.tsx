@@ -3,7 +3,7 @@
 import { useContext, useRef } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { CalendarGridTopicSession } from "./calendar-grid-topic-session";
-import { getDaysSinceUnixEpoch } from "~/lib/utils";
+import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
 
 export function CalendarGridColumn({ day }: { day: Date }) {
   const calendarGridContext = useContext(CalendarGridContext);
@@ -11,11 +11,14 @@ export function CalendarGridColumn({ day }: { day: Date }) {
   // ref to the gridcolumn so we can get its height
   const gridColumnDomRef = useRef<HTMLDivElement>(null);
 
-  console.log(gridColumnDomRef.current?.clientHeight, gridColumnDomRef);
+  const { columnTopicSessionSlices } = useCalendarGridColumn({
+    day,
+    columnDomRef: gridColumnDomRef,
+  });
 
   return (
     <div
-      className={`relative flex flex-col bg-red-300 `}
+      className={`relative flex flex-row bg-red-300 `}
       ref={gridColumnDomRef}
       style={{
         height: `${
@@ -25,9 +28,7 @@ export function CalendarGridColumn({ day }: { day: Date }) {
     >
       {/** Map out cells */}
       {/** To position the topic sessions, we'll need to subtract the height of this flexbox (and the one that they are mapped into) from their computed positions */}
-      {calendarGridContext.daySessionSliceMap[
-        getDaysSinceUnixEpoch(day)
-      ]?.topicSessionSlices.map((topicSessionSlice) => {
+      {columnTopicSessionSlices?.map((topicSessionSlice) => {
         return (
           <CalendarGridTopicSession
             key={topicSessionSlice.SK.concat(
@@ -35,6 +36,7 @@ export function CalendarGridColumn({ day }: { day: Date }) {
             )}
             topicSessionSlice={topicSessionSlice}
             columnDomRef={gridColumnDomRef}
+            innerColumnIndex={topicSessionSlice.columnInnerColIndex ?? 0}
           />
         );
       })}

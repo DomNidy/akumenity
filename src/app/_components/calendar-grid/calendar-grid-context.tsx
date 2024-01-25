@@ -40,6 +40,10 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   daySessionSliceMap: {},
   cellHeightPx: 60,
   currentTimeElementRef: null,
+  hoveredCalendarItemId: null,
+  setHoveredCalendarItemId: () => {
+    throw new Error("setHoveredCalendarItemId not implemented");
+  },
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -61,6 +65,11 @@ export function CalendarGridProvider({
       userPreferences.weekStartsOn,
     ),
   );
+
+  // The item on the calendar grid that is currently hovered over
+  const [hoveredCalendarItemId, setHoveredCalendarItemId] = useState<
+    string | null
+  >(null);
 
   // Height of a single cell in the calendar grid
   const [cellHeightPx, _setCellHeightPx] = useState(60);
@@ -157,6 +166,8 @@ export function CalendarGridProvider({
     },
     displayDateBounds,
     zoomLevel,
+    hoveredCalendarItemId,
+    setHoveredCalendarItemId,
     // Ensure zoom level is always at least 1
     setZoomLevel: (lvl: number) =>
       _setZoomLevel(lvl <= 0 ? 1 : lvl >= 12 ? 11 : lvl),
