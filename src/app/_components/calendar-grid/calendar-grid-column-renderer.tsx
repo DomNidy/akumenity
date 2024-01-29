@@ -26,7 +26,7 @@ export function CalendarGridColumnRenderer() {
         ).add(index, "day");
         return (
           <div key={index} className="w-full">
-            <p className="absolute z-50 w-full bg-blue-800">
+            <p className="absolute z-[101] bg-blue-800  w-full ">
               {columnDay.toDate().toDateString()}
             </p>
             <CalendarGridColumn day={columnDay.toDate()} />

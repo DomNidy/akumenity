@@ -7,16 +7,15 @@ import { useCalculateTopicSessionPlacement } from "~/app/hooks/use-calculate-top
 import { CalendarGridTopicSessionPopoverContent } from "./calendar-grid-topic-session-popover-content";
 import { CalendarGridTopicSessionBodyContent } from "./calendar-grid-topic-session-body-content";
 import { useIsCalendarGridItemHovered } from "~/app/hooks/use-is-calendar-item-hovered";
+import { type CalendarGridTopicSessionSliceItem } from "~/app/hooks/use-calendar-grid-column";
 
 // The component places a topic session on the calendar grid
 // innerColumnIndex: When we have overlapping elements, the inner column index determines which the order in which elements are rendered left to right
 export function CalendarGridTopicSession({
   topicSessionSlice,
-  innerColumnIndex,
   columnDomRef,
 }: {
-  topicSessionSlice: TopicSessionSlice;
-  innerColumnIndex: number;
+  topicSessionSlice: CalendarGridTopicSessionSliceItem;
   columnDomRef: React.RefObject<HTMLDivElement>;
 }) {
   const [open, setOpen] = useState(false);
@@ -24,7 +23,6 @@ export function CalendarGridTopicSession({
   const topicSessionPlacement = useCalculateTopicSessionPlacement({
     topicSessionSlice,
     columnDomRef,
-    innerColumnIndex
   });
 
   const { isHovered, setHovered } = useIsCalendarGridItemHovered(
@@ -42,7 +40,7 @@ export function CalendarGridTopicSession({
           onClick={() => setOpen(!open)}
           className={`${getLabelColor(topicSessionSlice.ColorCode)} ${
             isHovered ? `border-2 brightness-125` : ``
-          } duration-[35] absolute z-[100] flex cursor-pointer flex-col overflow-hidden rounded-lg transition-all`}
+          } duration-[35] absolute z-50 flex cursor-pointer flex-col overflow-hidden rounded-lg transition-all`}
           style={{
             height: `${topicSessionPlacement.topicSessionHeight}px`,
             width: `${topicSessionPlacement.topicSessionWidth}px`,
@@ -54,7 +52,10 @@ export function CalendarGridTopicSession({
           <CalendarGridTopicSessionBodyContent
             topicSessionSlice={topicSessionSlice}
           />
-          <p>{innerColumnIndex}</p>
+          <p>
+            {topicSessionSlice.columnInnerColIndex} /{" "}
+            {topicSessionSlice.localMaxInnerColIndex}
+          </p>
         </div>
       </PopoverTrigger>
 

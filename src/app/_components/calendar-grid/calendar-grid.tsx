@@ -64,7 +64,7 @@ export function CalendarGrid() {
 
       <p>Sessions in this week: {calendarGridContext.topicSessions.length}</p>
       <ScrollArea className="h-fit">
-        <ScrollBar className="z-50" />
+        <ScrollBar className="z-[51]" />
         {isClient ? (
           <div className="flex max-h-[900px] w-full  relative">
             <CalendarGridTimeColumn

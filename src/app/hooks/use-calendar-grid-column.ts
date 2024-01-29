@@ -5,21 +5,20 @@ import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-
 import { type TopicSessionSlice } from "../_components/calendar-grid/calendar-grid-definitions";
 import { getDaysSinceUnixEpoch } from "~/lib/utils";
 
-// This type extends the TopicSessionSlice type to include the columnInnerColIndex
-type CalendarGridTopicSessionSliceItem = TopicSessionSlice & {
+// This type extends the TopicSessionSlice type to include the columnInnerColIndex and localMaxInnerColIndex
+export type CalendarGridTopicSessionSliceItem = TopicSessionSlice & {
+  // the inner column index of this topic session slice (0 is the leftmost column, 1 is the column to the right of that, etc.)
+  // used to offset overlapping topic sessions
   columnInnerColIndex?: number;
+  // the maximum inner column index of all topic sessions that overlap with this one
+  // used to calculate the width of each topic session
+  localMaxInnerColIndex?: number;
 };
 
 /**
  * @param day  The day that this column represents and reads data for
  */
-export function useCalendarGridColumn({
-  day,
-  columnDomRef,
-}: {
-  day: Date;
-  columnDomRef: React.RefObject<HTMLDivElement>;
-}) {
+export function useCalendarGridColumn({ day }: { day: Date }) {
   const calendarGridContext = useContext(CalendarGridContext);
 
   // Retrieve topic session slices associated with this column
@@ -49,20 +48,24 @@ export function useCalendarGridColumn({
   function assignInnerColIndex(
     topicSessionSlices: CalendarGridTopicSessionSliceItem[],
   ): CalendarGridTopicSessionSliceItem[] {
-    console.log("assignInnerColIndex", topicSessionSlices);
-    // Sort the new topic session slices by sliceStartMS and map them to CalendarGridTopicSessionSliceItem
+    // Sort the topic session slices by start time
     const sortedTopicSessionSlices =
       topicSessionSlices?.sort((a, b) => a.sliceStartMS - b.sliceStartMS) ??
       (([] as TopicSessionSlice[]).map((topicSessionSlice) => ({
         ...topicSessionSlice,
         columnInnerColIndex: 0,
+        localMaxInnerColIndex: 0,
       })) as CalendarGridTopicSessionSliceItem[]);
 
     const stack: CalendarGridTopicSessionSliceItem[] = [];
     const result: CalendarGridTopicSessionSliceItem[] = [];
+    // Each session in a set of overlapping sessions should know the maximum inner col index of all sessions in that overlapping set
+    let localMaxInnerColIndex = 0;
+    // Keeps track of the start of the current set of overlapping sessions
+    let startOfSetIndex = 0;
 
     for (const topicSessionSlice of sortedTopicSessionSlices) {
-      // If the current element doesn't overlap with the last element in the stack, remove the last element from the stack
+      // While the previous element in the stack ends before this element starts, pop it off the stack as it is no longer overlapping
       while (
         stack.length > 0 &&
         topicSessionSlice.sliceStartMS >=
@@ -71,17 +74,42 @@ export function useCalendarGridColumn({
         stack.pop();
       }
 
-      // If the stack is empty, this element doesn't overlap with any previous ones
-      topicSessionSlice.columnInnerColIndex =
-        stack.length === 0
-          ? 0
-          : (stack[stack.length - 1]?.columnInnerColIndex ?? 0) + 1;
+      if (stack.length === 0) {
+        // If the stack is empty, we're starting a new set of overlapping sessions
+        // Update the localMaxInnerColIndex of all elements in the previous set
+        for (let i = startOfSetIndex; i < result.length; i++) {
+          result[i] = {
+            ...result[i]!,
+            localMaxInnerColIndex: localMaxInnerColIndex,
+          };
+        }
+
+        // Reset the localMaxInnerColIndex and startOfSetIndex for the new set
+        topicSessionSlice.columnInnerColIndex = 0;
+        localMaxInnerColIndex = 0;
+        startOfSetIndex = result.length;
+      } else {
+        // If the stack is not empty, this element overlaps with the last element in the stack
+        topicSessionSlice.columnInnerColIndex =
+          (stack[stack.length - 1]?.columnInnerColIndex ?? 0) + 1;
+        localMaxInnerColIndex = Math.max(
+          localMaxInnerColIndex,
+          topicSessionSlice.columnInnerColIndex,
+        );
+      }
 
       stack.push(topicSessionSlice);
       result.push(topicSessionSlice);
     }
 
-    console.log("result", result);
+    // Update the localMaxInnerColIndex of all elements in the last set
+    for (let i = startOfSetIndex; i < result.length; i++) {
+      result[i] = {
+        ...result[i]!,
+        localMaxInnerColIndex: localMaxInnerColIndex,
+      };
+    }
+
     return result;
   }
 
@@ -89,34 +117,3 @@ export function useCalendarGridColumn({
     columnTopicSessionSlices,
   };
 }
-
-// type TimeSlot = {
-//     startTimeMS: number;
-//     endTimeMS: number;
-//     innerColIndex?: number;
-// };
-
-// function assignInnerColIndex(timeSlots: TimeSlot[]): TimeSlot[] {
-//     // Sort the array by startTimeMS
-//     const sortedTimeSlots = [...timeSlots].sort((a, b) => a.startTimeMS - b.startTimeMS);
-
-//     const stack: TimeSlot[] = [];
-//     const result: TimeSlot[] = [];
-
-//     for (const timeSlot of sortedTimeSlots) {
-//         // Pop from the stack as long as the current timeSlot starts after or exactly when the last one ends
-//         while (stack.length > 0 && timeSlot.startTimeMS >= stack[stack.length - 1].endTimeMS) {
-//             stack.pop();
-//         }
-
-//         // If the stack is empty, this timeSlot doesn't overlap with any previous ones
-//         // Otherwise, it overlaps with the last one in the stack
-//         timeSlot.innerColIndex = stack.length === 0 ? 0 : stack[stack.length - 1].innerColIndex! + 1;
-
-//         // Push the current timeSlot onto the stack and add it to the result array
-//         stack.push(timeSlot);
-//         result.push(timeSlot);
-//     }
-
-//     return result;
-// }

@@ -1,28 +1,35 @@
 // Custom hook which calculates the placement, width, and height of a topic session
 "use client";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { type TopicSessionSlice } from "../_components/calendar-grid/calendar-grid-definitions";
+import { use, useContext, useEffect, useMemo, useState } from "react";
 import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-context";
 import dayjs from "dayjs";
 import { calculateTopicSessionHeightInPixels } from "~/lib/utils";
+import { type CalendarGridTopicSessionSliceItem } from "./use-calendar-grid-column";
 
 export function useCalculateTopicSessionPlacement({
   topicSessionSlice,
-  // The inner column index of this topic session in the grid column
-  innerColumnIndex,
   // Reference to the column we are rendering this topic session in
   columnDomRef,
 }: {
-  topicSessionSlice: TopicSessionSlice;
-  innerColumnIndex: number;
+  topicSessionSlice: CalendarGridTopicSessionSliceItem;
   columnDomRef: React.RefObject<HTMLDivElement>;
 }) {
   const calendarGridContext = useContext(CalendarGridContext);
+
+  // Calculate the width this topic session should be (in pixels)
+  const [topicSessionWidth, setTopicSessionWidth] = useState(
+    calculateTopicSessionWidth(),
+  );
 
   // Calculate the left offset of this topic session (in pixels)
   const [topicSessionLeftOffset, setTopicSessionLeftOffset] = useState(
     calculateLeftOffset(),
   );
+
+  useEffect(() => {
+    console.log("ran useCalculateTopicSessionPlacement");
+    setTopicSessionLeftOffset(calculateLeftOffset());
+  }, [topicSessionWidth, columnDomRef]);
 
   // Since zoomLevel is the amount of cells (vertically stacked) needed to represent 1 hour
   // we calculate the height of 1 hour in pixels by multiplying the cellHeightPx by the zoomLevel
@@ -46,11 +53,6 @@ export function useCalculateTopicSessionPlacement({
     hourHeightInPx,
     columnDomRef,
   ]);
-
-  // Calculate the width this topic session should be (in pixels)
-  const [topicSessionWidth, setTopicSessionWidth] = useState(
-    calculateTopicSessionWidth(),
-  );
 
   // Calculate the hour of the day that this topic session starts at
   const startHour = useMemo(
@@ -91,7 +93,6 @@ export function useCalculateTopicSessionPlacement({
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       setTopicSessionWidth(calculateTopicSessionWidth());
-      setTopicSessionLeftOffset(calculateLeftOffset());
     });
 
     if (columnDomRef.current) {
@@ -110,22 +111,21 @@ export function useCalculateTopicSessionPlacement({
   );
 
   // Calculates how many pixels wide this topic session should
+  // TODO: The offset error is due to the width being incorrectly calculated (probably)
   function calculateTopicSessionWidth() {
     return columnDomRef.current?.clientWidth
-      ? columnDomRef.current?.clientWidth - topicSessionLeftOffset
+      ? columnDomRef.current?.clientWidth /
+          (topicSessionSlice.localMaxInnerColIndex ?? 0) +
+          1
       : 5;
   }
 
-  // Calculate the left offset of this topic session (in pixels)
+  // Calculate the left offset of this topic session (in pixels) based on the inner column index
   function calculateLeftOffset() {
-    if (!innerColumnIndex) return 0;
+    if (!topicSessionSlice.columnInnerColIndex) return 0;
 
-    // TODO: Instead of multiplying by 20, we should divide the column width by the number of inner columns
-    const columnWidth = columnDomRef.current?.clientWidth
-      ? innerColumnIndex * 20
-      : 50;
-
-    return columnWidth;
+    // Calculate the left offset of this topic session based on the inner column index
+    return topicSessionSlice.columnInnerColIndex * topicSessionWidth;
   }
 
   return {

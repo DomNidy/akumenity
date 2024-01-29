@@ -13,12 +13,11 @@ export function CalendarGridColumn({ day }: { day: Date }) {
 
   const { columnTopicSessionSlices } = useCalendarGridColumn({
     day,
-    columnDomRef: gridColumnDomRef,
   });
 
   return (
     <div
-      className={`relative flex flex-row bg-red-300 `}
+      className={`relative flex flex-row bg-red-300 border-[1px]`}
       ref={gridColumnDomRef}
       style={{
         height: `${
@@ -36,7 +35,6 @@ export function CalendarGridColumn({ day }: { day: Date }) {
             )}
             topicSessionSlice={topicSessionSlice}
             columnDomRef={gridColumnDomRef}
-            innerColumnIndex={topicSessionSlice.columnInnerColIndex ?? 0}
           />
         );
       })}
