@@ -1,15 +1,13 @@
-"use client";
+// Renders out the row of dates above the time columns
+
 import { useContext, useMemo } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
-import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import { calculateGridColumnCount } from "~/lib/utils";
+import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import dayjs from "dayjs";
-import { CalendarGridColumn } from "./calendar-grid-column";
 
-// This component is responsible for determining what date each column represents, then rendering out the columns for those dates
-export function CalendarGridColumnRenderer() {
+export function CalendarGridDateRowRenderer() {
   const userPreferences = useUserPreferences();
-
   const calendarGridContext = useContext(CalendarGridContext);
 
   // Recalculate the number of columns to render when the display mode changes
@@ -19,17 +17,19 @@ export function CalendarGridColumnRenderer() {
   );
 
   return (
-    <>
+    <div className="ml-[38px] flex flex-row ">
       {[...Array(numColumnsToRender).keys()].map((value, index) => {
         const columnDay = dayjs(
           calendarGridContext.displayDateBounds.beginDate,
         ).add(index, "day");
         return (
-          <div key={index} className="w-full">
-            <CalendarGridColumn day={columnDay.toDate()} />
+          <div key={index} className="h-full w-full">
+            <p className="sticky top-0 z-[101] w-full  bg-blue-800 ">
+              {columnDay.toDate().toDateString()}
+            </p>
           </div>
         );
       })}
-    </>
+    </div>
   );
 }

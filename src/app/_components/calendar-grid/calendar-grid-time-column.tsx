@@ -6,7 +6,7 @@ import { CalendarGridTimeColumnRow } from "./calendar-grid-time-column-row";
 export function CalendarGridTimeColumn() {
   const calendarGridContext = useContext(CalendarGridContext);
   return (
-    <div className="flex flex-col pr-2">
+    <div className="flex flex-col">
       {[...Array(24 * calendarGridContext.zoomLevel).keys()].map(
         (value, index) => {
           const rowTime = new Date();

@@ -35,11 +35,6 @@ export interface CalendarGridContextType {
   // DOM ref to the current time bar element
   currentTimeElementRef: React.RefObject<HTMLDivElement> | null;
 
-  // ID of the current hovered calendar item
-  hoveredCalendarItemId: string | null;
-  // Function which sets the hovered calendar item
-  setHoveredCalendarItemId: (calendarItemId: string | null) => void;
-
   // The bounds (beginning and end) of the date range that is being displayed
   displayDateBounds: { beginDate: Date; endDate: Date };
 

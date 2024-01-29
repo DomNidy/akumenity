@@ -115,7 +115,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
               <Tooltip delayDuration={50}>
                 <TooltipTrigger className="w-full self-start">
                   <div className="my-1 flex flex-row items-center justify-between gap-2 rounded-lg border border-none border-input bg-background px-4 py-2 hover:bg-accent hover:text-accent-foreground">
-                    <Link href="/dashboard">
+                    <Link href="/dashboard/my-topics">
                       <BookType />
                     </Link>
                     {showLabels && (
@@ -126,7 +126,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                  <p>Notes</p>
+                  <p>Topics</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

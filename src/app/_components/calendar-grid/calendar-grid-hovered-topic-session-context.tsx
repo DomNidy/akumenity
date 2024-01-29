@@ -1,15 +1,18 @@
 import { createContext, useState, useContext } from "react";
 
-// Create a new context for hoveredCalendarItem
-export const HoveredCalendarItemContext = createContext<{
+export type HoveredCalendarItemContextType = {
   hoveredCalendarItemId: string | null;
-  setHoveredCalendarItemId(hoveredItemId: string): void;
-}>({
-  hoveredCalendarItemId: null,
-  setHoveredCalendarItemId: () => {
-    throw new Error("setHoveredCalendarItemId() not implemented");
-  },
-});
+  setHoveredCalendarItemId(hoveredItemId: string | null): void;
+};
+
+// Create a new context for hoveredCalendarItem
+export const HoveredCalendarItemContext =
+  createContext<HoveredCalendarItemContextType>({
+    hoveredCalendarItemId: null,
+    setHoveredCalendarItemId: () => {
+      throw new Error("setHoveredCalendarItemId() not implemented");
+    },
+  });
 
 // Create a provider for this context
 export const HoveredCalendarItemProvider = ({

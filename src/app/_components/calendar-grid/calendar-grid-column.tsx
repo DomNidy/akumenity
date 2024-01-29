@@ -17,7 +17,7 @@ export function CalendarGridColumn({ day }: { day: Date }) {
 
   return (
     <div
-      className={`relative flex flex-row bg-red-300 border-[1px]`}
+      className={`relative flex flex-row border-[1px] bg-red-300`}
       ref={gridColumnDomRef}
       style={{
         height: `${

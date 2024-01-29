@@ -1,6 +1,6 @@
 // Custom hook which calculates the placement, width, and height of a topic session
 "use client";
-import { use, useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-context";
 import dayjs from "dayjs";
 import { calculateTopicSessionHeightInPixels } from "~/lib/utils";
@@ -14,6 +14,10 @@ export function useCalculateTopicSessionPlacement({
   topicSessionSlice: CalendarGridTopicSessionSliceItem;
   columnDomRef: React.RefObject<HTMLDivElement>;
 }) {
+  useEffect(() => {
+    console.log("re-ran topic session hook");
+  });
+
   const calendarGridContext = useContext(CalendarGridContext);
 
   // Calculate the width this topic session should be (in pixels)
@@ -91,6 +95,7 @@ export function useCalculateTopicSessionPlacement({
   // We do this because the width of the topic session is dependent on the width of the column it is rendered in,
   // and we cant just use CSS because multiple topic sessions can be rendered in the same column, and we use absolute positioning to place them
   useEffect(() => {
+    console.log("Effect ran");
     const resizeObserver = new ResizeObserver(() => {
       setTopicSessionWidth(calculateTopicSessionWidth());
     });

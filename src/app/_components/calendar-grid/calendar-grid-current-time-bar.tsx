@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useCalculateTopicSessionPlacement } from "~/app/hooks/use-calculate-topic-session-placement";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { useInterval } from "usehooks-ts";
@@ -18,6 +18,7 @@ export function CalendarGridCurrentTimeBar({
   useInterval(() => {
     setCurrentTime(new Date().getTime());
   }, 30000);
+
 
   // We use the useCalculateTopicSessionPlacement hook to calculate the placement of the current time bar
   // We are just giving it a fake topic session slice, and the ref to the time column

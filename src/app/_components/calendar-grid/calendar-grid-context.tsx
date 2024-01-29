@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import {
   getDayjsUnitFromDisplayMode,
@@ -14,6 +14,7 @@ import {
 } from "./calendar-grid-definitions";
 import dayjs from "dayjs";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
+import { HoveredCalendarItemProvider } from "./calendar-grid-hovered-topic-session-context";
 
 // The calendar grid and its child components read data from this context (avoiding prop drilling)
 export const CalendarGridContext = createContext<CalendarGridContextType>({
@@ -40,10 +41,6 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   daySessionSliceMap: {},
   cellHeightPx: 60,
   currentTimeElementRef: null,
-  hoveredCalendarItemId: null,
-  setHoveredCalendarItemId: () => {
-    throw new Error("setHoveredCalendarItemId not implemented");
-  },
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -53,8 +50,8 @@ export function CalendarGridProvider({
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    console.log("CalendarGridProvider rendered");
-  }, []);
+    console.log("CalendarGridProvider");
+  });
 
   // The user's display preferences (read from local storage)
   const userPreferences = useUserPreferences();
@@ -69,11 +66,6 @@ export function CalendarGridProvider({
       userPreferences.weekStartsOn,
     ),
   );
-
-  // The item on the calendar grid that is currently hovered over
-  const [hoveredCalendarItemId, setHoveredCalendarItemId] = useState<
-    string | null
-  >(null);
 
   // Height of a single cell in the calendar grid
   const [cellHeightPx, _setCellHeightPx] = useState(60);
@@ -170,8 +162,6 @@ export function CalendarGridProvider({
     },
     displayDateBounds,
     zoomLevel,
-    hoveredCalendarItemId,
-    setHoveredCalendarItemId,
     // Ensure zoom level is always at least 1
     setZoomLevel: (lvl: number) =>
       _setZoomLevel(lvl <= 0 ? 1 : lvl >= 12 ? 11 : lvl),
@@ -185,7 +175,7 @@ export function CalendarGridProvider({
   // This component provides the context to its child components
   return (
     <CalendarGridContext.Provider value={value}>
-      {children}
+      <HoveredCalendarItemProvider>{children}</HoveredCalendarItemProvider>
     </CalendarGridContext.Provider>
   );
 }

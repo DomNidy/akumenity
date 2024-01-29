@@ -21,6 +21,7 @@ export type CalendarGridTopicSessionSliceItem = TopicSessionSlice & {
 export function useCalendarGridColumn({ day }: { day: Date }) {
   const calendarGridContext = useContext(CalendarGridContext);
 
+
   // Retrieve topic session slices associated with this column
   const [columnTopicSessionSlices, setColumnTopicSessionSlices] = useState<
     CalendarGridTopicSessionSliceItem[]
