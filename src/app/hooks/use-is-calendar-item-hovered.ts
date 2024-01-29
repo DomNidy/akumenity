@@ -7,14 +7,14 @@ import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-
 export function useIsCalendarGridItemHovered(elementId: string) {
   const calendarGridContext = useContext(CalendarGridContext);
 
-  const isHovered = calendarGridContext.hoveredCalendarItemId === elementId;
-
   // TODO: This context update might be causing many other components to re-render, which is not ideal
-  // TODO: Fix this
   // Update the context hovered calendar item id
   function setHovered(hovered: boolean) {
     calendarGridContext.setHoveredCalendarItemId(hovered ? elementId : null);
   }
 
-  return { isHovered, setHovered };
+  return {
+    isHovered: calendarGridContext.hoveredCalendarItemId === elementId,
+    setHovered,
+  };
 }

@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { getLabelColor } from "~/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { type TopicSessionSlice } from "./calendar-grid-definitions";
 import { useCalculateTopicSessionPlacement } from "~/app/hooks/use-calculate-topic-session-placement";
 import { CalendarGridTopicSessionPopoverContent } from "./calendar-grid-topic-session-popover-content";
 import { CalendarGridTopicSessionBodyContent } from "./calendar-grid-topic-session-body-content";
@@ -33,8 +32,12 @@ export function CalendarGridTopicSession({
     <Popover>
       <PopoverTrigger asChild>
         <div
-          onMouseOver={() => setHovered(true)}
-          onMouseOut={() => setHovered(false)}
+          onMouseOver={() => {
+            setHovered(true);
+          }}
+          onMouseOut={() => {
+            setHovered(false);
+          }}
           id={topicSessionSlice.SK}
           data-calendar-grid-item-type="topic-session"
           onClick={() => setOpen(!open)}

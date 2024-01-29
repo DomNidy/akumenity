@@ -29,11 +29,6 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
       ?.topicSessionSlices ?? [],
   );
 
-  console.log(
-    calendarGridContext.daySessionSliceMap[getDaysSinceUnixEpoch(day)]
-      ?.topicSessionSlices ?? [],
-  );
-
   useEffect(() => {
     // Whenever the daySessionSliceMap changes, read the new topic sessions
     // transform them into CalendarGridTopicSessionSliceItem and assign them an innerColIndex, then set the state

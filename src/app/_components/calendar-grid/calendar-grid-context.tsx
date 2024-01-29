@@ -52,6 +52,10 @@ export function CalendarGridProvider({
 }: {
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    console.log("CalendarGridProvider rendered");
+  }, []);
+
   // The user's display preferences (read from local storage)
   const userPreferences = useUserPreferences();
 

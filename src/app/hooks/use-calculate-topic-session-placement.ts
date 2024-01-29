@@ -26,8 +26,8 @@ export function useCalculateTopicSessionPlacement({
     calculateLeftOffset(),
   );
 
+  // Whenever the topicSessionWidth changes, recalculate the left offset
   useEffect(() => {
-    console.log("ran useCalculateTopicSessionPlacement");
     setTopicSessionLeftOffset(calculateLeftOffset());
   }, [topicSessionWidth, columnDomRef]);
 
@@ -102,7 +102,7 @@ export function useCalculateTopicSessionPlacement({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [columnDomRef]);
+  }, [columnDomRef.current]);
 
   // Calculate the top offset of this topic session (in pixels)
   const topicSessionTopOffset = useMemo(
@@ -111,12 +111,10 @@ export function useCalculateTopicSessionPlacement({
   );
 
   // Calculates how many pixels wide this topic session should
-  // TODO: The offset error is due to the width being incorrectly calculated (probably)
   function calculateTopicSessionWidth() {
     return columnDomRef.current?.clientWidth
       ? columnDomRef.current?.clientWidth /
-          (topicSessionSlice.localMaxInnerColIndex ?? 0) +
-          1
+          Math.max(1 + (topicSessionSlice.localMaxInnerColIndex ?? 0), 1)
       : 5;
   }
 

@@ -24,7 +24,6 @@ export function CalendarGridCurrentTimeBar({
   // We might want to extract this hook to be more generic, so that it can be used for other things (such as useCalculatePlacement, and useCalculateTopicSessionPlacement)
   const placement = useCalculateTopicSessionPlacement({
     columnDomRef: calendarGridTimeColumnRef,
-    innerColumnIndex: 0,
     topicSessionSlice: {
       Session_Start: currentTime,
       Session_End: currentTime,

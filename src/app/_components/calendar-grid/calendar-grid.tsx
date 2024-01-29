@@ -1,15 +1,9 @@
 "use client";
 import { useContext, useEffect, useRef, useState } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
-import { Button } from "../ui/button";
-import { Calendar, ZoomIn, ZoomOut } from "lucide-react";
-import { CalendarGridColumn } from "./calendar-grid-column";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
-import { CalendarGridDisplayMode } from "./calendar-grid-definitions";
-import dayjs from "dayjs";
 import { CalendarGridPreferenceEditor } from "./calendar-grid-preference-editor";
 import { CalendarGridTimeColumn } from "./calendar-grid-time-column";
-import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import { CalendarGridControls } from "./calendar-grid-controls";
 import { CalendarGridColumnRenderer } from "./calendar-grid-column-renderer";
 import { CalendarGridCurrentTimeBar } from "./calendar-grid-current-time-bar";
@@ -19,7 +13,6 @@ export function CalendarGrid() {
   const calendarGridContext = useContext(CalendarGridContext);
   const calendarGridDomRef = useRef<HTMLDivElement>(null);
   const calendarGridTimeColumnRef = useRef<HTMLDivElement>(null);
-  const userPreferences = useUserPreferences();
 
   // This state is used to prevent the CalendarGrid from rendering data that would cause a hydration errors
   // Things like weekStartsOn, displayMode, etc. are read from local storage and would cause dom mismatches
@@ -38,6 +31,10 @@ export function CalendarGrid() {
       inline: "center",
     });
   }, [isClient]);
+
+  useEffect(() => {
+    console.log("Rendered parent");
+  });
 
   return (
     <div
@@ -66,10 +63,8 @@ export function CalendarGrid() {
       <ScrollArea className="h-fit">
         <ScrollBar className="z-[51]" />
         {isClient ? (
-          <div className="flex max-h-[900px] w-full  relative">
-            <CalendarGridTimeColumn
-              calendarGridTimeColumnRef={calendarGridTimeColumnRef}
-            />
+          <div className="relative flex max-h-[900px]  w-full">
+            <CalendarGridTimeColumn />
             <CalendarGridColumnRenderer />
             <CalendarGridCurrentTimeBar
               calendarGridTimeColumnRef={calendarGridTimeColumnRef}
