@@ -41,6 +41,13 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   daySessionSliceMap: {},
   cellHeightPx: 60,
   currentTimeElementRef: null,
+  timeColumnRef: null,
+  removeSessionSlicesFromMap: () => {
+    throw new Error("removeSessionSlicesFromMap not implemented");
+  },
+  addSessionSliceToMap: () => {
+    throw new Error("addSessionSliceToMap not implemented");
+  },
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -66,6 +73,9 @@ export function CalendarGridProvider({
       userPreferences.weekStartsOn,
     ),
   );
+
+  // Ref to the time column
+  const timeColumnRef = useRef<HTMLDivElement>(null);
 
   // Height of a single cell in the calendar grid
   const [cellHeightPx, _setCellHeightPx] = useState(60);
@@ -170,6 +180,9 @@ export function CalendarGridProvider({
     cellHeightPx: cellHeightPx,
     setCellHeightPx: _setCellHeightPx,
     currentTimeElementRef,
+    timeColumnRef,
+    removeSessionSlicesFromMap: daySessionMap.removeSessionSlicesFromMap,
+    addSessionSliceToMap: daySessionMap.addSessionSliceToMap,
   };
 
   // This component provides the context to its child components

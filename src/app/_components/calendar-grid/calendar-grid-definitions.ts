@@ -42,6 +42,10 @@ export interface CalendarGridContextType {
   incrementPage: () => void;
   decrementPage: () => void;
 
+  // Ref to the time column element
+  // Used to calculate the offset of the time header
+  timeColumnRef: React.RefObject<HTMLDivElement> | null;
+
   // Wrapper which controls the zoomLevel state
   setZoomLevel: (zoomLevel: number) => void;
   // This corresponds to the amount of cells needed to display a single hour
@@ -57,6 +61,10 @@ export interface CalendarGridContextType {
     number,
     { day: Date; topicSessionSlices: TopicSessionSlice[] }
   >;
+  // Function which removes topic session slices associated with a topic session id from the map
+  removeSessionSlicesFromMap: (topicSessionId: string) => void;
+  // Function which adds a topic session slice to the map
+  addSessionSliceToMap: (slice: TopicSessionSlice) => void;
 
   // The height (in pixels) of a single cell
   // This is important because it is used to calculate the height of the calendar grid and align the time column

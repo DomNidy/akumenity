@@ -7,7 +7,7 @@ import { CalendarGridTimeColumn } from "./calendar-grid-time-column";
 import { CalendarGridControls } from "./calendar-grid-controls";
 import { CalendarGridColumnRenderer } from "./calendar-grid-column-renderer";
 import { CalendarGridCurrentTimeBar } from "./calendar-grid-current-time-bar";
-import { CalendarGridDateRowRenderer } from "./calendar-grid-date-row";
+import { CalendarGridTimeHeader } from "./calendar-grid-time-header";
 
 // Responsible for rendering the calendar grid and its child components
 export function CalendarGrid() {
@@ -61,9 +61,8 @@ export function CalendarGrid() {
       <CalendarGridControls />
 
       <p>Sessions in this week: {calendarGridContext.topicSessions.length}</p>
-        {isClient && <CalendarGridDateRowRenderer />}
+      {isClient && <CalendarGridTimeHeader />}
       <ScrollArea className="h-fit">
-
         <ScrollBar className="z-[51]" />
         {isClient ? (
           <>

@@ -39,7 +39,6 @@ export default function Timeclock({
 
   if (!active) return null;
 
-  // TODO: Continue implementing timeclock
   return (
     <Card className="w-fit p-2">
       <div className="flex flex-row ">

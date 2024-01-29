@@ -44,6 +44,28 @@ export function useDaySessionMap() {
     [setDaySessionMap],
   );
 
+  // Function which removes all topic session slices associated with a topic session id from the map
+  const removeSessionSlicesFromMap = useCallback(
+    (topicSessionId: string) => {
+      setDaySessionMap((prevMap) => {
+        const map = { ...prevMap };
+
+        Object.keys(map).forEach((day) => {
+          map[Number(day)] = {
+            topicSessionSlices:
+              map[Number(day)]?.topicSessionSlices.filter(
+                (slice) => slice.SK !== topicSessionId,
+              ) ?? [],
+            day: map[Number(day)]?.day ?? new Date(),
+          };
+        });
+
+        return map;
+      });
+    },
+    [setDaySessionMap],
+  );
+
   // Function which returns true or false depending on whether a session has already been processed (sliced and added to the map)
   const isSessionIdProcessed = useCallback(
     (topicSessionId: string) => {
@@ -69,5 +91,6 @@ export function useDaySessionMap() {
     addSessionSliceToMap,
     isSessionIdProcessed,
     markSessionIdAsProcessed,
+    removeSessionSlicesFromMap,
   };
 }

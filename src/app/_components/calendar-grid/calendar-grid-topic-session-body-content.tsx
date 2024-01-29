@@ -16,9 +16,9 @@ export function CalendarGridTopicSessionBodyContent({
       </h2>
       <h3>
         {timeSince(
-            topicSessionSlice?.Session_End
-              ? topicSessionSlice.Session_End
-              : new Date().getTime(),
+          topicSessionSlice?.Session_End
+            ? topicSessionSlice.Session_End
+            : new Date().getTime(),
           topicSessionSlice.Session_Start,
         )}
       </h3>

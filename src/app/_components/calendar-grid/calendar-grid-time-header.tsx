@@ -6,7 +6,7 @@ import { calculateGridColumnCount } from "~/lib/utils";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import dayjs from "dayjs";
 
-export function CalendarGridDateRowRenderer() {
+export function CalendarGridTimeHeader() {
   const userPreferences = useUserPreferences();
   const calendarGridContext = useContext(CalendarGridContext);
 
@@ -17,7 +17,11 @@ export function CalendarGridDateRowRenderer() {
   );
 
   return (
-    <div className="ml-[38px] flex flex-row ">
+    <div
+      className={`ml-[${
+        calendarGridContext.timeColumnRef?.current?.clientWidth ?? 30
+      }px] flex flex-row `}
+    >
       {[...Array(numColumnsToRender).keys()].map((value, index) => {
         const columnDay = dayjs(
           calendarGridContext.displayDateBounds.beginDate,

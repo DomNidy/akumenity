@@ -6,6 +6,7 @@ import {
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
   BatchGetCommand,
+  DeleteCommand,
   GetCommand,
   PutCommand,
   QueryCommand,
@@ -194,6 +195,7 @@ export const topicSessionRouter = createTRPCRouter({
   getTopicSessionsInDateRange: protectedProcedure
     .input(TopicSessionGetSchema)
     .query(async ({ ctx, input }) => {
+      console.log("Getting topic sessions in date range");
       try {
         if (input.dateRange.startTimeMS && input.dateRange.endTimeMS) {
           console.log("Querying for topic sessions within date range:");
@@ -358,6 +360,64 @@ export const topicSessionRouter = createTRPCRouter({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to get sessions for topic, please try again",
+          cause: err,
+        });
+      }
+    }),
+  deleteTopicSession: protectedProcedure
+    .input(
+      z.object({
+        topicSessionId: z.string().min(1).max(128),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Find the topic session
+        const getSessionCommand = new GetCommand({
+          TableName: dbConstants.tables.topic.tableName,
+          Key: {
+            PK: `${ctx.session.userId}`,
+            SK: input.topicSessionId,
+          },
+        });
+
+        // Get the topic session
+        const session = await ddbDocClient.send(getSessionCommand);
+
+        // Ensure that the topic session exists
+        if (!session.Item) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Topic session does not exist",
+          });
+        }
+
+        // Ensure that the topic session belongs to the user
+        if (session.Item.PK !== ctx.session.userId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Topic session does not belong to user",
+          });
+        }
+
+        // Delete the topic session
+        const deleteSessionCommand = new DeleteCommand({
+          TableName: dbConstants.tables.topic.tableName,
+          Key: {
+            PK: `${ctx.session.userId}`,
+            SK: input.topicSessionId,
+          },
+        });
+
+        await ddbDocClient.send(deleteSessionCommand);
+      } catch (err) {
+        console.error(err);
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete topic session, please try again",
           cause: err,
         });
       }

@@ -46,13 +46,12 @@ export function CalendarGridTopicSession({
             hoverContext.hoveredCalendarItemId === topicSessionSlice.SK
               ? `brightness-125`
               : ``
-          } duration-75 absolute z-50 flex cursor-pointer flex-col overflow-hidden rounded-lg transition-all`}
+          } absolute z-50 flex cursor-pointer flex-col overflow-hidden rounded-lg transition-all duration-75`}
           style={{
             height: `${topicSessionPlacement.topicSessionHeight}px`,
             width: `${topicSessionPlacement.topicSessionWidth}px`,
             top: `${topicSessionPlacement.topicSessionTopOffset}px`,
             left: `${topicSessionPlacement.topicSessionLeftOffset}px`,
-            // TODO: Use the left,right,width properties to position elements that are overlapping
           }}
         >
           <CalendarGridTopicSessionBodyContent

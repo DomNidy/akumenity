@@ -14,10 +14,6 @@ export function useCalculateTopicSessionPlacement({
   topicSessionSlice: CalendarGridTopicSessionSliceItem;
   columnDomRef: React.RefObject<HTMLDivElement>;
 }) {
-  useEffect(() => {
-    console.log("re-ran topic session hook");
-  });
-
   const calendarGridContext = useContext(CalendarGridContext);
 
   // Calculate the width this topic session should be (in pixels)
