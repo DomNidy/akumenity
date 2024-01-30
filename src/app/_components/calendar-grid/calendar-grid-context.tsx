@@ -48,6 +48,9 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   addSessionSliceToMap: () => {
     throw new Error("addSessionSliceToMap not implemented");
   },
+  markSessionIdAsUnprocessed: () => {
+    throw new Error("markSessionIdAsUnprocessed not implemented");
+  },
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -180,6 +183,7 @@ export function CalendarGridProvider({
     timeColumnRef,
     removeSessionSlicesFromMap: daySessionMap.removeSessionSlicesFromMap,
     addSessionSliceToMap: daySessionMap.addSessionSliceToMap,
+    markSessionIdAsUnprocessed: daySessionMap.markSessionIdAsUnprocessed,
   };
 
   // This component provides the context to its child components

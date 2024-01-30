@@ -29,12 +29,12 @@ export function useDaySessionMap() {
 
         map[dayOfSlice] = {
           day: _sliceDate,
+          // If there are already slices for this day, keep them
           topicSessionSlices: [
+            ...(prevMap[dayOfSlice]?.topicSessionSlices ?? []),
             {
               ...slice,
             },
-            // If there are already slices for this day, keep them
-            ...(prevMap[dayOfSlice]?.topicSessionSlices ?? []),
           ],
         };
 
@@ -42,6 +42,21 @@ export function useDaySessionMap() {
       });
     },
     [setDaySessionMap],
+  );
+
+  // Function used to mark a topic session as unprocessed
+  // useful for when we want to update the data associated with a topic session
+  // This will cause new slices to be created from this topic sessions data
+  const markSessionIdAsUnprocessed = useCallback(
+    (topicSessionId: string) => {
+      console.log("marking session id as unprocessed", topicSessionId);
+      setProcessedTopicSessionIds((prevSet) => {
+        const set = new Set(prevSet);
+        set.delete(topicSessionId);
+        return set;
+      });
+    },
+    [setProcessedTopicSessionIds],
   );
 
   // Function which removes all topic session slices associated with a topic session id from the map
@@ -91,6 +106,7 @@ export function useDaySessionMap() {
     addSessionSliceToMap,
     isSessionIdProcessed,
     markSessionIdAsProcessed,
+    markSessionIdAsUnprocessed: markSessionIdAsUnprocessed,
     removeSessionSlicesFromMap,
   };
 }

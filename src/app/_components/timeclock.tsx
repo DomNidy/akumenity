@@ -4,9 +4,10 @@ import { type dbConstants } from "~/definitions/dbConstants";
 import { Card } from "./ui/card";
 import { timeSince } from "~/lib/utils";
 import { Square } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { useQueryClient } from "@tanstack/react-query";
+import { CalendarGridContext } from "./calendar-grid/calendar-grid-context";
 
 export default function Timeclock({
   topicSession,
@@ -15,7 +16,22 @@ export default function Timeclock({
 }) {
   const { PK, SK, Session_Start, Session_Status, Topic_Title } = topicSession;
 
-  const stopSession = api.topicSession.endTopicSession.useMutation();
+  const calendarGridContext = useContext(CalendarGridContext);
+
+  const stopSession = api.topicSession.endTopicSession.useMutation({
+    onSettled: () => {
+      calendarGridContext.removeSessionSlicesFromMap(SK);
+      calendarGridContext.markSessionIdAsUnprocessed(SK);
+
+      void queryClient.invalidateQueries([
+        ["topicSession", "getActiveTopicSession"],
+      ]);
+
+      void queryClient.invalidateQueries([
+        ["topicSession", "getTopicSessionsInDateRange"],
+      ]);
+    },
+  });
   const queryClient = useQueryClient();
 
   const [timeElapsed, setTimeElapsed] = useState(Date.now() - Session_Start);
@@ -63,13 +79,6 @@ export default function Timeclock({
                 stopSession.mutate();
                 clearInterval(intervalRef.current);
                 setActive(false);
-                void queryClient.refetchQueries([
-                  ["topicSession", "getActiveTopicSession"],
-                ]);
-
-                void queryClient.refetchQueries([
-                  ["topicSession", "getTopicSessionsInDateRange"],
-                ]);
               }}
             />
           </div>

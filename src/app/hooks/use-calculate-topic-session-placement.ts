@@ -74,28 +74,7 @@ export function useCalculateTopicSessionPlacement({
     ],
   );
 
-  // Calculate the height this topic session should be (in pixels)
-  const topicSessionHeight = useMemo(
-    () =>
-      // We use max here to give a minimum height of 5px to each topic session
-      Math.max(
-        5,
-        calculateTopicSessionHeightInPixels(
-          topicSessionSlice.sliceStartMS,
-          liveTime,
-          hourHeightInPx,
-        ),
-      ),
-    [
-      topicSessionSlice.sliceEndMS,
-      topicSessionSlice.Session_End,
-      liveTime,
-      topicSessionSlice.sliceStartMS,
-      calendarGridContext.cellHeightPx,
-      calendarGridContext.zoomLevel,
-      hourHeightInPx,
-    ],
-  );
+  
 
   // Add a resize observer to the column DOM element so that we can recalculate the width of the topic session when the column width changes
   // We do this because the width of the topic session is dependent on the width of the column it is rendered in,
@@ -120,6 +99,44 @@ export function useCalculateTopicSessionPlacement({
     () => startHour * hourHeightInPx,
     [hourHeightInPx, startHour],
   );
+
+  // TODO: Make this less hacky
+  // This is a hacky way to do things
+  // Calculate the maximum height of a topic session so it cannot overflow the bottom of the grid column
+  // We do this because we use the topicSessionSlice.Slice_End to calculate the height of the topic session instead of the sliceEndMS
+  // This is because we want the topic session to update its height as the current time changes, and we cant update the sliceEndMS without re-slicing the topic session
+  const maxHeight = useMemo(() => {
+    const gridColumnHeight = columnDomRef.current?.offsetHeight ?? 0;
+    return gridColumnHeight - topicSessionTopOffset;
+  }, [columnDomRef, topicSessionTopOffset]);
+
+// Calculate the height this topic session should be (in pixels)
+const topicSessionHeight = useMemo(
+  () =>
+    // We use max here to give a minimum height of 5px to each topic session
+    Math.max(
+      5,
+      Math.min(
+        calculateTopicSessionHeightInPixels(
+          topicSessionSlice.sliceStartMS,
+          liveTime,
+          hourHeightInPx,
+        ),
+        maxHeight,
+      ),
+    ),
+  [
+    topicSessionSlice.sliceEndMS,
+    topicSessionSlice.Session_End,
+    liveTime,
+    maxHeight,
+    topicSessionSlice.sliceStartMS,
+    calendarGridContext.cellHeightPx,
+    calendarGridContext.zoomLevel,
+    hourHeightInPx,
+  ],
+);
+
 
   // Calculates how many pixels wide this topic session should
   function calculateTopicSessionWidth() {

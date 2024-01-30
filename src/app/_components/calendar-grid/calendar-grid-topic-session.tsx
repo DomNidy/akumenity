@@ -17,9 +17,6 @@ export function CalendarGridTopicSession({
   topicSessionSlice: CalendarGridTopicSessionSliceItem;
   columnDomRef: React.RefObject<HTMLDivElement>;
 }) {
-  useEffect(() => {
-    console.log("CalendarGridTopicSession");
-  });
   const [open, setOpen] = useState(false);
 
   const topicSessionPlacement = useCalculateTopicSessionPlacement({
