@@ -3,6 +3,7 @@ import { type TopicSessionSlice } from "./calendar-grid-definitions";
 import { MoreVertical } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import CalendarGridTopicSessionOptions from "./calendar-grid-topic-session-options";
+import { CalendarGridTopicSessionTimespan } from "./calendar-grid-topic-session-timespan";
 
 // This renders out the popover content for a topic session
 export function CalendarGridTopicSessionPopoverContent({
@@ -10,8 +11,6 @@ export function CalendarGridTopicSessionPopoverContent({
 }: {
   topicSessionSlice: TopicSessionSlice;
 }) {
-  const { dateTimeFormatOptions } = useUserPreferences();
-
   return (
     <div>
       <div className="flex justify-between">
@@ -28,23 +27,10 @@ export function CalendarGridTopicSessionPopoverContent({
         </Popover>
       </div>
       <p>{topicSessionSlice.SK}</p>
-      <p>
-        {new Date(topicSessionSlice.Session_Start).toLocaleTimeString(
-          "en-us",
-          dateTimeFormatOptions,
-        )}{" "}
-        -{" "}
-        {topicSessionSlice.Session_End ? (
-          new Date(topicSessionSlice.Session_End).toLocaleTimeString(
-            "en-us",
-            dateTimeFormatOptions,
-          )
-        ) : (
-          <div className="flex flex-row items-center gap-2">
-            Ongoing <span className="h-4 w-4 rounded-full bg-green-500"></span>
-          </div>
-        )}
-      </p>
+      <CalendarGridTopicSessionTimespan
+        sessionStartTimeMS={topicSessionSlice.Session_Start}
+        sessionEndTimeMS={topicSessionSlice.Session_End}
+      />
     </div>
   );
 }
