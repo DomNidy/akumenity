@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getLabelColor } from "~/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { useCalculateTopicSessionPlacement } from "~/app/hooks/use-calculate-topic-session-placement";

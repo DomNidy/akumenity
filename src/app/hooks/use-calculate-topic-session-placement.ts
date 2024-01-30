@@ -74,8 +74,6 @@ export function useCalculateTopicSessionPlacement({
     ],
   );
 
-  
-
   // Add a resize observer to the column DOM element so that we can recalculate the width of the topic session when the column width changes
   // We do this because the width of the topic session is dependent on the width of the column it is rendered in,
   // and we cant just use CSS because multiple topic sessions can be rendered in the same column, and we use absolute positioning to place them
@@ -110,33 +108,32 @@ export function useCalculateTopicSessionPlacement({
     return gridColumnHeight - topicSessionTopOffset;
   }, [columnDomRef, topicSessionTopOffset]);
 
-// Calculate the height this topic session should be (in pixels)
-const topicSessionHeight = useMemo(
-  () =>
-    // We use max here to give a minimum height of 5px to each topic session
-    Math.max(
-      5,
-      Math.min(
-        calculateTopicSessionHeightInPixels(
-          topicSessionSlice.sliceStartMS,
-          liveTime,
-          hourHeightInPx,
+  // Calculate the height this topic session should be (in pixels)
+  const topicSessionHeight = useMemo(
+    () =>
+      // We use max here to give a minimum height of 5px to each topic session
+      Math.max(
+        5,
+        Math.min(
+          calculateTopicSessionHeightInPixels(
+            topicSessionSlice.sliceStartMS,
+            liveTime,
+            hourHeightInPx,
+          ),
+          maxHeight,
         ),
-        maxHeight,
       ),
-    ),
-  [
-    topicSessionSlice.sliceEndMS,
-    topicSessionSlice.Session_End,
-    liveTime,
-    maxHeight,
-    topicSessionSlice.sliceStartMS,
-    calendarGridContext.cellHeightPx,
-    calendarGridContext.zoomLevel,
-    hourHeightInPx,
-  ],
-);
-
+    [
+      topicSessionSlice.sliceEndMS,
+      topicSessionSlice.Session_End,
+      liveTime,
+      maxHeight,
+      topicSessionSlice.sliceStartMS,
+      calendarGridContext.cellHeightPx,
+      calendarGridContext.zoomLevel,
+      hourHeightInPx,
+    ],
+  );
 
   // Calculates how many pixels wide this topic session should
   function calculateTopicSessionWidth() {

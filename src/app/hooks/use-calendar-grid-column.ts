@@ -30,8 +30,6 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
   );
 
   useEffect(() => {
-    console.log("Sessions for day", day, columnTopicSessionSlices);
-
     // Whenever the daySessionSliceMap changes, read the new topic sessions
     // transform them into CalendarGridTopicSessionSliceItem and assign them an innerColIndex, then set the state
     setColumnTopicSessionSlices(
