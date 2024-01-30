@@ -3,12 +3,18 @@
 
 import { type TopicSessionSlice } from "./calendar-grid-definitions";
 import { timeSince } from "~/lib/utils";
+import { useRefreshLiveTopicSessions } from "~/app/hooks/use-refresh-live-topic-sessions";
 
 export function CalendarGridTopicSessionBodyContent({
   topicSessionSlice,
 }: {
   topicSessionSlice: TopicSessionSlice;
 }) {
+  const refreshedTopicSessionEndTime = useRefreshLiveTopicSessions(
+    topicSessionSlice.Session_End,
+    1000,
+  );
+
   return (
     <>
       <h2 className="font-bold tracking-tight">
@@ -16,9 +22,7 @@ export function CalendarGridTopicSessionBodyContent({
       </h2>
       <h3>
         {timeSince(
-          topicSessionSlice?.Session_End
-            ? topicSessionSlice.Session_End
-            : new Date().getTime(),
+          refreshedTopicSessionEndTime,
           topicSessionSlice.Session_Start,
         )}
       </h3>

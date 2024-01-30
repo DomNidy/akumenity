@@ -5,6 +5,7 @@ import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-
 import dayjs from "dayjs";
 import { calculateTopicSessionHeightInPixels } from "~/lib/utils";
 import { type CalendarGridTopicSessionSliceItem } from "./use-calendar-grid-column";
+import { useRefreshLiveTopicSessions } from "./use-refresh-live-topic-sessions";
 
 export function useCalculateTopicSessionPlacement({
   topicSessionSlice,
@@ -16,11 +17,18 @@ export function useCalculateTopicSessionPlacement({
 }) {
   const calendarGridContext = useContext(CalendarGridContext);
 
+  // This hook will update if the initially passed value is undefined
+  // So if we pass in a slice with an unspecified end time, it will update every 3 seconds (the refresh interval)
+  // This will cause the topic session to update its height as the current time changes
+  const liveTime = useRefreshLiveTopicSessions(
+    topicSessionSlice.Session_End,
+    3000,
+  );
+
   // Calculate the width this topic session should be (in pixels)
   const [topicSessionWidth, setTopicSessionWidth] = useState(
     calculateTopicSessionWidth(),
   );
-
   // Calculate the left offset of this topic session (in pixels)
   const [topicSessionLeftOffset, setTopicSessionLeftOffset] = useState(
     calculateLeftOffset(),
@@ -74,12 +82,14 @@ export function useCalculateTopicSessionPlacement({
         5,
         calculateTopicSessionHeightInPixels(
           topicSessionSlice.sliceStartMS,
-          topicSessionSlice.sliceEndMS,
+          liveTime,
           hourHeightInPx,
         ),
       ),
     [
       topicSessionSlice.sliceEndMS,
+      topicSessionSlice.Session_End,
+      liveTime,
       topicSessionSlice.sliceStartMS,
       calendarGridContext.cellHeightPx,
       calendarGridContext.zoomLevel,

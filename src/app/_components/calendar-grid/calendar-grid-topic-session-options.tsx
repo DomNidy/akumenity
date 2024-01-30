@@ -4,6 +4,7 @@ import { CalendarGridContext } from "./calendar-grid-context";
 import { useContext } from "react";
 import { type TopicSessionSlice } from "./calendar-grid-definitions";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CalendarGridTopicSessionOptions({
   topicSessionSlice,
@@ -11,6 +12,8 @@ export default function CalendarGridTopicSessionOptions({
   topicSessionSlice: TopicSessionSlice;
 }) {
   const calendarGridContext = useContext(CalendarGridContext);
+
+  const queryClient = useQueryClient();
 
   // TODO: Create a custom hook for this logic
   const deleteTopicSessionMutation =
@@ -25,7 +28,13 @@ export default function CalendarGridTopicSessionOptions({
         calendarGridContext.addSessionSliceToMap(topicSessionSlice);
         toast("Failed to delete session");
       },
-      onSuccess: () => toast("Session deleted"),
+      // We'll invalidate the active topic session query (incase the deleted session was the active one)
+      onSuccess: () => {
+        toast("Session deleted");
+        void queryClient.invalidateQueries([
+          ["topicSession", "getActiveTopicSession"],
+        ]);
+      },
     });
 
   return (

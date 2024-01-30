@@ -212,12 +212,13 @@ export const topicSessionRouter = createTRPCRouter({
           TableName: dbConstants.tables.topic.tableName,
           KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
           // Get sessions that were started before the end of the date range, but exclude sessions that do not end before the start of the date range
-          FilterExpression: `${dbConstants.tables.topic.GSI1.sortKey} < :end and ${dbConstants.itemTypes.topicSession.propertyNames.Session_End} > :start`,
+          FilterExpression: `${dbConstants.tables.topic.GSI1.sortKey} < :end and (attribute_type(${dbConstants.itemTypes.topicSession.propertyNames.Session_End}, :null) or ${dbConstants.itemTypes.topicSession.propertyNames.Session_End} > :start)`,
           ExpressionAttributeValues: {
             ":pk": `${ctx.session.userId}`,
             ":sk": `${dbConstants.itemTypes.topicSession.typeName}`,
             ":end": input.dateRange.endTimeMS ?? Date.now(),
             ":start": input.dateRange.startTimeMS ?? 0,
+            ":null": "NULL",
           },
           ScanIndexForward: true,
         });
@@ -250,6 +251,8 @@ export const topicSessionRouter = createTRPCRouter({
 
         // Send the query to get the colorcodes
         const colorCodeResult = await ddbDocClient.send(colorCodeQueryCommand);
+
+        console.log(result.Items);
 
         // Return the sessions with their colorcodes
         const sessions = result.Items?.map((session) => {

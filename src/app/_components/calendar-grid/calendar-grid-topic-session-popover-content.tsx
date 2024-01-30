@@ -34,11 +34,16 @@ export function CalendarGridTopicSessionPopoverContent({
           dateTimeFormatOptions,
         )}{" "}
         -{" "}
-        {new Date(
-          topicSessionSlice.Session_End
-            ? topicSessionSlice.Session_End
-            : new Date(),
-        ).toLocaleTimeString("en-us", dateTimeFormatOptions)}
+        {topicSessionSlice.Session_End ? (
+          new Date(topicSessionSlice.Session_End).toLocaleTimeString(
+            "en-us",
+            dateTimeFormatOptions,
+          )
+        ) : (
+          <div className="flex flex-row items-center gap-2">
+            Ongoing <span className="h-4 w-4 rounded-full bg-green-500"></span>
+          </div>
+        )}
       </p>
     </div>
   );
