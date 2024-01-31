@@ -38,7 +38,7 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
           ?.topicSessionSlices ?? [],
       ),
     );
-  }, [calendarGridContext.daySessionSliceMap, day]);
+  }, [calendarGridContext.daySessionSliceMap, day, calendarGridContext.topicSessions]);
 
   function assignInnerColIndex(
     topicSessionSlices: CalendarGridTopicSessionSliceItem[],

@@ -2,6 +2,7 @@ import {
   TopicSessionCreateSchema,
   TopicSessionGetSchema,
   TopicSessionGetSessionsForTopicSchema,
+  TopicSessionUpdateSchema,
 } from "~/definitions/topic-session-definitions";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
@@ -20,7 +21,7 @@ import { randomUUID } from "crypto";
 export const topicSessionRouter = createTRPCRouter({
   // TODO: Implement this, it should efficiently return an active topic session for a user, if one exists.
   // TODO: If no active topic session exists, it should return null.
-  // * Use the GSI to efficiently query for active topic sessions for a user, return the topic session if one exists (that is active  )
+  // * Use the GSI to efficiently query for active topic sessions for a user, return the topic session if one exists (that is active)
   getActiveTopicSession: protectedProcedure.query(async ({ ctx }) => {
     try {
       const queryCommand = new QueryCommand({
@@ -252,8 +253,6 @@ export const topicSessionRouter = createTRPCRouter({
         // Send the query to get the colorcodes
         const colorCodeResult = await ddbDocClient.send(colorCodeQueryCommand);
 
-        console.log(result.Items);
-
         // Return the sessions with their colorcodes
         const sessions = result.Items?.map((session) => {
           return {
@@ -421,6 +420,86 @@ export const topicSessionRouter = createTRPCRouter({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to delete topic session, please try again",
+          cause: err,
+        });
+      }
+    }),
+
+  updateTopicSession: protectedProcedure
+    .input(TopicSessionUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Find the topic session
+        const getSessionCommand = new GetCommand({
+          TableName: dbConstants.tables.topic.tableName,
+          Key: {
+            PK: `${ctx.session.userId}`,
+            SK: input.TopicSession_ID,
+          },
+        });
+
+        // Get the topic session
+        const session = await ddbDocClient.send(getSessionCommand);
+
+        // Parse the session as a topic session
+        const parsedSession =
+          dbConstants.itemTypes.topicSession.itemSchema.parse(session.Item);
+
+        // If we're trying to update the session end time, and the session is ongoing, throw an error
+        if (
+          input.updatedFields.endTimeMS &&
+          parsedSession.Session_Status === "active"
+        ) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Cannot update the end time of an active session.",
+          });
+        }
+
+        // Ensure that the topic session exists
+        if (!session.Item) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Topic session does not exist",
+          });
+        }
+
+        // Ensure that the topic session belongs to the user
+        if (session.Item.PK !== ctx.session.userId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Topic session does not belong to user",
+          });
+        }
+
+        // Update the topic session
+        const updateSessionCommand = new PutCommand({
+          TableName: dbConstants.tables.topic.tableName,
+          Item: {
+            ...session.Item,
+            // extract only session start and end times from the updated fields
+            ...(input.updatedFields.startTimeMS && {
+              Session_Start: input.updatedFields.startTimeMS,
+            }),
+            ...(input.updatedFields.endTimeMS && {
+              Session_End: input.updatedFields.endTimeMS,
+            }),
+          } as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>,
+        });
+
+        console.log(updateSessionCommand);
+
+        const updateRequest = await ddbDocClient.send(updateSessionCommand);
+
+        return { success: true };
+      } catch (err) {
+        console.error(err);
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update topic session, please try again",
           cause: err,
         });
       }

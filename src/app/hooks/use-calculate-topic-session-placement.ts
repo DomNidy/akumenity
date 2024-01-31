@@ -106,7 +106,7 @@ export function useCalculateTopicSessionPlacement({
   const maxHeight = useMemo(() => {
     const gridColumnHeight = columnDomRef.current?.offsetHeight ?? 0;
     return gridColumnHeight - topicSessionTopOffset;
-  }, [columnDomRef, topicSessionTopOffset]);
+  }, [columnDomRef, topicSessionTopOffset, columnDomRef.current?.offsetHeight]);
 
   // Calculate the height this topic session should be (in pixels)
   const topicSessionHeight = useMemo(

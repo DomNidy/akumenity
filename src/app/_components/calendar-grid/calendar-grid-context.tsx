@@ -101,7 +101,6 @@ export function CalendarGridProvider({
   // When the query data changes, slice the topic sessions, and then add them to the daySessionMap
   useEffect(() => {
     topicSessionsQuery.data?.forEach((topicSession) => {
-      console.log(topicSession);
       // If the session has already been processed, skip it
       if (daySessionMap.isSessionIdProcessed(topicSession.SK)) return;
       sliceTopicSession(topicSession).forEach((topicSessionSlice) => {

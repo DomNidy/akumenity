@@ -1,7 +1,6 @@
-// Render out a div containing the span of time a session lasted for (or if it's ongoing, a green dot)
-
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 
+// Render out a div containing the span of time a session lasted for (or if it's ongoing, a green dot)
 export function CalendarGridTopicSessionTimespan({
   sessionStartTimeMS,
   sessionEndTimeMS,

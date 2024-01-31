@@ -57,3 +57,39 @@ export const TopicSessionGetSessionsForTopicSchema = z.object({
     .min(1)
     .max(128),
 });
+
+// Schema for topic session update
+export const TopicSessionUpdateSchema = z.object({
+  // The id of the topic session to update
+  TopicSession_ID: z
+    .string()
+    .startsWith(dbConstants.itemTypes.topicSession.typeName)
+    .min(1)
+    .max(128),
+  // The data that we should update to
+  updatedFields: z
+    .object({
+      // Changing the id causes the topic session to be associated with a different topic
+      Topic_ID: z
+        .string()
+        .startsWith(dbConstants.itemTypes.topic.typeName)
+        .min(1)
+        .max(128)
+        .optional(),
+      startTimeMS: z.number().min(0).optional(),
+      endTimeMS: z.number().min(0).optional(),
+    })
+    .refine(
+      (data) => {
+        // Ensure that the start time is before the end time
+        if (data.startTimeMS && data.endTimeMS) {
+          return data.startTimeMS < data.endTimeMS;
+        }
+
+        return true;
+      },
+      {
+        message: "Start time must be before end time",
+      },
+    ),
+});

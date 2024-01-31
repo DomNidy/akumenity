@@ -5,6 +5,7 @@ import { CalendarGridContext } from "./calendar-grid-context";
 import { calculateGridColumnCount } from "~/lib/utils";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import dayjs from "dayjs";
+import CalendarGridTimeHeaderCell from "./calendar-grid-time-header-cell";
 
 export function CalendarGridTimeHeader() {
   const userPreferences = useUserPreferences();
@@ -17,22 +18,19 @@ export function CalendarGridTimeHeader() {
   );
 
   return (
-    <div
-      className={`ml-[${
-        calendarGridContext.timeColumnRef?.current?.clientWidth ?? 30
-      }px] flex flex-row `}
-    >
+    <div className={`flex w-full flex-row bg-blue-800`}>
+      <div
+        style={{
+          marginLeft: `${calendarGridContext.timeColumnRef?.current?.clientWidth}px`,
+        }}
+      >
+        {" "}
+      </div>
       {[...Array(numColumnsToRender).keys()].map((value, index) => {
         const columnDay = dayjs(
           calendarGridContext.displayDateBounds.beginDate,
         ).add(index, "day");
-        return (
-          <div key={index} className="h-full w-full">
-            <p className="sticky top-0 z-[101] w-full  bg-blue-800 ">
-              {columnDay.toDate().toDateString()}
-            </p>
-          </div>
-        );
+        return <CalendarGridTimeHeaderCell columnDay={columnDay} key={index} />;
       })}
     </div>
   );

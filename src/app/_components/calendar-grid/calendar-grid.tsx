@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { CalendarGridPreferenceEditor } from "./calendar-grid-preference-editor";
@@ -18,30 +18,20 @@ export function CalendarGrid() {
 
   const isOnClient = useOnInitialCalendarLoad();
 
+
   return (
     <div
       className="z-0 mt-2 h-fit w-full rounded-lg bg-blue-500 px-8 sm:px-2"
       ref={calendarGridDomRef}
     >
       <CalendarGridPreferenceEditor />
-      {isOnClient && (
-        <>
-          <p>
-            Start of period:{" "}
-            {calendarGridContext.displayDateBounds.beginDate.toDateString()}
-          </p>
-          <p>
-            End of period:{" "}
-            {calendarGridContext.displayDateBounds.endDate.toDateString()}
-          </p>
-        </>
-      )}
+
       <p>Zoom level: {calendarGridContext.zoomLevel}</p>
       <p>Cell height: {calendarGridContext.cellHeightPx}</p>
 
       <CalendarGridControls />
 
-      <p>Sessions in this week: {calendarGridContext.topicSessions.length}</p>
+      <p>Sessions in this period: {calendarGridContext.topicSessions.length}</p>
       {isOnClient && <CalendarGridTimeHeader />}
       <ScrollArea className="h-fit">
         <ScrollBar className="z-[51]" />

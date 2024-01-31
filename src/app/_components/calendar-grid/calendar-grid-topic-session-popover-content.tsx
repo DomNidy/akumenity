@@ -1,4 +1,3 @@
-import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import { type TopicSessionSlice } from "./calendar-grid-definitions";
 import { MoreVertical } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
