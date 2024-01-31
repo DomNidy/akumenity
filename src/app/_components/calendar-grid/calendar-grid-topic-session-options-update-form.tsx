@@ -30,8 +30,8 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     defaultValues: {
       TopicSession_ID: topicSessionSlice.SK,
       updatedFields: {
-        startTimeMS: Date.now(),
-        endTimeMS: Date.now() + 1000 * 60 * 30,
+        startTimeMS: topicSessionSlice.Session_Start,
+        endTimeMS: topicSessionSlice.Session_End ?? Date.now(),
       },
     },
     shouldUnregister: false,

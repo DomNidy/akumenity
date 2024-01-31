@@ -2,15 +2,18 @@ import { authMiddleware } from "@clerk/nextjs/server";
 
 export default authMiddleware({
   // Clerk will not run at all on these routes
-  // ignoredRoutes: [],
+  ignoredRoutes: ["/"],
 
   // Clerk will run on these routes, but are still public
-  publicRoutes: ["/", "api/trpc"],
+  publicRoutes: ["api/trpc", ''],
 
   // Clerk will 401 unauthorized requests to these routes
   apiRoutes: ["/api/topic"],
 
-  // debug: true,
+  beforeAuth: (req) => {
+    console.log("beforeAuth", req);
+  },
+  debug: true,
 });
 
 export const config = {

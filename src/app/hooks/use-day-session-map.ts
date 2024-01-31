@@ -20,10 +20,19 @@ export function useDaySessionMap() {
   // useCallback to memoize the function so that it is not recreated on every render
   const addSessionSliceToMap = useCallback(
     (slice: TopicSessionSlice) => {
+      // Get the day in which the slice starts
       const _sliceDate = new Date(slice.sliceStartMS);
       _sliceDate.setHours(0, 0, 0, 0);
       const dayOfSlice = getDaysSinceUnixEpoch(_sliceDate);
 
+      // If the session has already been processed, don't add it to the map
+      if (isSessionIdProcessed(slice.SK)) {
+        return;
+      } else {
+        markSessionIdAsProcessed(slice.SK);
+      }
+
+      // Add the slice to the map
       setDaySessionMap((prevMap) => {
         const map = { ...prevMap };
 
@@ -49,7 +58,6 @@ export function useDaySessionMap() {
   // This will cause new slices to be created from this topic sessions data
   const markSessionIdAsUnprocessed = useCallback(
     (topicSessionId: string) => {
-      console.log("marking session id as unprocessed", topicSessionId);
       setProcessedTopicSessionIds((prevSet) => {
         const set = new Set(prevSet);
         set.delete(topicSessionId);
@@ -62,6 +70,7 @@ export function useDaySessionMap() {
   // Function which removes all topic session slices associated with a topic session id from the map
   const removeSessionSlicesFromMap = useCallback(
     (topicSessionId: string) => {
+      markSessionIdAsUnprocessed(topicSessionId);
       setDaySessionMap((prevMap) => {
         const map = { ...prevMap };
 
@@ -101,11 +110,28 @@ export function useDaySessionMap() {
     [setProcessedTopicSessionIds],
   );
 
+  // Function which refreshes the daySessionMap
+  const refreshDaySessionMap = useCallback(() => {
+    setDaySessionMap((prevMap) => {
+      const map = { ...prevMap };
+
+      Object.keys(map).forEach((day) => {
+        map[Number(day)] = {
+          topicSessionSlices: [],
+          day: map[Number(day)]?.day ?? new Date(),
+        };
+      });
+
+      return map;
+    });
+  }, [setDaySessionMap]);
+
   return {
     daySessionMap,
     addSessionSliceToMap,
     isSessionIdProcessed,
     markSessionIdAsProcessed,
+    refreshDaySessionMap,
     markSessionIdAsUnprocessed: markSessionIdAsUnprocessed,
     removeSessionSlicesFromMap,
   };

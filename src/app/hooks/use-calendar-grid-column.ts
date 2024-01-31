@@ -30,6 +30,11 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
   );
 
   useEffect(() => {
+    console.log("Setting column slices", day);
+    console.log(
+      calendarGridContext.daySessionSliceMap[getDaysSinceUnixEpoch(day)]
+        ?.topicSessionSlices ?? [],
+    );
     // Whenever the daySessionSliceMap changes, read the new topic sessions
     // transform them into CalendarGridTopicSessionSliceItem and assign them an innerColIndex, then set the state
     setColumnTopicSessionSlices(
@@ -38,7 +43,11 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
           ?.topicSessionSlices ?? [],
       ),
     );
-  }, [calendarGridContext.daySessionSliceMap, day, calendarGridContext.topicSessions]);
+  }, [
+    calendarGridContext.daySessionSliceMap,
+    calendarGridContext.topicSessions,
+    day,
+  ]);
 
   function assignInnerColIndex(
     topicSessionSlices: CalendarGridTopicSessionSliceItem[],

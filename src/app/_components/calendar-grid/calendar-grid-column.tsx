@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { CalendarGridContext } from "./calendar-grid-context";
 import { CalendarGridTopicSession } from "./calendar-grid-topic-session";
 import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
@@ -14,6 +14,10 @@ export function CalendarGridColumn({ day }: { day: Date }) {
   const { columnTopicSessionSlices } = useCalendarGridColumn({
     day,
   });
+
+  useEffect(() => {
+    console.log("columnTopicSessionSlices", columnTopicSessionSlices);
+  }, [columnTopicSessionSlices]);
 
   return (
     <div

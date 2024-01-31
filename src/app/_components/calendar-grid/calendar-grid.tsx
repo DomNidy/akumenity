@@ -18,7 +18,6 @@ export function CalendarGrid() {
 
   const isOnClient = useOnInitialCalendarLoad();
 
-
   return (
     <div
       className="z-0 mt-2 h-fit w-full rounded-lg bg-blue-500 px-8 sm:px-2"

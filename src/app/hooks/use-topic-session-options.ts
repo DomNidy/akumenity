@@ -32,10 +32,12 @@ export function useTopicSessionOptions({
         void queryClient.invalidateQueries([
           ["topicSession", "getActiveTopicSession"],
         ]);
+
+        calendarGridContext.refreshDaySessionMap();
       },
     });
 
-  // TODO: Create an endpoint to update the time span of a topic session
+  // TODO: We need to, instead of adding session slices, we need a way to mock topic sessions themselves, then create slices from them
   const updateTopicSessionMutation =
     api.topicSession.updateTopicSession.useMutation({
       mutationKey: ["topicSession", "updateTopicSession"],
@@ -44,6 +46,7 @@ export function useTopicSessionOptions({
         calendarGridContext.removeSessionSlicesFromMap(
           variables.TopicSession_ID,
         );
+
         // Optimistically update the topic session in the daysessionmap
         calendarGridContext.addSessionSliceToMap({
           ...topicSessionSlice,
@@ -51,18 +54,23 @@ export function useTopicSessionOptions({
         });
       },
       onError: (err) => {
-        // Add the topic session back to the daysessionmap
+        // If the mutation fails, we should add the topic session back to the daysessionmap
+        calendarGridContext.markSessionIdAsUnprocessed(topicSessionSlice.SK);
+
         calendarGridContext.addSessionSliceToMap(topicSessionSlice);
         toast(err.message);
       },
       onSuccess: () => {
         toast("Session updated");
+
         void queryClient.invalidateQueries([
           ["topicSession", "getActiveTopicSession"],
         ]);
         void queryClient.invalidateQueries([
           ["topicSession", "getTopicSessionsInDateRange"],
         ]);
+
+        calendarGridContext.removeSessionSlicesFromMap(topicSessionSlice.SK);
       },
     });
 

@@ -51,6 +51,9 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   markSessionIdAsUnprocessed: () => {
     throw new Error("markSessionIdAsUnprocessed not implemented");
   },
+  refreshDaySessionMap: () => {
+    throw new Error("refreshDaySessionMap not implemented");
+  },
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -100,6 +103,7 @@ export function CalendarGridProvider({
 
   // When the query data changes, slice the topic sessions, and then add them to the daySessionMap
   useEffect(() => {
+    console.log("Reslicing sessions");
     topicSessionsQuery.data?.forEach((topicSession) => {
       // If the session has already been processed, skip it
       if (daySessionMap.isSessionIdProcessed(topicSession.SK)) return;
@@ -183,6 +187,7 @@ export function CalendarGridProvider({
     removeSessionSlicesFromMap: daySessionMap.removeSessionSlicesFromMap,
     addSessionSliceToMap: daySessionMap.addSessionSliceToMap,
     markSessionIdAsUnprocessed: daySessionMap.markSessionIdAsUnprocessed,
+    refreshDaySessionMap: daySessionMap.refreshDaySessionMap,
   };
 
   // This component provides the context to its child components

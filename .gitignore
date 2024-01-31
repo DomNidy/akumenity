@@ -46,3 +46,9 @@ yarn-error.log*
 node_modules
 .amplify
 amplifyconfiguration*
+
+
+.vscode
+vscode/*
+
+cypress.env.json

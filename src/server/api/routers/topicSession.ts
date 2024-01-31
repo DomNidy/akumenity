@@ -478,18 +478,19 @@ export const topicSessionRouter = createTRPCRouter({
           Item: {
             ...session.Item,
             // extract only session start and end times from the updated fields
-            ...(input.updatedFields.startTimeMS && {
-              Session_Start: input.updatedFields.startTimeMS,
-            }),
-            ...(input.updatedFields.endTimeMS && {
-              Session_End: input.updatedFields.endTimeMS,
-            }),
+            ...(input.updatedFields.endTimeMS
+              ? { Session_End: input.updatedFields.endTimeMS }
+              : {}),
+
+            ...(input.updatedFields.startTimeMS
+              ? { Session_Start: input.updatedFields.startTimeMS }
+              : {}),
           } as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>,
         });
 
         console.log(updateSessionCommand);
 
-        const updateRequest = await ddbDocClient.send(updateSessionCommand);
+        await ddbDocClient.send(updateSessionCommand);
 
         return { success: true };
       } catch (err) {
