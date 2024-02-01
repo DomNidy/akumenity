@@ -5,15 +5,13 @@ export default authMiddleware({
   ignoredRoutes: ["/"],
 
   // Clerk will run on these routes, but are still public
-  publicRoutes: ["api/trpc", ''],
+  publicRoutes: ["api/trpc", ""],
 
   // Clerk will 401 unauthorized requests to these routes
   apiRoutes: ["/api/topic"],
 
-  beforeAuth: (req) => {
-    console.log("beforeAuth", req);
-  },
-  debug: true,
+ 
+  // debug: true,
 });
 
 export const config = {

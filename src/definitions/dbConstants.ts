@@ -12,8 +12,16 @@ export const dbConstantsTypeNames = {
 export const dbConstants = {
   // The names of the tables in dynamo db
   tables: {
-    topic: {
-      tableName: "Akumenity",
+    prod: {
+      partitionKey: "PK",
+      sortKey: "SK",
+      GSI1: {
+        indexName: "GSI1_PK-GSI1_SK-index",
+        partitionKey: "GSI1_PK",
+        sortKey: "GSI1_SK",
+      },
+    },
+    dev: {
       partitionKey: "PK",
       sortKey: "SK",
       GSI1: {
@@ -38,7 +46,7 @@ export const dbConstants = {
           "blue",
           "purple",
           "pink",
-          "indigo"
+          "indigo",
         ]), // The color code of the topic
         Title: z.string().min(1, "Title must be at least 1 character."), // The title of the topic
         Description: z

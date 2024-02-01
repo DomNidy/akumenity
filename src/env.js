@@ -12,6 +12,8 @@ export const env = createEnv({
     DYNAMO_DB_REGION: z.string(),
     AMAZON_ACCESS_KEY_ID: z.string(),
     AMAZON_SECRET_ACCESS_KEY: z.string(),
+    // Table name in dynamo db for prod and test
+    DYNAMO_DB_TABLE_NAME: z.string(),
   },
 
   /**
@@ -39,9 +41,11 @@ export const env = createEnv({
     // Private env vars
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     DYNAMO_DB_REGION: process.env.DYNAMO_DB_REGION,
+    DYNAMO_DB_TABLE_NAME: process.env.DYNAMO_DB_TABLE_NAME,
     NODE_ENV: process.env.NODE_ENV,
     AMAZON_ACCESS_KEY_ID: process.env.AMAZON_ACCESS_KEY_ID,
     AMAZON_SECRET_ACCESS_KEY: process.env.AMAZON_SECRET_ACCESS_KEY,
+
 
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },

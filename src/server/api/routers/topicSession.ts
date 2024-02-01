@@ -17,6 +17,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { ddbDocClient } from "~/server/db";
 import { randomUUID } from "crypto";
+import { env } from "~/env";
 
 export const topicSessionRouter = createTRPCRouter({
   // TODO: Implement this, it should efficiently return an active topic session for a user, if one exists.
@@ -34,7 +35,7 @@ export const topicSessionRouter = createTRPCRouter({
           ":sessionStatus":
             "active" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
         },
-        TableName: dbConstants.tables.topic.tableName,
+        TableName: env.DYNAMO_DB_TABLE_NAME,
       });
 
       const result = await ddbDocClient.send(queryCommand);
@@ -72,7 +73,7 @@ export const topicSessionRouter = createTRPCRouter({
             ":sessionStatus":
               "active" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
           },
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
         });
 
         const activeTopicSessionAlreadyExists = await ddbDocClient
@@ -95,7 +96,7 @@ export const topicSessionRouter = createTRPCRouter({
               SK: `${input.Topic_ID}`,
             },
             AttributesToGet: ["Title"],
-            TableName: dbConstants.tables.topic.tableName,
+            TableName: env.DYNAMO_DB_TABLE_NAME,
           }),
         );
 
@@ -108,8 +109,8 @@ export const topicSessionRouter = createTRPCRouter({
           Session_Status: "active",
           Topic_ID: input.Topic_ID,
           Topic_Title: topicTitle.Item?.Title as string,
-          [dbConstants.tables.topic.GSI1.partitionKey]: input.Topic_ID,
-          [dbConstants.tables.topic.GSI1.sortKey]: Date.now(),
+          [dbConstants.tables.prod.GSI1.partitionKey]: input.Topic_ID,
+          [dbConstants.tables.prod.GSI1.sortKey]: Date.now(),
         } as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
 
         // Validate the topic session object
@@ -118,7 +119,7 @@ export const topicSessionRouter = createTRPCRouter({
         // Create the command to put the topic session in the database
         const command = new PutCommand({
           Item: topicSession,
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
         });
 
         await ddbDocClient.send(command);
@@ -151,7 +152,7 @@ export const topicSessionRouter = createTRPCRouter({
           ":sessionStatus":
             "active" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
         },
-        TableName: dbConstants.tables.topic.tableName,
+        TableName: env.DYNAMO_DB_TABLE_NAME,
       });
 
       const activeTopicSession = await ddbDocClient
@@ -173,7 +174,7 @@ export const topicSessionRouter = createTRPCRouter({
           Session_Status:
             "stopped" as (typeof dbConstants.itemTypes.topicSession.itemSchema.shape.Session_Status._def)["values"][number],
         },
-        TableName: dbConstants.tables.topic.tableName,
+        TableName: env.DYNAMO_DB_TABLE_NAME,
       });
 
       await ddbDocClient.send(updateCommand);
@@ -210,10 +211,10 @@ export const topicSessionRouter = createTRPCRouter({
 
         // Query using the table primary key and gsi sort key
         const queryCommand = new QueryCommand({
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
           KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
           // Get sessions that were started before the end of the date range, but exclude sessions that do not end before the start of the date range
-          FilterExpression: `${dbConstants.tables.topic.GSI1.sortKey} < :end and (attribute_type(${dbConstants.itemTypes.topicSession.propertyNames.Session_End}, :null) or ${dbConstants.itemTypes.topicSession.propertyNames.Session_End} > :start)`,
+          FilterExpression: `${dbConstants.tables.prod.GSI1.sortKey} < :end and (attribute_type(${dbConstants.itemTypes.topicSession.propertyNames.Session_End}, :null) or ${dbConstants.itemTypes.topicSession.propertyNames.Session_End} > :start)`,
           ExpressionAttributeValues: {
             ":pk": `${ctx.session.userId}`,
             ":sk": `${dbConstants.itemTypes.topicSession.typeName}`,
@@ -240,12 +241,12 @@ export const topicSessionRouter = createTRPCRouter({
         // Get the colorcode for each topic
         const colorCodeQueryCommand = new BatchGetCommand({
           RequestItems: {
-            [dbConstants.tables.topic.tableName]: {
+            [env.DYNAMO_DB_TABLE_NAME]: {
               Keys: Array.from(topicIDS).map((id) => ({
                 PK: `${ctx.session.userId}`,
                 SK: id,
               })),
-              ProjectionExpression: `${dbConstants.itemTypes.topic.propertyNames.ColorCode}, ${dbConstants.tables.topic.sortKey} `,
+              ProjectionExpression: `${dbConstants.itemTypes.topic.propertyNames.ColorCode}, ${dbConstants.tables.prod.sortKey} `,
             },
           },
         });
@@ -274,10 +275,9 @@ export const topicSessionRouter = createTRPCRouter({
             }),
 
             ColorCode:
-              (colorCodeResult?.Responses?.[
-                dbConstants.tables.topic.tableName
-              ]?.find((item) => item.SK === session.Topic_ID)
-                ?.ColorCode as string) ?? "blue",
+              (colorCodeResult?.Responses?.[env.DYNAMO_DB_TABLE_NAME]?.find(
+                (item) => item.SK === session.Topic_ID,
+              )?.ColorCode as string) ?? "blue",
           };
         }) as (z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema> & {
           ColorCode: z.infer<
@@ -307,9 +307,9 @@ export const topicSessionRouter = createTRPCRouter({
       try {
         // Query using GSI partition key
         const getSessionIDSCommand = new QueryCommand({
-          IndexName: dbConstants.tables.topic.GSI1.indexName,
-          TableName: dbConstants.tables.topic.tableName,
-          KeyConditionExpression: `${dbConstants.tables.topic.GSI1.partitionKey} = :topicID and ${dbConstants.tables.topic.GSI1.sortKey} BETWEEN :start AND :end`,
+          IndexName: dbConstants.tables.prod.GSI1.indexName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
+          KeyConditionExpression: `${dbConstants.tables.prod.GSI1.partitionKey} = :topicID and ${dbConstants.tables.prod.GSI1.sortKey} BETWEEN :start AND :end`,
           ExpressionAttributeValues: {
             ":topicID": input.Topic_ID,
             ":start": input.dateRange.startTimeMS ?? 0,
@@ -328,7 +328,7 @@ export const topicSessionRouter = createTRPCRouter({
         // Return all items that match the topic session ids
         const getSessionsCommand = new BatchGetCommand({
           RequestItems: {
-            [dbConstants.tables.topic.tableName]: {
+            [env.DYNAMO_DB_TABLE_NAME]: {
               Keys: topicSessionIDS?.map((id) => ({
                 PK: `${ctx.session.userId}`,
                 SK: id,
@@ -349,7 +349,7 @@ export const topicSessionRouter = createTRPCRouter({
         const result = await ddbDocClient.send(getSessionsCommand);
 
         return (
-          (result?.Responses?.[dbConstants.tables.topic.tableName] as z.infer<
+          (result?.Responses?.[env.DYNAMO_DB_TABLE_NAME] as z.infer<
             typeof dbConstants.itemTypes.topicSession.itemSchema
           >[]) ?? []
         );
@@ -376,7 +376,7 @@ export const topicSessionRouter = createTRPCRouter({
       try {
         // Find the topic session
         const getSessionCommand = new GetCommand({
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
           Key: {
             PK: `${ctx.session.userId}`,
             SK: input.topicSessionId,
@@ -404,7 +404,7 @@ export const topicSessionRouter = createTRPCRouter({
 
         // Delete the topic session
         const deleteSessionCommand = new DeleteCommand({
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
           Key: {
             PK: `${ctx.session.userId}`,
             SK: input.topicSessionId,
@@ -431,7 +431,7 @@ export const topicSessionRouter = createTRPCRouter({
       try {
         // Find the topic session
         const getSessionCommand = new GetCommand({
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
           Key: {
             PK: `${ctx.session.userId}`,
             SK: input.TopicSession_ID,
@@ -474,7 +474,7 @@ export const topicSessionRouter = createTRPCRouter({
 
         // Update the topic session
         const updateSessionCommand = new PutCommand({
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
           Item: {
             ...session.Item,
             // extract only session start and end times from the updated fields

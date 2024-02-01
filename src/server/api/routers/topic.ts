@@ -19,6 +19,7 @@ import { ZodError, ZodIssueCode, type z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { dbConstants } from "~/definitions/dbConstants";
 import { chunkArray } from "~/lib/utils";
+import { env } from "~/env";
 
 export const topicRouter = createTRPCRouter({
   getTopics: protectedProcedure
@@ -28,8 +29,8 @@ export const topicRouter = createTRPCRouter({
         // Create a request to get the user's topics and send it
         const res = await ddbDocClient.send(
           new QueryCommand({
-            TableName: dbConstants.tables.topic.tableName,
-            KeyConditionExpression: `${dbConstants.tables.topic.partitionKey} = :user_id AND begins_with(${dbConstants.tables.topic.sortKey}, :topic_id)`,
+            TableName: env.DYNAMO_DB_TABLE_NAME,
+            KeyConditionExpression: `${dbConstants.tables.prod.partitionKey} = :user_id AND begins_with(${dbConstants.tables.prod.sortKey}, :topic_id)`,
             ExpressionAttributeValues: {
               ":user_id": ctx.session?.userId,
               ":topic_id": dbConstants.itemTypes.topic.typeName,
@@ -104,8 +105,8 @@ export const topicRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         const findTopics = new QueryCommand({
-          TableName: dbConstants.tables.topic.tableName,
-          KeyConditionExpression: `${dbConstants.tables.topic.partitionKey} = :user_id`,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
+          KeyConditionExpression: `${dbConstants.tables.prod.partitionKey} = :user_id`,
           ExpressionAttributeValues: {
             ":user_id": ctx.session?.userId,
           },
@@ -178,7 +179,7 @@ export const topicRouter = createTRPCRouter({
 
         // Create a request to create a topic and send it
         const command = new PutCommand({
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
           Item: topicToCreate.data,
         });
 
@@ -225,7 +226,7 @@ export const topicRouter = createTRPCRouter({
 
         // Create a request to update the topic and send it
         const command = new UpdateCommand({
-          TableName: dbConstants.tables.topic.tableName,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
           Key: {
             PK: ctx.session?.userId,
             SK: input.Topic_ID,
@@ -292,7 +293,7 @@ export const topicRouter = createTRPCRouter({
           // Create the batched request
           const command = new BatchWriteCommand({
             RequestItems: {
-              [dbConstants.tables.topic.tableName]: deleteRequests,
+              [env.DYNAMO_DB_TABLE_NAME]: deleteRequests,
             },
           });
 
