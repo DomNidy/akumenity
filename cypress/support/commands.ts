@@ -44,7 +44,6 @@ export const ddbDocClient = DynamoDBDocumentClient.from(dbClient);
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 //
-export {};
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -78,48 +77,11 @@ Cypress.Commands.add("login", () => {
   });
 });
 
-// TODO: Setup test table in dynamo db, and create a command to clear the table
 Cypress.Commands.add("clearTestTable", () => {
-  cy.log("Clearing test table");
-
-  // Get table name
-  const tableName = process.env.DYNAMO_DB_TABLE_NAME ?? "Akumenity-Test";
-
-  // If the table name does not contain the string 'Test', do not delete (just to be safe)
-  if (!tableName.includes("Test")) {
-    throw new Error(
-      "Table name does not contain 'Test', we will not delete it!",
-    );
-  }
-
-
-  // Log out the returned PKs
-});
-
-// Cypress command that deletes all items from the test table
-
-async function deleteItemsFromTestTable() {
-  // Get table name
-  const tableName =
-    (Cypress.env("DYNAMO_DB_TABLE_NAME") as string) ?? "Akumenity-Test";
-
-  // If the table name does not contain the string 'Test', do not delete (just to be safe)
-  if (!tableName.includes("Test")) {
-    throw new Error(
-      "Table name does not contain 'Test', we will not delete it!",
-    );
-  }
-
-  // Get PKs of all items
-  const scanPKs = await ddbDocClient.send(
-    new ScanCommand({
-      TableName: tableName,
-      AttributesToGet: ["PK"],
-    }),
-  );
-
-  // Delete all items
-  const batchWriteCommand = new BatchWriteCommand({
-    RequestItems: {}
+  cy.task("clearTestTable", {
+    tableName: Cypress.env("DYNAMO_DB_TABLE_NAME") as string,
+    dbRegion: Cypress.env("DYNAMO_DB_REGION") as string,
+    accessKeyId: Cypress.env("AMAZON_ACCESS_KEY_ID") as string,
+    secretAccessKey: Cypress.env("AMAZON_SECRET_ACCESS_KEY") as string,
   });
-}
+});

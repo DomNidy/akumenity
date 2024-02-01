@@ -1,7 +1,10 @@
 context("Topic Manager Actions", () => {
-  beforeEach(() => {
-    // Delete all data for user in dynamodb
-    void cy.clearTestTable();
+  before(() => {
+    cy.clearTestTable();
+  });
+
+  after(() => {
+    cy.clearTestTable();
   });
 
   it("User can create a topic", () => {
