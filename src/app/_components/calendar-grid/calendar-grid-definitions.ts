@@ -1,3 +1,4 @@
+import { useTopicSessionsQuery } from "~/app/hooks/use-topic-sessions-query";
 import { type RouterOutputs } from "~/trpc/react";
 
 export enum DaysOfTheWeek {
@@ -54,7 +55,7 @@ export interface CalendarGridContextType {
 
   // An array of all topic sessions that have been fetched thus far
   // Our react query hook will handle the fetching and caching of this data
-  topicSessions: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"];
+  topicSessionsQuery: ReturnType<typeof useTopicSessionsQuery> | null;
 
   // Map of day of week to session slices within that day
   daySessionSliceMap: Record<

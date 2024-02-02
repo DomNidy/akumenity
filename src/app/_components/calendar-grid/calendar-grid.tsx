@@ -16,7 +16,7 @@ export function CalendarGrid() {
   const calendarGridDomRef = useRef<HTMLDivElement>(null);
   const calendarGridTimeColumnRef = useRef<HTMLDivElement>(null);
 
-  const isOnClient = useOnInitialCalendarLoad();
+  const { isClient } = useOnInitialCalendarLoad();
 
   return (
     <div
@@ -30,11 +30,14 @@ export function CalendarGrid() {
 
       <CalendarGridControls />
 
-      <p>Sessions in this period: {calendarGridContext.topicSessions.length}</p>
-      {isOnClient && <CalendarGridTimeHeader />}
+      <p>
+        Sessions in this period:{" "}
+        {calendarGridContext.topicSessionsQuery?.data?.length ?? 0}
+      </p>
+      {isClient && <CalendarGridTimeHeader />}
       <ScrollArea className="h-fit">
         <ScrollBar className="z-[51]" />
-        {isOnClient ? (
+        {isClient ? (
           <>
             <div className="relative flex max-h-[900px]  w-full">
               <CalendarGridTimeColumn />

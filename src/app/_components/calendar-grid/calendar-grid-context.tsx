@@ -1,11 +1,6 @@
 "use client";
 import { createContext, useEffect, useRef, useState } from "react";
-import { api } from "~/trpc/react";
-import {
-  getDayjsUnitFromDisplayMode,
-  getDisplayDateBounds,
-  sliceTopicSession,
-} from "~/lib/utils";
+import { getDayjsUnitFromDisplayMode, getDisplayDateBounds } from "~/lib/utils";
 import { useDaySessionMap } from "~/app/hooks/use-day-session-map";
 import {
   type CalendarGridContextType,
@@ -37,8 +32,11 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
     new Date(),
     DaysOfTheWeek.Monday,
   ),
+  setDisplayDateBounds: () => {
+    throw new Error("setDisplayDateBounds not implemented");
+  },
   zoomLevel: 0,
-  topicSessions: [],
+  topicSessionsQuery: null,
   daySessionSliceMap: {},
   cellHeightPx: 60,
   currentTimeElementRef: null,
@@ -163,11 +161,13 @@ export function CalendarGridProvider({
       });
     },
     displayDateBounds,
+    setDisplayDateBounds: (beginDate: Date, endDate: Date) =>
+      _setDisplayDateBounds({ beginDate, endDate }),
     zoomLevel,
     // Ensure zoom level is always at least 1
     setZoomLevel: (lvl: number) =>
       _setZoomLevel(lvl <= 0 ? 1 : lvl >= 12 ? 11 : lvl),
-    topicSessions: topicSessionsQuery.data ?? [],
+    topicSessionsQuery: topicSessionsQuery,
     daySessionSliceMap: daySessionMap.daySessionMap,
     cellHeightPx: cellHeightPx,
     setCellHeightPx: _setCellHeightPx,

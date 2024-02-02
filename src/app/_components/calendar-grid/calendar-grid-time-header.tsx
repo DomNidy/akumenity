@@ -1,16 +1,11 @@
 // Renders out the row of dates above the time columns
-
+"use client";
 import { useMemo } from "react";
-import {
-  calculateDurationsOfSlices,
-  calculateGridColumnCount,
-  getDaysSinceUnixEpoch,
-} from "~/lib/utils";
+import { calculateGridColumnCount, getDaysSinceUnixEpoch } from "~/lib/utils";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import dayjs from "dayjs";
 import CalendarGridTimeHeaderCell from "./calendar-grid-time-header-cell";
 import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
-import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
 
 export function CalendarGridTimeHeader() {
   const userPreferences = useUserPreferences();

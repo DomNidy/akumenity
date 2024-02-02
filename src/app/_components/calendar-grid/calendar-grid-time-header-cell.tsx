@@ -1,8 +1,7 @@
 // An individual cell in the time header row of the calendar grid
 
-import dayjs, { type Dayjs } from "dayjs";
-import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
-import { formatTime, timeSince } from "~/lib/utils";
+import { type Dayjs } from "dayjs";
+import { formatTime } from "~/lib/utils";
 import { type TopicSessionSlice } from "./calendar-grid-definitions";
 import { useCalculateDaySessionDurations } from "~/app/hooks/use-calculate-day-session-durations";
 import { useRefreshLiveTopicSessions } from "~/app/hooks/use-refresh-live-topic-sessions";
