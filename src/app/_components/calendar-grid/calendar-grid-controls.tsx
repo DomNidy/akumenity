@@ -1,11 +1,10 @@
-import { useContext } from "react";
-import { CalendarGridContext } from "./calendar-grid-context";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight, ZoomOut, ZoomIn } from "lucide-react";
+import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
 // Resonsible for rendering the controls for the calendar grid
 export function CalendarGridControls() {
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
 
   return (
     <div className="flex flex-col gap-2">

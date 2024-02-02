@@ -20,8 +20,6 @@ import { randomUUID } from "crypto";
 import { env } from "~/env";
 
 export const topicSessionRouter = createTRPCRouter({
-  // TODO: Implement this, it should efficiently return an active topic session for a user, if one exists.
-  // TODO: If no active topic session exists, it should return null.
   // * Use the GSI to efficiently query for active topic sessions for a user, return the topic session if one exists (that is active)
   getActiveTopicSession: protectedProcedure.query(async ({ ctx }) => {
     try {
@@ -59,10 +57,8 @@ export const topicSessionRouter = createTRPCRouter({
     .input(TopicSessionCreateSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        // TODO: Ensure that an active topic session does not already exist before creating a new one
-
         // Create the query command to check if an active topic session already exists
-        const queryCommand = new QueryCommand({
+        const queryForActiveTopicSession = new QueryCommand({
           KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
           FilterExpression: `Session_Status = :sessionStatus`,
 
@@ -77,7 +73,7 @@ export const topicSessionRouter = createTRPCRouter({
         });
 
         const activeTopicSessionAlreadyExists = await ddbDocClient
-          .send(queryCommand)
+          .send(queryForActiveTopicSession)
           .then((result) => result.Items?.length !== 0);
 
         if (activeTopicSessionAlreadyExists) {

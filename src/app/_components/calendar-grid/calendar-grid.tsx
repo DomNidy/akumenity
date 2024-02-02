@@ -1,6 +1,5 @@
 "use client";
-import { useContext, useEffect, useRef } from "react";
-import { CalendarGridContext } from "./calendar-grid-context";
+import { useRef } from "react";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { CalendarGridPreferenceEditor } from "./calendar-grid-preference-editor";
 import { CalendarGridTimeColumn } from "./calendar-grid-time-column";
@@ -9,10 +8,11 @@ import { CalendarGridColumnRenderer } from "./calendar-grid-column-renderer";
 import { CalendarGridCurrentTimeBar } from "./calendar-grid-current-time-bar";
 import { CalendarGridTimeHeader } from "./calendar-grid-time-header";
 import { useOnInitialCalendarLoad } from "~/app/hooks/use-on-initial-calendar-load";
+import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
 // Responsible for rendering the calendar grid and its child components
 export function CalendarGrid() {
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
   const calendarGridDomRef = useRef<HTMLDivElement>(null);
   const calendarGridTimeColumnRef = useRef<HTMLDivElement>(null);
 

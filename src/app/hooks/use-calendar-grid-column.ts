@@ -1,9 +1,9 @@
 // Hook used to manage the state of a single column in the calendar grid
 
-import { useContext, useEffect, useState } from "react";
-import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-context";
+import { useEffect, useState } from "react";
 import { type TopicSessionSlice } from "../_components/calendar-grid/calendar-grid-definitions";
 import { getDaysSinceUnixEpoch } from "~/lib/utils";
+import { useCalendarGrid } from "./use-calendar-grid";
 
 // This type extends the TopicSessionSlice type to include the columnInnerColIndex and localMaxInnerColIndex
 export type CalendarGridTopicSessionSliceItem = TopicSessionSlice & {
@@ -19,7 +19,7 @@ export type CalendarGridTopicSessionSliceItem = TopicSessionSlice & {
  * @param day  The day that this column represents and reads data for
  */
 export function useCalendarGridColumn({ day }: { day: Date }) {
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
 
   // Retrieve topic session slices associated with this column
   const [columnTopicSessionSlices, setColumnTopicSessionSlices] = useState<
@@ -29,12 +29,15 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
       ?.topicSessionSlices ?? [],
   );
 
+  //* Important, this updates the column (and the topic session slices in this column) when the day or data changes
+  //* Maybe we can target the specific data for a day instead of the whole map
   useEffect(() => {
     console.log("Setting column slices", day);
     console.log(
       calendarGridContext.daySessionSliceMap[getDaysSinceUnixEpoch(day)]
         ?.topicSessionSlices ?? [],
     );
+
     // Whenever the daySessionSliceMap changes, read the new topic sessions
     // transform them into CalendarGridTopicSessionSliceItem and assign them an innerColIndex, then set the state
     setColumnTopicSessionSlices(

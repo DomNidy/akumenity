@@ -1,15 +1,15 @@
 // Renders out the row of dates above the time columns
 
-import { useContext, useMemo } from "react";
-import { CalendarGridContext } from "./calendar-grid-context";
+import { useMemo } from "react";
 import { calculateGridColumnCount } from "~/lib/utils";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import dayjs from "dayjs";
 import CalendarGridTimeHeaderCell from "./calendar-grid-time-header-cell";
+import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
 export function CalendarGridTimeHeader() {
   const userPreferences = useUserPreferences();
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
 
   // Recalculate the number of columns to render when the display mode changes
   const numColumnsToRender = useMemo(

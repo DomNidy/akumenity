@@ -4,10 +4,10 @@ import { type dbConstants } from "~/definitions/dbConstants";
 import { Card } from "./ui/card";
 import { timeSince } from "~/lib/utils";
 import { Square } from "lucide-react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CalendarGridContext } from "./calendar-grid/calendar-grid-context";
+import { useCalendarGrid } from "../hooks/use-calendar-grid";
 
 export default function Timeclock({
   topicSession,
@@ -16,7 +16,7 @@ export default function Timeclock({
 }) {
   const { PK, SK, Session_Start, Session_Status, Topic_Title } = topicSession;
 
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
 
   const stopSession = api.topicSession.endTopicSession.useMutation({
     onSettled: () => {

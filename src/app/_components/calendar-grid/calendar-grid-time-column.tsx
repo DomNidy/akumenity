@@ -1,10 +1,9 @@
 "use client";
-import { useContext } from "react";
-import { CalendarGridContext } from "./calendar-grid-context";
 import { CalendarGridTimeColumnRow } from "./calendar-grid-time-column-row";
+import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
 export function CalendarGridTimeColumn() {
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
   return (
     <div className="flex flex-col" ref={calendarGridContext.timeColumnRef}>
       {[...Array(24 * calendarGridContext.zoomLevel).keys()].map(

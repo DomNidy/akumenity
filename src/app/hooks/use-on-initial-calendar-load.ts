@@ -1,9 +1,9 @@
-import { useContext, useEffect, useState } from "react";
-import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-context";
+import { useEffect, useState } from "react";
+import { useCalendarGrid } from "./use-calendar-grid";
 
 // Hook which runs some client-side code when the calendar grid loads on the client, such as automatically scrolling to the current time
 export function useOnInitialCalendarLoad() {
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
 
   // If the calendar grid has loaded on the client, run the client-side code
   const [isClient, setIsClient] = useState(false);

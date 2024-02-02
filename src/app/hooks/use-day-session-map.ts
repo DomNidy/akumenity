@@ -1,10 +1,11 @@
 // This hook manages the state of the daySessionMap
 import { useCallback, useState } from "react";
-import { getDaysSinceUnixEpoch } from "~/lib/utils";
+import { getDaysSinceUnixEpoch, sliceTopicSession } from "~/lib/utils";
 import {
   type CalendarGridContextType,
   type TopicSessionSlice,
 } from "../_components/calendar-grid/calendar-grid-definitions";
+import { type RouterOutputs } from "~/trpc/react";
 
 export function useDaySessionMap() {
   // If complexity grows too high and difficult to debug, we should move this to a reducer
@@ -126,13 +127,39 @@ export function useDaySessionMap() {
     });
   }, [setDaySessionMap]);
 
+  //* Function which takes in an array of topic sessions, slices them, and adds them to the daySessionMap
+  const sliceAndAddTopicSessionsToMap = useCallback(
+    (data: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"]) => {
+      // If there is no data, return
+      if (!data) return;
+
+      data.forEach((topicSession) => {
+        console.log(topicSession, "topicSession in slice");
+
+        // If the session has already been processed, skip it
+        if (isSessionIdProcessed(topicSession.SK)) return;
+
+        // Slice topic session can return multiple slices if the session spans multiple days
+        sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
+          addSessionSliceToMap(topicSessionSlice);
+        });
+
+        // Mark the session as processed
+        // This means it wont be re-added to the map from following queries unless it is marked as unprocessed
+        markSessionIdAsProcessed(topicSession.SK);
+      });
+    },
+    [addSessionSliceToMap, isSessionIdProcessed, markSessionIdAsProcessed],
+  );
+
   return {
     daySessionMap,
     addSessionSliceToMap,
     isSessionIdProcessed,
     markSessionIdAsProcessed,
     refreshDaySessionMap,
-    markSessionIdAsUnprocessed: markSessionIdAsUnprocessed,
+    sliceAndAddTopicSessionsToMap,
+    markSessionIdAsUnprocessed,
     removeSessionSlicesFromMap,
   };
 }

@@ -1,11 +1,11 @@
 // Custom hook which calculates the placement, width, and height of a topic session
 "use client";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-context";
+import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { calculateTopicSessionHeightInPixels } from "~/lib/utils";
 import { type CalendarGridTopicSessionSliceItem } from "./use-calendar-grid-column";
 import { useRefreshLiveTopicSessions } from "./use-refresh-live-topic-sessions";
+import { useCalendarGrid } from "./use-calendar-grid";
 
 export function useCalculateTopicSessionPlacement({
   topicSessionSlice,
@@ -15,7 +15,7 @@ export function useCalculateTopicSessionPlacement({
   topicSessionSlice: CalendarGridTopicSessionSliceItem;
   columnDomRef: React.RefObject<HTMLDivElement>;
 }) {
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
 
   // This hook will update if the initially passed value is undefined
   // So if we pass in a slice with an unspecified end time, it will update every 3 seconds (the refresh interval)

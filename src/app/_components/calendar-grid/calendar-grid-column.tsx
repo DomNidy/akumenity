@@ -1,12 +1,12 @@
 "use client";
 
-import { useContext, useEffect, useRef } from "react";
-import { CalendarGridContext } from "./calendar-grid-context";
+import { useEffect, useRef } from "react";
 import { CalendarGridTopicSession } from "./calendar-grid-topic-session";
 import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
+import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
 export function CalendarGridColumn({ day }: { day: Date }) {
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
 
   // ref to the gridcolumn so we can get its height
   const gridColumnDomRef = useRef<HTMLDivElement>(null);

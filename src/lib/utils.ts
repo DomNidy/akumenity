@@ -117,13 +117,13 @@ export function getDateFromDaySinceUnixEpoch(day: number) {
   return dayjs.unix(day * 24 * 60 * 60).toDate();
 }
 
-// TODO: Make tests for this function
 // Function which returns the week number (number of weeks that have occured since epoch) in which the date passed as an argument falls.
 export function getWeeksSinceUnixEpoch(date: Date) {
   const { startTimeMS } = getWeekStartAndEndMS(date);
 
   return Math.floor(startTimeMS / (7 * 24 * 60 * 60 * 1000)) + 1;
 }
+
 // Function which returns the days since unix epoch (January 1, 1970) for a given date
 export function getDaysSinceUnixEpoch(date: Date) {
   // Becuase the local timezone might not be UTC, we should add an offset so we get the correct day

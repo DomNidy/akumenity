@@ -1,7 +1,7 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useCalculateTopicSessionPlacement } from "~/app/hooks/use-calculate-topic-session-placement";
-import { CalendarGridContext } from "./calendar-grid-context";
 import { useInterval } from "usehooks-ts";
+import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
 // This function renders out a bar on the calendar grid, located at the current time
 export function CalendarGridCurrentTimeBar({
@@ -9,7 +9,7 @@ export function CalendarGridCurrentTimeBar({
 }: {
   calendarGridTimeColumnRef: React.RefObject<HTMLDivElement>;
 }) {
-  const { currentTimeElementRef } = useContext(CalendarGridContext);
+  const { currentTimeElementRef } = useCalendarGrid();
 
   // We use the useState hook to keep track of the current time
   const [currentTime, setCurrentTime] = useState(new Date().getTime());

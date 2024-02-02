@@ -15,6 +15,7 @@ import {
 import dayjs from "dayjs";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import { HoveredCalendarItemProvider } from "./calendar-grid-hovered-topic-session-context";
+import { useTopicSessionsQuery } from "~/app/hooks/use-topic-sessions-query";
 
 // The calendar grid and its child components read data from this context (avoiding prop drilling)
 export const CalendarGridContext = createContext<CalendarGridContextType>({
@@ -88,30 +89,20 @@ export function CalendarGridProvider({
   // Dom ref to the current time element
   const currentTimeElementRef = useRef<HTMLDivElement>(null);
 
-  // This query is where all the topic sessions are fetched from
-  // React query handles caching and refetching automatically
-  const topicSessionsQuery =
-    api.topicSession.getTopicSessionsInDateRange.useQuery({
-      dateRange: {
-        startTimeMS: displayDateBounds.beginDate.getTime(),
-        endTimeMS: displayDateBounds.endDate.getTime(),
-      },
-    });
-
   // Custom hook which manages the daySessionMap & its state
   const daySessionMap = useDaySessionMap();
 
-  // When the query data changes, slice the topic sessions, and then add them to the daySessionMap
+  // This query is where all the topic sessions are fetched from
+  // React query handles caching and refetching automatically
+  const topicSessionsQuery = useTopicSessionsQuery({
+    endTimeMS: displayDateBounds.endDate.getTime(),
+    startTimeMS: displayDateBounds.beginDate.getTime(),
+  });
+
+  //* Important: This effect is responsible for adding data to the daySessionMap
+  // When the query data changes, send them to the daySessionMap for processing
   useEffect(() => {
-    console.log("Reslicing sessions");
-    topicSessionsQuery.data?.forEach((topicSession) => {
-      // If the session has already been processed, skip it
-      if (daySessionMap.isSessionIdProcessed(topicSession.SK)) return;
-      sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
-        daySessionMap.addSessionSliceToMap(topicSessionSlice);
-      });
-      daySessionMap.markSessionIdAsProcessed(topicSession.SK);
-    });
+    daySessionMap.sliceAndAddTopicSessionsToMap(topicSessionsQuery.data ?? []);
   }, [topicSessionsQuery.data]);
 
   // Whenever the users display preferences change, update the display bounds

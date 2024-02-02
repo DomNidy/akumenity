@@ -1,16 +1,16 @@
 "use client";
-import { useContext, useMemo } from "react";
-import { CalendarGridContext } from "./calendar-grid-context";
+import { useMemo } from "react";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import { calculateGridColumnCount } from "~/lib/utils";
 import dayjs from "dayjs";
 import { CalendarGridColumn } from "./calendar-grid-column";
+import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
 // This component is responsible for determining what date each column represents, then rendering out the columns for those dates
 export function CalendarGridColumnRenderer() {
   const userPreferences = useUserPreferences();
 
-  const calendarGridContext = useContext(CalendarGridContext);
+  const calendarGridContext = useCalendarGrid();
 
   // Recalculate the number of columns to render when the display mode changes
   const numColumnsToRender = useMemo(
