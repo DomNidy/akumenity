@@ -22,19 +22,7 @@ export default function CalendarGridTopicSessionOptions({
       >
         <p className="cursor-pointer text-destructive">Delete Session</p>
       </Button>
-      <Button
-        className="bg-transparent hover:bg-primary/20"
-        onClick={() =>
-          void topicSessionOptions.updateTopicSessionMutation.mutateAsync({
-            TopicSession_ID: topicSessionSlice.SK,
-            updatedFields: {
-              endTimeMS: Date.now() + 1000 * 60 * 30,
-            },
-          })
-        }
-      >
-        <p className="cursor-pointer text-primary">Edit Session</p>
-      </Button>
+
       <CalendarGridTopicSessionOptionsUpdateForm
         topicSessionSlice={topicSessionSlice}
       />

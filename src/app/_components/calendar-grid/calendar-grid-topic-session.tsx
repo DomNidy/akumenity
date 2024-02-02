@@ -61,7 +61,7 @@ export function CalendarGridTopicSession({
         </div>
       </PopoverTrigger>
 
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-80" side="bottom">
         <CalendarGridTopicSessionPopoverContent
           topicSessionSlice={topicSessionSlice}
         />

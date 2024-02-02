@@ -78,6 +78,7 @@ export function CalendarGridControls() {
         Reset view
       </Button>
 
+      {/* //TODO: Make this also go to the current time span (day or week etc) } */}
       <Button
         className="mt-2"
         onClick={() => {

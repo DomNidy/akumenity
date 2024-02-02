@@ -1,7 +1,11 @@
 // Renders out the row of dates above the time columns
 
 import { useMemo } from "react";
-import { calculateGridColumnCount } from "~/lib/utils";
+import {
+  calculateDurationsOfSlices,
+  calculateGridColumnCount,
+  getDaysSinceUnixEpoch,
+} from "~/lib/utils";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import dayjs from "dayjs";
 import CalendarGridTimeHeaderCell from "./calendar-grid-time-header-cell";
@@ -30,7 +34,18 @@ export function CalendarGridTimeHeader() {
         const columnDay = dayjs(
           calendarGridContext.displayDateBounds.beginDate,
         ).add(index, "day");
-        return <CalendarGridTimeHeaderCell columnDay={columnDay} key={index} />;
+
+        return (
+          <CalendarGridTimeHeaderCell
+            columnDay={columnDay}
+            key={index}
+            durationOfSessions={calculateDurationsOfSlices(
+              calendarGridContext.daySessionSliceMap[
+                getDaysSinceUnixEpoch(columnDay.toDate())
+              ]?.topicSessionSlices ?? [],
+            )}
+          />
+        );
       })}
     </div>
   );

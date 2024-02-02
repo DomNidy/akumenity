@@ -278,3 +278,12 @@ export function calculateGridColumnCount(
       return date.daysInMonth();
   }
 }
+
+// Utility function which sums up the durations of a list of topic session slices
+export function calculateDurationsOfSlices(
+  slices: TopicSessionSlice[],
+): number {
+  return slices.reduce((acc, slice) => {
+    return acc + (slice.sliceEndMS - slice.sliceStartMS);
+  }, 0);
+}
