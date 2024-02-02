@@ -12,7 +12,7 @@ export function CalendarGridTopicSessionTimespan({
   const { dateTimeFormatOptions } = useUserPreferences();
 
   return (
-    <p className="font-bold">
+    <div className="font-bold">
       {new Date(sessionStartTimeMS).toLocaleTimeString(
         "en-us",
         dateTimeFormatOptions,
@@ -28,6 +28,6 @@ export function CalendarGridTopicSessionTimespan({
           Ongoing <span className="h-4 w-4 rounded-full bg-green-500"></span>
         </div>
       )}
-    </p>
+    </div>
   );
 }

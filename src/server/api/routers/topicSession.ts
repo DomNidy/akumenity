@@ -270,6 +270,10 @@ export const topicSessionRouter = createTRPCRouter({
               Session_End: session.Session_End as number,
             }),
 
+            ...((session?.Session_Status as string) && {
+              Session_Status: session.Session_Status as string,
+            }),
+
             ColorCode:
               (colorCodeResult?.Responses?.[env.DYNAMO_DB_TABLE_NAME]?.find(
                 (item) => item.SK === session.Topic_ID,

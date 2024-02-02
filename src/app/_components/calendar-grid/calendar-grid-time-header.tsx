@@ -10,6 +10,7 @@ import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import dayjs from "dayjs";
 import CalendarGridTimeHeaderCell from "./calendar-grid-time-header-cell";
 import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
+import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
 
 export function CalendarGridTimeHeader() {
   const userPreferences = useUserPreferences();
@@ -35,15 +36,16 @@ export function CalendarGridTimeHeader() {
           calendarGridContext.displayDateBounds.beginDate,
         ).add(index, "day");
 
+        // TODO: Figure out a way to update this if we have live session
         return (
           <CalendarGridTimeHeaderCell
             columnDay={columnDay}
-            key={index}
-            durationOfSessions={calculateDurationsOfSlices(
+            daySessionSlices={
               calendarGridContext.daySessionSliceMap[
                 getDaysSinceUnixEpoch(columnDay.toDate())
-              ]?.topicSessionSlices ?? [],
-            )}
+              ]?.topicSessionSlices ?? []
+            }
+            key={index}
           />
         );
       })}

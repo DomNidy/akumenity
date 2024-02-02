@@ -111,22 +111,6 @@ export function useDaySessionMap() {
     [setProcessedTopicSessionIds],
   );
 
-  // Function which refreshes the daySessionMap
-  const refreshDaySessionMap = useCallback(() => {
-    setDaySessionMap((prevMap) => {
-      const map = { ...prevMap };
-
-      Object.keys(map).forEach((day) => {
-        map[Number(day)] = {
-          topicSessionSlices: [],
-          day: map[Number(day)]?.day ?? new Date(),
-        };
-      });
-
-      return map;
-    });
-  }, [setDaySessionMap]);
-
   //* Function which takes in an array of topic sessions, slices them, and adds them to the daySessionMap
   const sliceAndAddTopicSessionsToMap = useCallback(
     (data: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"]) => {
@@ -157,7 +141,6 @@ export function useDaySessionMap() {
     addSessionSliceToMap,
     isSessionIdProcessed,
     markSessionIdAsProcessed,
-    refreshDaySessionMap,
     sliceAndAddTopicSessionsToMap,
     markSessionIdAsUnprocessed,
     removeSessionSlicesFromMap,

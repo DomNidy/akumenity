@@ -31,8 +31,6 @@ export function useTopicSessionOptions({
         void queryClient.invalidateQueries([
           ["topicSession", "getActiveTopicSession"],
         ]);
-
-        calendarGridContext.refreshDaySessionMap();
       },
     });
 

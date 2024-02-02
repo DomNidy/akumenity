@@ -62,9 +62,6 @@ export interface CalendarGridContextType {
     { day: Date; topicSessionSlices: TopicSessionSlice[] }
   >;
 
-  // Function which refreshes the day session map
-  refreshDaySessionMap: () => void;
-
   // Function which removes topic session slices associated with a topic session id from the map
   removeSessionSlicesFromMap: (topicSessionId: string) => void;
   // Function which adds a topic session slice to the map
