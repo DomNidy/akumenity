@@ -1,5 +1,5 @@
 import { CalendarGridProvider } from "../_components/calendar-grid/calendar-grid-context";
-import Sidebar from "../_components/sidebar";
+import Sidebar from "../_components/sidebar/sidebar";
 import { Toaster } from "../_components/ui/sonner";
 
 export default function DashboardLayout({
@@ -12,7 +12,7 @@ export default function DashboardLayout({
       <CalendarGridProvider>
         <Sidebar />
         <Toaster richColors />
-        {children}
+        <div className="sm:ml-24 ml-14">{children}</div>
       </CalendarGridProvider>
     </div>
   );

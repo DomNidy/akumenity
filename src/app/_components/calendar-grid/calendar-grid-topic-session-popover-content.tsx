@@ -18,7 +18,7 @@ export function CalendarGridTopicSessionPopoverContent({
           <PopoverTrigger asChild className="duration-0">
             <MoreVertical color="white" className="cursor-pointer" />
           </PopoverTrigger>
-          <PopoverContent side="right" className="left-32">
+          <PopoverContent side="right">
             <CalendarGridTopicSessionOptions
               topicSessionSlice={topicSessionSlice}
             />

@@ -11,7 +11,7 @@ export function CalendarGridTimeColumnRow({
   return (
     <div
       id={rowIndex.toString()}
-      className={`${"bg-blue-700"}`}
+      className={`${"bg-blue-800"}`}
       style={{
         height: `${cellHeightPx}px`,
         maxHeight: `${cellHeightPx}px`,

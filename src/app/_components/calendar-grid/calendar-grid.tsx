@@ -19,10 +19,7 @@ export function CalendarGrid() {
   const { isClient } = useOnInitialCalendarLoad();
 
   return (
-    <div
-      className="z-0 mt-2 h-fit w-full rounded-lg bg-blue-500 px-8 sm:px-2"
-      ref={calendarGridDomRef}
-    >
+    <div className="mt-2 h-fit w-full rounded-lg" ref={calendarGridDomRef}>
       <CalendarGridPreferenceEditor />
 
       <p>Zoom level: {calendarGridContext.zoomLevel}</p>
@@ -36,10 +33,10 @@ export function CalendarGrid() {
       </p>
       {isClient && <CalendarGridTimeHeader />}
       <ScrollArea className="h-fit">
-        <ScrollBar className="z-[51]" />
+        <ScrollBar className="z-[1]" />
         {isClient ? (
           <>
-            <div className="relative flex max-h-[900px]  w-full">
+            <div className="relative flex max-h-[900px] w-full">
               <CalendarGridTimeColumn />
               <CalendarGridColumnRenderer />
               <CalendarGridCurrentTimeBar

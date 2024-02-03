@@ -39,6 +39,9 @@ export interface CalendarGridContextType {
   // The bounds (beginning and end) of the date range that is being displayed
   displayDateBounds: { beginDate: Date; endDate: Date };
 
+  // Function which sets the display date bounds
+  setDisplayDateBounds: (beginDate: Date, endDate: Date) => void;
+
   // Functions which increments & decrement the page
   incrementPage: () => void;
   decrementPage: () => void;

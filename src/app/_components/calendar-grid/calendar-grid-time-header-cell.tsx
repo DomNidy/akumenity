@@ -25,10 +25,10 @@ export default function CalendarGridTimeHeaderCell({
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden">
-      <p className="sticky top-0 z-[101]  whitespace-nowrap p-1 font-semibold tracking-tight">
+      <p className="sticky top-0 whitespace-nowrap p-1 font-semibold tracking-tight">
         {columnDay.toDate().toDateString()}
       </p>
-      <p className="sticky top-0 z-[101] whitespace-nowrap p-1 text-sm font-medium text-white ">
+      <p className="sticky top-0 whitespace-nowrap p-1 text-sm font-medium text-white ">
         {formatTime(sumSessionDurations)}
       </p>
     </div>

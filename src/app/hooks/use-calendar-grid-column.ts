@@ -48,7 +48,7 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
     );
   }, [
     calendarGridContext.daySessionSliceMap,
-    calendarGridContext.topicSessions,
+    calendarGridContext.topicSessionsQuery?.data,
     day,
   ]);
 

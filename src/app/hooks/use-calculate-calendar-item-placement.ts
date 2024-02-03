@@ -3,27 +3,37 @@
 import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { calculateTopicSessionHeightInPixels } from "~/lib/utils";
-import { type CalendarGridTopicSessionSliceItem } from "./use-calendar-grid-column";
 import { useRefreshLiveTopicSessions } from "./use-refresh-live-topic-sessions";
 import { useCalendarGrid } from "./use-calendar-grid";
 
-export function useCalculateTopicSessionPlacement({
-  topicSessionSlice,
-  // Reference to the column we are rendering this topic session in
-  columnDomRef,
-}: {
-  topicSessionSlice: CalendarGridTopicSessionSliceItem;
+export type CalculateCalendarItemPlacementProps = {
+  // Reference to the column we should place this topic session in
   columnDomRef: React.RefObject<HTMLDivElement>;
-}) {
+  sliceStartMS: number;
+  sliceEndMS: number;
+  // This is only used when passing in a topic session with an unspecified end time
+  // Used to update the topic session height as the current time changes
+  Session_End: number | null;
+  // THe inner column index of the topic session, used only for left offset calculation of topic sessions
+  localMaxInnerColIndex: number | null;
+  columnInnerColIndex: number | null;
+};
+
+// TODO: Extract the placement calculation logic into
+export function useCalculateCalendarItemPlacement({
+  Session_End,
+  columnDomRef,
+  sliceStartMS,
+  sliceEndMS,
+  columnInnerColIndex,
+  localMaxInnerColIndex,
+}: CalculateCalendarItemPlacementProps) {
   const calendarGridContext = useCalendarGrid();
 
   // This hook will update if the initially passed value is undefined
   // So if we pass in a slice with an unspecified end time, it will update every 3 seconds (the refresh interval)
   // This will cause the topic session to update its height as the current time changes
-  const liveTime = useRefreshLiveTopicSessions(
-    topicSessionSlice.Session_End,
-    3000,
-  );
+  const liveTime = useRefreshLiveTopicSessions(Session_End, 3000);
 
   // Calculate the width this topic session should be (in pixels)
   const [topicSessionWidth, setTopicSessionWidth] = useState(
@@ -64,14 +74,8 @@ export function useCalculateTopicSessionPlacement({
 
   // Calculate the hour of the day that this topic session starts at
   const startHour = useMemo(
-    () =>
-      dayjs(topicSessionSlice.sliceStartMS).hour() +
-      dayjs(topicSessionSlice.sliceStartMS).minute() / 60,
-    [
-      topicSessionSlice.sliceStartMS,
-      calendarGridContext.zoomLevel,
-      hourHeightInPx,
-    ],
+    () => dayjs(sliceStartMS).hour() + dayjs(sliceStartMS).minute() / 60,
+    [sliceStartMS, calendarGridContext.zoomLevel, hourHeightInPx],
   );
 
   // Add a resize observer to the column DOM element so that we can recalculate the width of the topic session when the column width changes
@@ -116,7 +120,7 @@ export function useCalculateTopicSessionPlacement({
         5,
         Math.min(
           calculateTopicSessionHeightInPixels(
-            topicSessionSlice.sliceStartMS,
+            sliceStartMS,
             liveTime,
             hourHeightInPx,
           ),
@@ -124,11 +128,11 @@ export function useCalculateTopicSessionPlacement({
         ),
       ),
     [
-      topicSessionSlice.sliceEndMS,
-      topicSessionSlice.Session_End,
+      sliceEndMS,
+      Session_End,
+      sliceStartMS,
       liveTime,
       maxHeight,
-      topicSessionSlice.sliceStartMS,
       calendarGridContext.cellHeightPx,
       calendarGridContext.zoomLevel,
       hourHeightInPx,
@@ -139,16 +143,16 @@ export function useCalculateTopicSessionPlacement({
   function calculateTopicSessionWidth() {
     return columnDomRef.current?.clientWidth
       ? columnDomRef.current?.clientWidth /
-          Math.max(1 + (topicSessionSlice.localMaxInnerColIndex ?? 0), 1)
+          Math.max(1 + (localMaxInnerColIndex ?? 0), 1)
       : 5;
   }
 
   // Calculate the left offset of this topic session (in pixels) based on the inner column index
   function calculateLeftOffset() {
-    if (!topicSessionSlice.columnInnerColIndex) return 0;
+    if (!columnInnerColIndex) return 0;
 
     // Calculate the left offset of this topic session based on the inner column index
-    return topicSessionSlice.columnInnerColIndex * topicSessionWidth;
+    return columnInnerColIndex * topicSessionWidth;
   }
 
   return {

@@ -17,10 +17,10 @@ export function CalendarGridTopicSessionBodyContent({
 
   return (
     <>
-      <h2 className="font-bold tracking-tight">
+      <h2 className="font-bold text-lg tracking-tight">
         {topicSessionSlice.Topic_Title}
       </h2>
-      <h3>
+      <h3 className="text-md">
         {timeSince(
           refreshedTopicSessionEndTime,
           topicSessionSlice.Session_Start,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCalculateTopicSessionPlacement } from "~/app/hooks/use-calculate-topic-session-placement";
+import { useCalculateCalendarItemPlacement } from "~/app/hooks/use-calculate-calendar-item-placement";
 import { useInterval } from "usehooks-ts";
 import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
@@ -19,23 +19,16 @@ export function CalendarGridCurrentTimeBar({
     setCurrentTime(new Date().getTime());
   }, 3000);
 
-  // We use the useCalculateTopicSessionPlacement hook to calculate the placement of the current time bar
+  // We use the useCalculateCalendarItemPlacement hook to calculate the placement of the current time bar
   // We are just giving it a fake topic session slice, and the ref to the time column
-  // We might want to extract this hook to be more generic, so that it can be used for other things (such as useCalculatePlacement, and useCalculateTopicSessionPlacement)
-  const placement = useCalculateTopicSessionPlacement({
+  // We might want to extract this hook to be more generic, so that it can be used for other things (such as useCalculatePlacement, and useCalculateCalendarItemPlacement)
+  const placement = useCalculateCalendarItemPlacement({
     columnDomRef: calendarGridTimeColumnRef,
-    topicSessionSlice: {
-      Session_Start: currentTime,
-      Session_End: null,
-      Topic_Title: "",
-      PK: "CurrentTimeBar",
-      SK: "CurrentTimeBar",
-      ColorCode: "blue",
-      Session_Status: "active",
-      sliceStartMS: currentTime,
-      sliceEndMS: currentTime,
-      Topic_ID: "",
-    },
+    sliceEndMS: currentTime,
+    sliceStartMS: currentTime,
+    columnInnerColIndex: null,
+    localMaxInnerColIndex: null,
+    Session_End: null,
   });
 
   return (
