@@ -1,14 +1,14 @@
-import { useTopicSessionsQuery } from "~/app/hooks/use-topic-sessions-query";
+import { type useTopicSessionsQuery } from "~/app/hooks/use-topic-sessions-query";
 import { type RouterOutputs } from "~/trpc/react";
 
 export enum DaysOfTheWeek {
-  Sunday = 2,
+  Sunday = 0,
   Monday = 1,
-  Tuesday = 0,
-  Wednesday = -1,
-  Thursday = -2,
-  Friday = -3,
-  Saturday = -4,
+  Tuesday = 2,
+  Wednesday = 3,
+  Thursday = 4,
+  Friday = 5,
+  Saturday = 6,
 }
 
 // Determines the logic used to render out pages.

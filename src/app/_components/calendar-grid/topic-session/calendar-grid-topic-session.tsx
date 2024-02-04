@@ -1,12 +1,11 @@
 "use client";
-import { useState } from "react";
 import { getLabelColor } from "~/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { useCalculateCalendarItemPlacement } from "~/app/hooks/use-calculate-calendar-item-placement";
 import { CalendarGridTopicSessionPopoverContent } from "./calendar-grid-topic-session-popover-content";
 import { CalendarGridTopicSessionBodyContent } from "./calendar-grid-topic-session-body-content";
 import { type CalendarGridTopicSessionSliceItem } from "~/app/hooks/use-calendar-grid-column";
-import { useHoveredCalendarItem } from "./calendar-grid-hovered-topic-session-context";
+import { useHoveredCalendarItem } from "../calendar-grid-hovered-topic-session-context";
 
 // The component places a topic session on the calendar grid
 // innerColumnIndex: When we have overlapping elements, the inner column index determines which the order in which elements are rendered left to right

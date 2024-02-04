@@ -1,7 +1,7 @@
 // This component renders out the content of the calendar grid topic session body
 // (the content displayed inside of the topic session element on the calendar grid)
 
-import { type TopicSessionSlice } from "./calendar-grid-definitions";
+import { type TopicSessionSlice } from "../calendar-grid-definitions";
 import { timeSince } from "~/lib/utils";
 import { useRefreshLiveTopicSessions } from "~/app/hooks/use-refresh-live-topic-sessions";
 

@@ -1,10 +1,10 @@
 // Form used to update topic session options
 "use client";
 import { useTopicSessionOptions } from "~/app/hooks/use-topic-session-options";
-import { type TopicSessionSlice } from "./calendar-grid-definitions";
+import { type TopicSessionSlice } from "../calendar-grid-definitions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { type z } from "zod";
 import { TopicSessionUpdateSchema } from "~/definitions/topic-session-definitions";
 import {
   Form,
@@ -14,9 +14,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+} from "../../ui/form";
+import { Input } from "../../ui/input";
+import { Button } from "../../ui/button";
+import { useEffect } from "react";
 
 export function CalendarGridTopicSessionOptionsUpdateForm({
   topicSessionSlice,
@@ -34,10 +35,10 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
         endTimeMS: topicSessionSlice.Session_End ?? Date.now(),
       },
     },
-    shouldUnregister: false,
   });
 
   async function onSubmit(values: z.infer<typeof TopicSessionUpdateSchema>) {
+    console.log("submitting");
     try {
       console.log(values);
       await topicSessionOptions.updateTopicSessionMutation.mutateAsync(values);
@@ -46,6 +47,12 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     }
   }
 
+  useEffect(() => {
+    // whenever form errors change, log them
+    console.log(form.formState.errors);
+  }, [form.formState.errors]);
+
+  // TODO: FormMessage is not showing the errors, figure out how react hook form works
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -56,14 +63,9 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                />
+                <Input {...field} type="number" />
               </FormControl>
               <FormDescription>Start Time</FormDescription>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -74,23 +76,33 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                />
+              <FormControl onError={(e) => console.log(e)}>
+                <Input {...field} type="number" />
               </FormControl>
               <FormDescription>End Time</FormDescription>
-              <FormMessage />
+              {/** TODO: Improve this & UX: Don't know why form message component is not able to read the context from FormField parent
+               * (as it should bubble up the tree till it finds the context), so im just manually displaying the message here */}
+              <FormMessage>
+                {form.formState.errors.updatedFields?.root?.message}{" "}
+              </FormMessage>
             </FormItem>
           )}
         />
 
         <Button type="submit">Update</Button>
+        <Button
+          className="bg-transparent hover:bg-destructive/20"
+          onClick={() =>
+            void topicSessionOptions.deleteTopicSessionMutation.mutateAsync({
+              topicSessionId: topicSessionSlice.SK,
+            })
+          }
+        >
+          <p className="cursor-pointer text-destructive">Delete Session</p>
+        </Button>
       </form>
       <FormMessage key={"root"}>
-        {form.formState.errors.root?.message}
+        {topicSessionOptions.updateTopicSessionMutation.error?.message}
       </FormMessage>
     </Form>
   );

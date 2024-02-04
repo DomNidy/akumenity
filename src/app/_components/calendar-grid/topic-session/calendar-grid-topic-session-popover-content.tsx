@@ -1,6 +1,6 @@
-import { type TopicSessionSlice } from "./calendar-grid-definitions";
+import { type TopicSessionSlice } from "../calendar-grid-definitions";
 import { MoreVertical } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import CalendarGridTopicSessionOptions from "./calendar-grid-topic-session-options";
 import { CalendarGridTopicSessionTimespan } from "./calendar-grid-topic-session-timespan";
 

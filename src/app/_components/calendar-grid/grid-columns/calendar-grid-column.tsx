@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { CalendarGridTopicSession } from "./calendar-grid-topic-session";
+import { CalendarGridTopicSession } from "../topic-session/calendar-grid-topic-session";
 import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
 import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 

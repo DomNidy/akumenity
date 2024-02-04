@@ -2,11 +2,11 @@
 import { useRef } from "react";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { CalendarGridPreferenceEditor } from "./calendar-grid-preference-editor";
-import { CalendarGridTimeColumn } from "./calendar-grid-time-column";
+import { CalendarGridTimeColumn } from "./time-column/calendar-grid-time-column";
 import { CalendarGridControls } from "./calendar-grid-controls";
-import { CalendarGridColumnRenderer } from "./calendar-grid-column-renderer";
+import { CalendarGridColumnRenderer } from "./grid-columns/calendar-grid-column-renderer";
 import { CalendarGridCurrentTimeBar } from "./calendar-grid-current-time-bar";
-import { CalendarGridTimeHeader } from "./calendar-grid-time-header";
+import { CalendarGridTimeHeader } from "./time-header/calendar-grid-time-header";
 import { useOnInitialCalendarLoad } from "~/app/hooks/use-on-initial-calendar-load";
 import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 

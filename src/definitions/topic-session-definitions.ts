@@ -76,8 +76,8 @@ export const TopicSessionUpdateSchema = z.object({
         .min(1)
         .max(128)
         .optional(),
-      startTimeMS: z.number().min(0).optional(),
-      endTimeMS: z.number().min(0).optional(),
+      startTimeMS: z.coerce.number().min(0).optional(),
+      endTimeMS: z.coerce.number().min(0).optional(),
     })
     .refine(
       (data) => {
@@ -90,6 +90,18 @@ export const TopicSessionUpdateSchema = z.object({
       },
       {
         message: "Start time must be before end time",
+      },
+    )
+    .refine(
+      (data) => {
+        // Ensure that the end time would not cause the session to be longer than the maximum allowed duration
+        if (data.startTimeMS && data.endTimeMS) {
+          // Max duration is 30 days
+          return data.endTimeMS - data.startTimeMS <= 1000 * 60 * 60 * 24 * 30;
+        }
+      },
+      {
+        message: "Session duration cannot be longer than 30 days",
       },
     ),
 });

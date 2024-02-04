@@ -70,7 +70,6 @@ export function timeSince(current: number, previous: number) {
   return `${hoursStr}:${minutesStr}:${secondsStr}`;
 }
 
-
 // Function which formats a number of miliseconds into a human readable format.
 // Example format: (1030 * 60 * 60 * 10 should format to 10 hours, 30 minutes)
 export function formatTime(milliseconds: number): string {
@@ -219,12 +218,17 @@ export function getDisplayDateBounds(
         endDate: endDay,
       };
     case CalendarGridDisplayMode.WEEK_DISPLAY:
+      // TODO: FIX THIS: On sundays, the following week is being displayed on initial load instead of the current week
       // Create a new date object at the beginning of the week
       const startWeek = dayjs(date)
         .startOf("week")
         .add(weekStartsOn, "d")
         .toDate();
-      const endWeek = dayjs(date).endOf("week").add(weekStartsOn, "d").toDate();
+
+      const endWeek = dayjs(startWeek)
+        .endOf("week")
+        .add(weekStartsOn, "d")
+        .toDate();
 
       return {
         beginDate: startWeek,
