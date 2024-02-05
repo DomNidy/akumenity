@@ -24,7 +24,9 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
 }: {
   topicSessionSlice: TopicSessionSlice;
 }) {
-  const topicSessionOptions = useTopicSessionOptions({ topicSessionSlice });
+  const topicSessionOptions = useTopicSessionOptions({
+    topicSessionId: topicSessionSlice.SK,
+  });
 
   const form = useForm<z.infer<typeof TopicSessionUpdateSchema>>({
     resolver: zodResolver(TopicSessionUpdateSchema),
@@ -93,7 +95,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
         <Button
           className="bg-transparent hover:bg-destructive/20"
           onClick={() =>
-            void topicSessionOptions.deleteTopicSessionMutation.mutateAsync({
+            topicSessionOptions.deleteTopicSessionMutation.mutate({
               topicSessionId: topicSessionSlice.SK,
             })
           }

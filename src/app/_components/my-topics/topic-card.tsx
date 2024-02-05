@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { dbConstants } from "~/definitions/dbConstants";
+import { type dbConstants } from "~/definitions/dbConstants";
 import { MoreHorizontal } from "lucide-react";
 import {
   Dialog,
@@ -42,27 +42,25 @@ export default function TopicCard({
       <CardHeader>
         <div className="flex flex-row gap-1">
           <CardTitle className="gap-2 overflow-x-hidden pb-1">
-            <span className="mr-1">
-              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                <PopoverTrigger>
-                  <TopicLabel colorCode={labelColor} />
-                </PopoverTrigger>
-                <PopoverContent
-                  hideWhenDetached
-                  onFocusOutside={() => {
-                    setPopoverOpen(false);
-                  }}
-                  className="border-2 border-border p-1"
-                >
-                  <TopicColorSelector
-                    topic={topic}
-                    setLabelColor={setLabelColor}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </PopoverContent>
-              </Popover>
-            </span>
-            {topic.Title}
+            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+              <PopoverTrigger>
+                <TopicLabel colorCode={labelColor} />
+              </PopoverTrigger>
+              <PopoverContent
+                hideWhenDetached
+                onFocusOutside={() => {
+                  setPopoverOpen(false);
+                }}
+                className="border-2 border-border p-1"
+              >
+                <TopicColorSelector
+                  topic={topic}
+                  setLabelColor={setLabelColor}
+                  setPopoverOpen={setPopoverOpen}
+                />
+              </PopoverContent>
+            </Popover>
+            <span className="ml-1">{topic.Title}</span>
           </CardTitle>
           <Dialog open={open} onOpenChange={(op) => setOpen(op)}>
             <DialogTrigger className="ml-auto self-start">

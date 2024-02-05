@@ -18,8 +18,8 @@ export function useCalculateDaySessionDurations(
 
   const [totalDuration, setTotalDuration] = useState(calculateTotalDuration());
 
+  // TODO: Review that this does not cause unnecessary re-renders & potential memory leaks
   useEffect(() => {
-    console.log("Recalculating total duration");
     setTotalDuration(calculateTotalDuration());
   }, [currentTime, topicSessionSlices]);
 

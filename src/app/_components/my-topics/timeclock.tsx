@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCalendarGrid } from "../../hooks/use-calendar-grid";
+import { useTopicSessionOptions } from "~/app/hooks/use-topic-session-options";
 
 export default function Timeclock({
   topicSession,
@@ -15,6 +16,10 @@ export default function Timeclock({
   topicSession: z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
 }) {
   const { PK, SK, Session_Start, Session_Status, Topic_Title } = topicSession;
+
+  const { endActiveTopicSessionMutation } = useTopicSessionOptions({
+    topicSessionId: SK,
+  });
 
   const calendarGridContext = useCalendarGrid();
 

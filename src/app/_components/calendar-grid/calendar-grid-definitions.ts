@@ -72,6 +72,10 @@ export interface CalendarGridContextType {
   addSessionSliceToMap: (slice: TopicSessionSlice) => void;
   // Mark a topic session id as unprocessed (it will be reprocessed on the next render)
   markSessionIdAsUnprocessed: (topicSessionId: string) => void;
+  // Get all session slices in the map associated with a single topic session id
+  getSessionSlicesByTopicSessionId: (
+    topicSessionId: string,
+  ) => TopicSessionSlice[] | undefined;
 
   // The height (in pixels) of a single cell
   // This is important because it is used to calculate the height of the calendar grid and align the time column

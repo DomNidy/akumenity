@@ -46,6 +46,7 @@ export function useCalculateCalendarItemPlacement({
 
   // Recalculate the left offset
   useEffect(() => {
+    setTopicSessionWidth(calculateTopicSessionWidth());
     setTopicSessionLeftOffset(calculateLeftOffset());
   }, [
     topicSessionWidth,

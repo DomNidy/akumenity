@@ -136,6 +136,28 @@ export function useDaySessionMap() {
     [addSessionSliceToMap, isSessionIdProcessed, markSessionIdAsProcessed],
   );
 
+  // Function which returns all session slices associated with a topic session id
+  // Returns undefined if the topic session id is not in the map
+  const getSessionSlicesByTopicSessionId = useCallback(
+    (topicSessionId: string) => {
+      console.log(
+        "Getting slices by topic session id",
+        topicSessionId,
+        processedTopicSessionIds,
+      );
+      if (!processedTopicSessionIds.has(topicSessionId)) return undefined;
+
+      console.log("still in the function");
+
+      const slices = Object.values(daySessionMap).flatMap(
+        (day) => day.topicSessionSlices,
+      );
+
+      return slices.filter((slice) => slice.SK === topicSessionId);
+    },
+    [daySessionMap],
+  );
+
   return {
     daySessionMap,
     addSessionSliceToMap,
@@ -144,5 +166,6 @@ export function useDaySessionMap() {
     sliceAndAddTopicSessionsToMap,
     markSessionIdAsUnprocessed,
     removeSessionSlicesFromMap,
+    getSessionSlicesByTopicSessionId,
   };
 }

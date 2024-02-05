@@ -21,27 +21,44 @@ export function TopicColorSelector({
 }) {
   const updateTopic = api.topic.updateTopic.useMutation();
 
+  const updateColorTo = (
+    colorCode: z.infer<
+      typeof dbConstants.itemTypes.topic.itemSchema.shape.ColorCode
+    >,
+  ) => {
+    // Set query to update the color of the topic
+    updateTopic.mutate({
+      Title: topic.Title,
+      Topic_ID: topic.SK,
+      ColorCode: colorCode,
+      Description: topic.Description,
+    });
+
+    // Update the color state locally
+    setLabelColor(colorCode);
+
+    // Close the popover
+    setPopoverOpen(false);
+  };
+
   return (
     <div className="grid grid-cols-3 content-center justify-items-center gap-4">
       {
         // Map out all the color codes and make a div for each one
         dbConstants.itemTypes.topic.itemSchema.shape.ColorCode.options.map(
-          (colorCode) => {
+          (colorCode, idx) => {
             return (
               <div
+                tabIndex={idx + 1}
                 key={colorCode}
                 className={`col-span-1  h-5 w-5 rounded-full ${getLabelColor(
                   colorCode,
                 )} cursor-pointer hover:saturate-150`}
                 onClick={() => {
-                  updateTopic.mutate({
-                    Title: topic.Title,
-                    Topic_ID: topic.SK,
-                    ColorCode: colorCode,
-                    Description: topic.Description,
-                  });
-                  setLabelColor(colorCode);
-                  setPopoverOpen(false);
+                  updateColorTo(colorCode);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") updateColorTo(colorCode);
                 }}
               ></div>
             );

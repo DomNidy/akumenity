@@ -12,11 +12,11 @@ export function useRefreshLiveTopicSessions(
 ) {
   const [currentTime, setCurrentTime] = useState(topicSessionEndMS);
 
+  // TODO: Review that this does not cause unnecessary re-renders & potential memory leaks
   useEffect(() => {
     if (!topicSessionEndMS) {
       const interval = setInterval(() => {
         setCurrentTime(Date.now());
-        console.log("ran interval");
       }, refreshIntervalMS);
 
       return () => clearInterval(interval);

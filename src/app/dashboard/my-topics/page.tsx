@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import MyTopics from "~/app/_components/my-topics/my-topics";
 import TopicSessionManager from "~/app/_components/my-topics/topic-session-manager";
