@@ -4,11 +4,12 @@
 import { type TopicSessionSlice } from "../calendar-grid-definitions";
 import { timeSince } from "~/lib/utils";
 import { useRefreshLiveTopicSessions } from "~/app/hooks/use-refresh-live-topic-sessions";
+import { CalendarGridTopicSessionSliceItem } from "~/app/hooks/use-calendar-grid-column";
 
 export function CalendarGridTopicSessionBodyContent({
   topicSessionSlice,
 }: {
-  topicSessionSlice: TopicSessionSlice;
+  topicSessionSlice: CalendarGridTopicSessionSliceItem;
 }) {
   const refreshedTopicSessionEndTime = useRefreshLiveTopicSessions(
     topicSessionSlice.Session_End,
@@ -17,7 +18,7 @@ export function CalendarGridTopicSessionBodyContent({
 
   return (
     <>
-      <h2 className="font-bold text-lg tracking-tight">
+      <h2 className="text-lg font-bold tracking-tight">
         {topicSessionSlice.Topic_Title}
       </h2>
       <h3 className="text-md">
@@ -26,6 +27,11 @@ export function CalendarGridTopicSessionBodyContent({
           topicSessionSlice.Session_Start,
         )}
       </h3>
+
+      <p>
+        {topicSessionSlice.columnInnerColIndex}{" "}
+        {topicSessionSlice.localMaxInnerColIndex}
+      </p>
     </>
   );
 }

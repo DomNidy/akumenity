@@ -55,6 +55,7 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
   function assignInnerColIndex(
     topicSessionSlices: CalendarGridTopicSessionSliceItem[],
   ): CalendarGridTopicSessionSliceItem[] {
+    console.log("reslicing", topicSessionSlices);
     // Sort the topic session slices by start time
     const sortedTopicSessionSlices =
       topicSessionSlices?.sort((a, b) => a.sliceStartMS - b.sliceStartMS) ??

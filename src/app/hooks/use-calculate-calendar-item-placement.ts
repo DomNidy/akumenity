@@ -44,10 +44,15 @@ export function useCalculateCalendarItemPlacement({
     calculateLeftOffset(),
   );
 
-  // Whenever the topicSessionWidth changes, recalculate the left offset
+  // Recalculate the left offset
   useEffect(() => {
     setTopicSessionLeftOffset(calculateLeftOffset());
-  }, [topicSessionWidth, columnDomRef]);
+  }, [
+    topicSessionWidth,
+    columnDomRef,
+    columnInnerColIndex,
+    localMaxInnerColIndex,
+  ]);
 
   // Since zoomLevel is the amount of cells (vertically stacked) needed to represent 1 hour
   // we calculate the height of 1 hour in pixels by multiplying the cellHeightPx by the zoomLevel
