@@ -292,3 +292,18 @@ export function calculateDurationsOfSlices(
     return acc + (slice.sliceEndMS - slice.sliceStartMS);
   }, 0);
 }
+
+// Calculate the total difference between session.StartTime and session.EndTime
+export function calculateTotalDifference(
+  recentSessions:
+    | z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>[]
+    | null,
+) {
+  return recentSessions?.reduce((total, session) => {
+    // We use a nullish coalescing operator on session.Session_End because it may be null
+    const difference =
+      (session.Session_End ?? session.Session_Start) - session.Session_Start ??
+      0;
+    return total + difference;
+  }, 0);
+}

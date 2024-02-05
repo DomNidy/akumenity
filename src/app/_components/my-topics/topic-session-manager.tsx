@@ -1,8 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Command,
@@ -10,9 +10,9 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "./ui/command";
+} from "../ui/command";
 import { cn } from "~/lib/utils";
-import { Card } from "./ui/card";
+import { Card } from "../ui/card";
 import { toast } from "sonner";
 import Timeclock from "./timeclock";
 import { type z } from "zod";

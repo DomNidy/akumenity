@@ -1,8 +1,8 @@
 "use client";
 
 import { CalendarGrid } from "../_components/calendar-grid/calendar-grid";
-import MyTopics from "../_components/my-topics";
-import TopicSessionManager from "../_components/topic-session-manager";
+import MyTopics from "../_components/my-topics/my-topics";
+import TopicSessionManager from "../_components/my-topics/topic-session-manager";
 
 export default function Dashboard() {
   return (

@@ -1,13 +1,13 @@
 "use client";
 import { type z } from "zod";
 import { type dbConstants } from "~/definitions/dbConstants";
-import { Card } from "./ui/card";
+import { Card } from "../ui/card";
 import { timeSince } from "~/lib/utils";
 import { Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCalendarGrid } from "../hooks/use-calendar-grid";
+import { useCalendarGrid } from "../../hooks/use-calendar-grid";
 
 export default function Timeclock({
   topicSession,

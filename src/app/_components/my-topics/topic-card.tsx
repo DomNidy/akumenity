@@ -5,16 +5,22 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "../ui/card";
 import { dbConstants } from "~/definitions/dbConstants";
 import { MoreHorizontal } from "lucide-react";
-import { Dialog, DialogClose, DialogContent, DialogTrigger } from "./ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTrigger,
+} from "../ui/dialog";
 
-import TopicUpdateForm from "./forms/topic-update-form";
+import TopicUpdateForm from "./topic-update-form";
 import { useState } from "react";
-import { formatTime, getLabelColor } from "~/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { api } from "~/trpc/react";
+import { calculateTotalDifference, formatTime } from "~/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { TopicColorSelector } from "./topic-color-selector";
+import { TopicLabel } from "./topic-label";
 
 export default function TopicCard({
   topic,
@@ -31,18 +37,6 @@ export default function TopicCard({
     z.infer<typeof dbConstants.itemTypes.topic.itemSchema.shape.ColorCode>
   >(topic.ColorCode ?? "blue");
 
-  const updateTopic = api.topic.updateTopic.useMutation();
-
-  // TODO: Make this use react state or make an endpoint just for this
-  // Calculate the total difference between session.StartTime and session.EndTime
-  const totalDifference = recentSessions?.reduce((total, session) => {
-    // We use a nullish coalescing operator on session.Session_End because it may be null
-    const difference =
-      (session.Session_End ?? session.Session_Start) - session.Session_Start ??
-      0;
-    return total + difference;
-  }, 0);
-
   return (
     <Card className="h-full w-full">
       <CardHeader>
@@ -51,11 +45,7 @@ export default function TopicCard({
             <span className="mr-1">
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <PopoverTrigger>
-                  <div
-                    className={`h-4 w-4 rounded-full ${getLabelColor(
-                      labelColor,
-                    )}`}
-                  ></div>
+                  <TopicLabel colorCode={labelColor} />
                 </PopoverTrigger>
                 <PopoverContent
                   hideWhenDetached
@@ -64,34 +54,11 @@ export default function TopicCard({
                   }}
                   className="border-2 border-border p-1"
                 >
-                  <div className="grid grid-cols-3 content-center justify-items-center gap-4">
-                    {
-                      // Map out all the color codes and make a div for each one
-                      dbConstants.itemTypes.topic.itemSchema.shape.ColorCode.options.map(
-                        (colorCode) => {
-                          return (
-                            <div
-                              key={colorCode}
-                              className={`col-span-1 h-5 w-5 rounded-full ${getLabelColor(
-                                colorCode,
-                              )} cursor-pointer hover:saturate-150`}
-                              onClick={() => {
-                                updateTopic.mutate({
-                                  Title: topic.Title,
-                                  Topic_ID: topic.SK,
-                                  ColorCode: colorCode,
-                                  Description: topic.Description,
-                                });
-                                setLabelColor(colorCode);
-
-                                setPopoverOpen(false);
-                              }}
-                            ></div>
-                          );
-                        },
-                      )
-                    }
-                  </div>
+                  <TopicColorSelector
+                    topic={topic}
+                    setLabelColor={setLabelColor}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </PopoverContent>
               </Popover>
             </span>
@@ -130,7 +97,8 @@ export default function TopicCard({
           {recentSessions?.length ?? 0} sessions in the past 7 days
         </p>
         <p className="text-sm text-muted-foreground">
-          {formatTime(totalDifference ?? 0)} studied recently
+          {formatTime(calculateTotalDifference(recentSessions) ?? 0)} studied
+          recently
         </p>
       </CardContent>
     </Card>

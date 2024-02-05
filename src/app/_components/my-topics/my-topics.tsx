@@ -1,8 +1,8 @@
 "use client";
-import TopicCard from "src/app/_components/topic-card";
+import TopicCard from "./topic-card";
 import { api } from "~/trpc/react";
-import { Button } from "./ui/button";
-import TopicCreateForm from "./forms/topic-create-form";
+import { Button } from "../ui/button";
+import TopicCreateForm from "./topic-create-form";
 import { type z } from "zod";
 import { type dbConstants } from "~/definitions/dbConstants";
 
