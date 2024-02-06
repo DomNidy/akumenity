@@ -2,6 +2,8 @@
 import { CalendarGridTimeColumnRow } from "./calendar-grid-time-column-row";
 import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
 
+
+
 export function CalendarGridTimeColumn() {
   const calendarGridContext = useCalendarGrid();
   return (
@@ -21,6 +23,7 @@ export function CalendarGridTimeColumn() {
               timeString={timeString}
               cellHeightPx={calendarGridContext.cellHeightPx}
               rowIndex={index}
+              className="bg-[#0A0A0A]"
             />
           );
         },

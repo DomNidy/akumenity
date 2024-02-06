@@ -1,24 +1,28 @@
-// Render out a single (in the time column)
-export function CalendarGridTimeColumnRow({
-  cellHeightPx,
-  rowIndex,
-  timeString,
-}: {
+import { type HTMLAttributes, forwardRef } from "react";
+import { cn } from "~/lib/utils";
+
+interface CalendarGridTimeColumnRowProps
+  extends HTMLAttributes<HTMLDivElement> {
   cellHeightPx: number;
   rowIndex: number;
   timeString: string;
-}) {
-  return (
-    <div
-      id={rowIndex.toString()}
-      className={`${"bg-blue-800"}`}
-      style={{
-        height: `${cellHeightPx}px`,
-        maxHeight: `${cellHeightPx}px`,
-        minHeight: `${cellHeightPx}px`,
-      }}
-    >
-      {timeString}
-    </div>
-  );
 }
+
+export const CalendarGridTimeColumnRow = forwardRef<
+  HTMLDivElement,
+  CalendarGridTimeColumnRowProps
+>(({ ...props }, ref) => (
+  <div
+    ref={ref}
+    id={props.rowIndex.toString()}
+    {...props}
+    className={cn("w-full bg-blue-800", props.className)}
+    style={{
+      height: `${props.cellHeightPx}px`,
+      maxHeight: `${props.cellHeightPx}px`,
+      minHeight: `${props.cellHeightPx}px`,
+    }}
+  >
+    <p className="cursor-default">{props.timeString}</p>{" "}
+  </div>
+));

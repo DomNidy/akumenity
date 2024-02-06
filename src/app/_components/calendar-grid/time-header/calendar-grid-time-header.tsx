@@ -16,11 +16,12 @@ export function CalendarGridTimeHeader() {
     () => calculateGridColumnCount(userPreferences.displayMode, dayjs()),
     [userPreferences.displayMode],
   );
-
   return (
-    <div className={`flex w-full flex-row bg-blue-800`}>
+    <div className={`flex w-full flex-row bg-[#0A0A0A]`}>
       <div
         style={{
+          // TODO: FIX THIS: Upon navigating to another page along the dashboard route, the left offset of this is not properly set so that it aligns with the grid columns
+          // TODO: This might have something to do with how our <CalendarGridProvider/> component wraps the entire dashboard route/layout
           marginLeft: `${calendarGridContext.timeColumnRef?.current?.clientWidth}px`,
         }}
       >
@@ -31,7 +32,6 @@ export function CalendarGridTimeHeader() {
           calendarGridContext.displayDateBounds.beginDate,
         ).add(index, "day");
 
-        // TODO: Figure out a way to update this if we have live session
         return (
           <CalendarGridTimeHeaderCell
             columnDay={columnDay}

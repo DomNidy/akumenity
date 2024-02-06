@@ -208,6 +208,7 @@ export function getDisplayDateBounds(
   date: Date,
   weekStartsOn: DaysOfTheWeek,
 ): CalendarGridContextType["displayDateBounds"] {
+  console.log("calling getDisplayDateBounds", date);
   switch (displayMode) {
     case CalendarGridDisplayMode.DAY_DISPLAY:
       const startDay = dayjs(date).startOf("day").toDate();

@@ -91,6 +91,20 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="updatedFields.Topic_ID"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input {...field} type="text" />
+              </FormControl>
+              <FormDescription>Topic ID</FormDescription>
+            </FormItem>
+          )}
+        />
+
         <Button type="submit">Update</Button>
         <Button
           className="bg-transparent hover:bg-destructive/20"

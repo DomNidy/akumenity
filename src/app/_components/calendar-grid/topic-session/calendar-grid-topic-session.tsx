@@ -43,7 +43,7 @@ export function CalendarGridTopicSession({
             hoverContext.hoveredCalendarItemId === topicSessionSlice.SK
               ? `brightness-125`
               : ``
-          } absolute z-50 flex cursor-pointer flex-col overflow-hidden rounded-lg transition-all duration-75`}
+          } absolute z-50 flex cursor-pointer flex-col overflow-hidden rounded-lg transition-all duration-75 drop-shadow-sm` }
           style={{
             height: `${topicSessionPlacement.topicSessionHeight}px`,
             width: `${topicSessionPlacement.topicSessionWidth}px`,

@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { CalendarGridTopicSession } from "../topic-session/calendar-grid-topic-session";
 import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
 import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
+import CalendarGridColumnContextMenu from "./calendar-grid-column-context-menu";
+import { CalendarGridTimeColumnRow } from "../time-column/calendar-grid-time-column-row";
+import { CalendarGridColumnCurrTimeHoverRenderer } from "./calendar-grid-column-curr-time-hover-renderer";
 
 export function CalendarGridColumn({ day }: { day: Date }) {
   const calendarGridContext = useCalendarGrid();
@@ -11,17 +14,14 @@ export function CalendarGridColumn({ day }: { day: Date }) {
   // ref to the gridcolumn so we can get its height
   const gridColumnDomRef = useRef<HTMLDivElement>(null);
 
+  // Get the topic session slices for this column
   const { columnTopicSessionSlices } = useCalendarGridColumn({
     day,
   });
 
-  useEffect(() => {
-    console.log("columnTopicSessionSlices", columnTopicSessionSlices);
-  }, [columnTopicSessionSlices]);
-
   return (
     <div
-      className={`relative flex flex-row border-[1px] bg-red-300`}
+      className={`relative flex flex-row border-[1px] bg-[#0D0D0D]`}
       ref={gridColumnDomRef}
       style={{
         height: `${
@@ -42,6 +42,7 @@ export function CalendarGridColumn({ day }: { day: Date }) {
           />
         );
       })}
+      <CalendarGridColumnCurrTimeHoverRenderer />
     </div>
   );
 }

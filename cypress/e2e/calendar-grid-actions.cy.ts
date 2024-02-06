@@ -8,9 +8,12 @@ context("Calendar Grid Actions", () => {
   });
 
   it("Displays the correct date range on sundays", () => {
+    // TODO: Seems stubbing the date is not working as the getDisplayDateBounds function returns the current date
     cy.login();
     // Stub the date to be a Sunday
-    cy.clock(new Date(2024, 2, 3));
+    // Sun Feb 4th 2024
+    const mockedDate = new Date(2024, 1, 4);
+    cy.clock(mockedDate);
 
     // Get div elements with the data-time-header-cell attribute
     // Check if they output the correct date range

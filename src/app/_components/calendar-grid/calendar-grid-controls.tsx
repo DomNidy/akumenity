@@ -84,10 +84,12 @@ export function CalendarGridControls() {
       <Button
         className="mt-2"
         onClick={() => {
+          const date = new Date();
+
           // Calculate the bounds of the current time
           const newBounds = getDisplayDateBounds(
             userPreferences.displayMode,
-            new Date(),
+            date,
             userPreferences.weekStartsOn,
           );
 
