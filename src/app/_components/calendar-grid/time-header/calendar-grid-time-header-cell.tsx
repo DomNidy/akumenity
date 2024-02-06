@@ -1,7 +1,7 @@
 // An individual cell in the time header row of the calendar grid
 
 import { type Dayjs } from "dayjs";
-import { formatTime } from "~/lib/utils";
+import { formatTime, getDaysSinceUnixEpoch } from "~/lib/utils";
 import { type TopicSessionSlice } from "../calendar-grid-definitions";
 import { useCalculateDaySessionDurations } from "~/app/hooks/use-calculate-day-session-durations";
 import { useRefreshLiveTopicSessions } from "~/app/hooks/use-refresh-live-topic-sessions";
@@ -24,10 +24,13 @@ export default function CalendarGridTimeHeaderCell({
   );
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden">
-      <p className="sticky top-0 whitespace-nowrap p-1 font-semibold tracking-tight">
+    <div
+      className="flex h-full w-full flex-col overflow-hidden"
+      data-time-header-cell={getDaysSinceUnixEpoch(columnDay.toDate())}
+    >
+      <h2 className="sticky top-0 whitespace-nowrap p-1 font-semibold tracking-tight">
         {columnDay.toDate().toDateString()}
-      </p>
+      </h2>
       <p className="sticky top-0 whitespace-nowrap p-1 text-sm font-medium text-white ">
         {formatTime(sumSessionDurations)}
       </p>

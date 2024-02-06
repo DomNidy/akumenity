@@ -23,6 +23,7 @@ export function TRPCReactProvider(props: {
         loggerLink({
           enabled: (op) =>
             process.env.NODE_ENV === "development" ||
+            process.env.NODE_ENV === "test" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
         unstable_httpBatchStreamLink({

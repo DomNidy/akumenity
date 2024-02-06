@@ -9,7 +9,8 @@
     "lint": "next lint",
     "start": "next start",
     "test": "cypress open",
-    "test:vars": "env-cmd -f .env.test next dev"
+    "test:devserver": "env-cmd -f .env.test next dev",
+    "test:prodserver": "env-cmd -f .env.test next start"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.478.0",

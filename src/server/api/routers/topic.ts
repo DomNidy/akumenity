@@ -104,6 +104,7 @@ export const topicRouter = createTRPCRouter({
     .input(TopicCreateSchema)
     .mutation(async ({ ctx, input }) => {
       try {
+        console.log("Creating topic");
         const findTopics = new QueryCommand({
           TableName: env.DYNAMO_DB_TABLE_NAME,
           KeyConditionExpression: `${dbConstants.tables.prod.partitionKey} = :user_id`,

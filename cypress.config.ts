@@ -60,13 +60,14 @@ export default defineConfig({
 
           // If there are no items to delete, return
           if (scanPKs.Items === undefined) {
+            console.log("No items to delete in table.");
             return null;
           }
 
           // Delete all items
           // Note: because our table is small, it should be fine to just send out many requests like this
           for (const item of scanPKs.Items) {
-            console.log(item);
+            console.log(item, "ITEM");
             const deleteCommand = new DeleteCommand({
               TableName: tableName,
               Key: {

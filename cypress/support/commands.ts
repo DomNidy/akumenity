@@ -74,6 +74,7 @@ Cypress.Commands.add("login", () => {
     );
 
     cy.get(".cl-formButtonPrimary").contains("Continue").click();
+    cy.wait(2000);
   });
 });
 
