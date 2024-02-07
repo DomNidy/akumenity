@@ -4,7 +4,7 @@
 import { type TopicSessionSlice } from "../calendar-grid-definitions";
 import { timeSince } from "~/lib/utils";
 import { useRefreshLiveTopicSessions } from "~/app/hooks/use-refresh-live-topic-sessions";
-import { type CalendarGridTopicSessionSliceItem } from "~/app/hooks/use-calendar-grid-column";
+import { type CalendarGridTopicSessionSliceItem } from "~/app/_components/calendar-grid/hooks/use-calendar-grid-column";
 
 export function CalendarGridTopicSessionBodyContent({
   topicSessionSlice,

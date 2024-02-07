@@ -2,7 +2,7 @@
 // If a slice has an undefined end time, we'll use the current time as the end time
 
 import { useEffect, useState } from "react";
-import { type TopicSessionSlice } from "../_components/calendar-grid/calendar-grid-definitions";
+import { type TopicSessionSlice } from "../calendar-grid-definitions";
 
 export function useCalculateDaySessionDurations(
   topicSessionSlices: TopicSessionSlice[],

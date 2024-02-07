@@ -7,8 +7,8 @@ import { CalendarGridControls } from "./calendar-grid-controls";
 import { CalendarGridColumnRenderer } from "./grid-columns/calendar-grid-column-renderer";
 import { CalendarGridCurrentTimeBar } from "./calendar-grid-current-time-bar";
 import { CalendarGridTimeHeader } from "./time-header/calendar-grid-time-header";
-import { useOnInitialCalendarLoad } from "~/app/hooks/use-on-initial-calendar-load";
-import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
+import { useOnInitialCalendarLoad } from "~/app/_components/calendar-grid/hooks/use-on-initial-calendar-load";
+import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
 
 // Responsible for rendering the calendar grid and its child components
 export function CalendarGrid() {

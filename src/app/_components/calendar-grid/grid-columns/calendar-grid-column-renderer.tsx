@@ -4,7 +4,7 @@ import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import { calculateGridColumnCount } from "~/lib/utils";
 import dayjs from "dayjs";
 import { CalendarGridColumn } from "./calendar-grid-column";
-import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
+import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
 
 // This component is responsible for determining what date each column represents, then rendering out the columns for those dates
 export function CalendarGridColumnRenderer() {

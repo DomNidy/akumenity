@@ -2,7 +2,7 @@ import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { type TopicSessionSlice } from "../_components/calendar-grid/calendar-grid-definitions";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCalendarGrid } from "./use-calendar-grid";
+import { useCalendarGrid } from "../_components/calendar-grid/hooks/use-calendar-grid";
 import { useState } from "react";
 // Custom hook which provides a way to edit topic sessions and handles the logic needed to update the calendar grid to reflect the changes on the ui
 export function useTopicSessionOptions({

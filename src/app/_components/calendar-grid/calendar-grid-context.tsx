@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useEffect, useRef, useState } from "react";
 import { getDayjsUnitFromDisplayMode, getDisplayDateBounds } from "~/lib/utils";
-import { useDaySessionMap } from "~/app/hooks/use-day-session-map";
+import { useDaySessionMap } from "~/app/_components/calendar-grid/hooks/use-day-session-map";
 import {
   type CalendarGridContextType,
   CalendarGridDisplayMode,

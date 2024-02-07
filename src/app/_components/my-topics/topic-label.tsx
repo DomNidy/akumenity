@@ -11,12 +11,10 @@ interface TopicLabelProps extends HTMLAttributes<HTMLDivElement> {
 
 // Renders out a label icon with specific color
 export const TopicLabel = forwardRef<HTMLDivElement, TopicLabelProps>(
-  ({ ...props }, ref) => (
+  ({ colorCode, ...props }, ref) => (
     <div
       ref={ref}
-      className={`h-5 w-5 rounded-full ${getLabelColor(
-        props.colorCode ?? "blue",
-      )}`}
+      className={`h-5 w-5 rounded-full ${getLabelColor(colorCode ?? "blue")}`}
       {...props}
     />
   ),

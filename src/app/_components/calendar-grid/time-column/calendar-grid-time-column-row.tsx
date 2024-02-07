@@ -11,18 +11,18 @@ interface CalendarGridTimeColumnRowProps
 export const CalendarGridTimeColumnRow = forwardRef<
   HTMLDivElement,
   CalendarGridTimeColumnRowProps
->(({ ...props }, ref) => (
+>(({ cellHeightPx, rowIndex, timeString, ...props }, ref) => (
   <div
     ref={ref}
-    id={props.rowIndex.toString()}
-    {...props}
+    id={rowIndex.toString()}
     className={cn("w-full bg-blue-800", props.className)}
     style={{
-      height: `${props.cellHeightPx}px`,
-      maxHeight: `${props.cellHeightPx}px`,
-      minHeight: `${props.cellHeightPx}px`,
+      height: `${cellHeightPx}px`,
+      maxHeight: `${cellHeightPx}px`,
+      minHeight: `${cellHeightPx}px`,
     }}
+    {...props}
   >
-    <p className="cursor-default">{props.timeString}</p>{" "}
+    <p className="cursor-default">{timeString}</p>{" "}
   </div>
 ));

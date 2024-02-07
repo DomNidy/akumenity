@@ -1,10 +1,10 @@
 "use client";
 import { getLabelColor } from "~/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import { useCalculateCalendarItemPlacement } from "~/app/hooks/use-calculate-calendar-item-placement";
+import { useCalculateCalendarItemPlacement } from "~/app/_components/calendar-grid/hooks/use-calculate-calendar-item-placement";
 import { CalendarGridTopicSessionPopoverContent } from "./calendar-grid-topic-session-popover-content";
 import { CalendarGridTopicSessionBodyContent } from "./calendar-grid-topic-session-body-content";
-import { type CalendarGridTopicSessionSliceItem } from "~/app/hooks/use-calendar-grid-column";
+import { type CalendarGridTopicSessionSliceItem } from "~/app/_components/calendar-grid/hooks/use-calendar-grid-column";
 import { useHoveredCalendarItem } from "../calendar-grid-hovered-topic-session-context";
 
 // The component places a topic session on the calendar grid
@@ -43,12 +43,12 @@ export function CalendarGridTopicSession({
             hoverContext.hoveredCalendarItemId === topicSessionSlice.SK
               ? `brightness-125`
               : ``
-          } absolute z-50 flex cursor-pointer flex-col overflow-hidden rounded-lg transition-all duration-75 drop-shadow-sm` }
+          } absolute z-50 flex cursor-pointer flex-col overflow-hidden rounded-lg drop-shadow-sm transition-all duration-75`}
           style={{
-            height: `${topicSessionPlacement.topicSessionHeight}px`,
-            width: `${topicSessionPlacement.topicSessionWidth}px`,
-            top: `${topicSessionPlacement.topicSessionTopOffset}px`,
-            left: `${topicSessionPlacement.topicSessionLeftOffset}px`,
+            height: `${topicSessionPlacement.height}px`,
+            width: `${topicSessionPlacement.width}px`,
+            top: `${topicSessionPlacement.top}px`,
+            left: `${topicSessionPlacement.left}px`,
           }}
         >
           <CalendarGridTopicSessionBodyContent

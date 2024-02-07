@@ -3,7 +3,7 @@
 import { type Dayjs } from "dayjs";
 import { formatTime, getDaysSinceUnixEpoch } from "~/lib/utils";
 import { type TopicSessionSlice } from "../calendar-grid-definitions";
-import { useCalculateDaySessionDurations } from "~/app/hooks/use-calculate-day-session-durations";
+import { useCalculateDaySessionDurations } from "~/app/_components/calendar-grid/hooks/use-calculate-day-session-durations";
 import { useRefreshLiveTopicSessions } from "~/app/hooks/use-refresh-live-topic-sessions";
 
 export default function CalendarGridTimeHeaderCell({

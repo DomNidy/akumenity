@@ -7,7 +7,7 @@ import { Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCalendarGrid } from "../../hooks/use-calendar-grid";
+import { useCalendarGrid } from "../calendar-grid/hooks/use-calendar-grid";
 import { useTopicSessionOptions } from "~/app/hooks/use-topic-session-options";
 
 export default function Timeclock({

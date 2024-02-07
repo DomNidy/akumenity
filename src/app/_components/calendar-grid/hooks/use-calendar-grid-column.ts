@@ -1,7 +1,7 @@
 // Hook used to manage the state of a single column in the calendar grid
 
 import { useEffect, useState } from "react";
-import { type TopicSessionSlice } from "../_components/calendar-grid/calendar-grid-definitions";
+import { type TopicSessionSlice } from "../calendar-grid-definitions";
 import { getDaysSinceUnixEpoch } from "~/lib/utils";
 import { useCalendarGrid } from "./use-calendar-grid";
 
@@ -32,12 +32,6 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
   //* Important, this updates the column (and the topic session slices in this column) when the day or data changes
   //* Maybe we can target the specific data for a day instead of the whole map
   useEffect(() => {
-    console.log("Setting column slices", day);
-    console.log(
-      calendarGridContext.daySessionSliceMap[getDaysSinceUnixEpoch(day)]
-        ?.topicSessionSlices ?? [],
-    );
-
     // Whenever the daySessionSliceMap changes, read the new topic sessions
     // transform them into CalendarGridTopicSessionSliceItem and assign them an innerColIndex, then set the state
     setColumnTopicSessionSlices(
@@ -52,10 +46,10 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
     day,
   ]);
 
+  // Responsible for assigning inner column indexes, so that sessions which overlap can be offset later on in rendering
   function assignInnerColIndex(
     topicSessionSlices: CalendarGridTopicSessionSliceItem[],
   ): CalendarGridTopicSessionSliceItem[] {
-    console.log("reslicing", topicSessionSlices);
     // Sort the topic session slices by start time
     const sortedTopicSessionSlices =
       topicSessionSlices?.sort((a, b) => a.sliceStartMS - b.sliceStartMS) ??

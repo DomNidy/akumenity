@@ -1,6 +1,6 @@
 // Renders out the curr time hover divs
 
-import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
+import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
 import { CalendarGridColumnCurrTimeHover } from "./calendar-grid-column-curr-time-hover";
 
 export function CalendarGridColumnCurrTimeHoverRenderer() {

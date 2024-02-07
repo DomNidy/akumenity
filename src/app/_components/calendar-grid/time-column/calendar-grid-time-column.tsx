@@ -1,6 +1,6 @@
 "use client";
 import { CalendarGridTimeColumnRow } from "./calendar-grid-time-column-row";
-import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
+import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
 
 
 

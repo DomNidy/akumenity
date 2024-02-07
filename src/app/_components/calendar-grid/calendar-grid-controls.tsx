@@ -1,6 +1,6 @@
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight, ZoomOut, ZoomIn } from "lucide-react";
-import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
+import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
 import { useUserPreferences } from "~/app/hooks/use-user-preferences";
 import { getDisplayDateBounds } from "~/lib/utils";
 

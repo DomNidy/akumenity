@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { CalendarGridTopicSession } from "../topic-session/calendar-grid-topic-session";
-import { useCalendarGridColumn } from "~/app/hooks/use-calendar-grid-column";
-import { useCalendarGrid } from "~/app/hooks/use-calendar-grid";
-import CalendarGridColumnContextMenu from "./calendar-grid-column-context-menu";
-import { CalendarGridTimeColumnRow } from "../time-column/calendar-grid-time-column-row";
+import { useCalendarGridColumn } from "~/app/_components/calendar-grid/hooks/use-calendar-grid-column";
+import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
 import { CalendarGridColumnCurrTimeHoverRenderer } from "./calendar-grid-column-curr-time-hover-renderer";
+import { useTimeFromPosition } from "~/app/_components/calendar-grid/hooks/use-time-from-position";
 
 export function CalendarGridColumn({ day }: { day: Date }) {
   const calendarGridContext = useCalendarGrid();
@@ -19,8 +18,22 @@ export function CalendarGridColumn({ day }: { day: Date }) {
     day,
   });
 
+  // Hook which can be used to calculate the time from a click position on the calendar grid
+  const { clickPos, onClickedCalendarGridColumn } = useTimeFromPosition({
+    gridColumnDomRef,
+    columnDay: day,
+  });
+
+  useEffect(() => {
+    console.log(
+      JSON.stringify(clickPos),
+      new Date(clickPos?.calendarTimeMS ?? 0),
+    );
+  }, [clickPos]);
+
   return (
     <div
+      onClick={(e) => onClickedCalendarGridColumn(e)}
       className={`relative flex flex-row border-[1px] bg-[#0D0D0D]`}
       ref={gridColumnDomRef}
       style={{

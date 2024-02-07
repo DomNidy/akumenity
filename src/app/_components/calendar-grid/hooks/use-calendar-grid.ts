@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { CalendarGridContext } from "../_components/calendar-grid/calendar-grid-context";
+import { CalendarGridContext } from "../calendar-grid-context";
 
 // Hook for useCalendarGrid()
 export function useCalendarGrid() {

@@ -4,7 +4,7 @@ import { getDaysSinceUnixEpoch, sliceTopicSession } from "~/lib/utils";
 import {
   type CalendarGridContextType,
   type TopicSessionSlice,
-} from "../_components/calendar-grid/calendar-grid-definitions";
+} from "../calendar-grid-definitions";
 import { type RouterOutputs } from "~/trpc/react";
 
 export function useDaySessionMap() {
