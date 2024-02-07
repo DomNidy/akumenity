@@ -1,4 +1,3 @@
-"use client";
 
 import { CalendarGrid } from "../_components/calendar-grid/calendar-grid";
 import MyTopics from "../_components/my-topics/my-topics";

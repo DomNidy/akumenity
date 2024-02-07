@@ -1,17 +1,10 @@
+"use client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "../ui/command";
-import { cn } from "~/lib/utils";
+import { ChevronsUpDown } from "lucide-react";
 import { Card } from "../ui/card";
 import { toast } from "sonner";
 import Timeclock from "./timeclock";

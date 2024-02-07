@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCalendarGrid } from "./use-calendar-grid";
 
 // Custom hook which returns the time on the calendar grid based on the click position
 // Returns an event handler which can be passed in an onClick event to update this internal state
+// Attatches event listeners to the grid column dom element
 export function useTimeFromPosition({
   gridColumnDomRef,
   columnDay,
@@ -11,7 +12,7 @@ export function useTimeFromPosition({
   columnDay: Date;
 }) {
   // Get the calendar grid context
-  const calendarGridContext = useCalendarGrid();
+  const { zoomLevel, cellHeightPx } = useCalendarGrid();
 
   // The position and associated calendar time of the click
   const [clickPos, setClickPos] = useState<{
@@ -20,13 +21,42 @@ export function useTimeFromPosition({
     calendarTimeMS: number;
   } | null>(null);
 
-  function timeFromXYPosition(x: number, y: number) {
-    // Get the cell height and zoom level
-    const cellHeight = calendarGridContext.cellHeightPx;
-    const zoomLevel = calendarGridContext.zoomLevel;
+  // State meant to by updated by the onMouseEnter and onMouseLeave events of the grid column
+  const [cursorInColumn, setCursorInColumn] = useState(false);
 
+  // Attatch event listeners to the grid column
+  // Automatically update the cursorInColumn state based on the mouseenter and mouseleave events
+  useEffect(() => {
+    const gridColumn = gridColumnDomRef.current;
+    if (!gridColumn) return;
+
+    gridColumn.addEventListener("mouseenter", () => setCursorInColumn(true));
+    gridColumn.addEventListener("mouseleave", () => {
+      setClickPos(null);
+      setCursorInColumn(false);
+    });
+    gridColumn.addEventListener("click", (e) => updateClickPos(e));
+
+    return () => {
+      gridColumn.removeEventListener("mouseenter", () =>
+        setCursorInColumn(true),
+      );
+      gridColumn.removeEventListener("mouseleave", () =>
+        setCursorInColumn(false),
+      );
+      gridColumn.removeEventListener("click", (e) => updateClickPos(e));
+    };
+  }, [gridColumnDomRef]);
+
+  // Reset the click position when the zoom level or cell height changes
+  useEffect(() => {
+    setClickPos(null);
+  }, [zoomLevel, cellHeightPx]);
+
+  // Function which returns the time based on the y position of the click
+  function timeFromXYPosition(x: number, y: number) {
     // Calculate the cell x and y position
-    const cellY = Math.floor(y / cellHeight);
+    const cellY = Math.floor(y / cellHeightPx);
 
     // Create a new date object
     const time = new Date();
@@ -40,7 +70,7 @@ export function useTimeFromPosition({
   }
 
   // Return the event handler
-  const onClickedCalendarGridColumn = (e: React.MouseEvent<HTMLDivElement>) => {
+  const updateClickPos = (e: MouseEvent) => {
     // Get the grid column dom ref
     const rect = gridColumnDomRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -59,7 +89,7 @@ export function useTimeFromPosition({
   };
 
   return {
-    onClickedCalendarGridColumn,
     clickPos,
+    cursorInColumn,
   };
 }
