@@ -4,8 +4,7 @@ import { useRef } from "react";
 import { CalendarGridTopicSession } from "../topic-session/calendar-grid-topic-session";
 import { useCalendarGridColumn } from "~/app/_components/calendar-grid/hooks/use-calendar-grid-column";
 import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
-import { useTimeFromPosition } from "~/app/_components/calendar-grid/hooks/use-time-from-position";
-import { CalendarGridColumnTimeAreaBox } from "./calendar-grid-column-time-area-box";
+import CalendarGridColumnPopupMenu from "./calendar-grid-column-popup";
 
 export function CalendarGridColumn({ day }: { day: Date }) {
   const { zoomLevel, cellHeightPx } = useCalendarGrid();
@@ -18,24 +17,20 @@ export function CalendarGridColumn({ day }: { day: Date }) {
     day,
   });
 
-  // Used to get the time from a position of a click
-  // Maybe we can abstract all of this logic into a new component, instead of using the
-  // This hook attatches event listeners to the dom element passed in by ref, and returns the time of the click
-  const { clickPos, cursorInColumn } = useTimeFromPosition({
-    gridColumnDomRef,
-    columnDay: day,
-  });
-
   return (
     <div
       className={`relative flex flex-row border-[1px] bg-[#0D0D0D]`}
+      id={"id" + day.getTime().toString()}
       ref={gridColumnDomRef}
       style={{
         height: `${24 * zoomLevel * cellHeightPx}px`,
       }}
     >
       {/** Renders a box where the user clicked, along with the relative time (based on its positioning) */}
-      {cursorInColumn && <CalendarGridColumnTimeAreaBox {...clickPos} />}
+      <CalendarGridColumnPopupMenu
+        gridColumnDomRef={gridColumnDomRef}
+        columnDay={day}
+      />
 
       {/** Map out topic sessions for this column */}
       {columnTopicSessionSlices?.map((topicSessionSlice) => {

@@ -37,7 +37,7 @@ export function CalendarGridPreferenceEditor() {
                   ? "default"
                   : "outline"
               }
-              onClickCapture={() => {
+              onClick={() => {
                 userPreferences.setDisplayMode(
                   CalendarGridDisplayMode.WEEK_DISPLAY,
                 );
@@ -53,7 +53,7 @@ export function CalendarGridPreferenceEditor() {
                   ? "default"
                   : "outline"
               }
-              onClickCapture={() => {
+              onClick={() => {
                 userPreferences.setDisplayMode(
                   CalendarGridDisplayMode.DAY_DISPLAY,
                 );

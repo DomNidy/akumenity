@@ -35,6 +35,10 @@ export type TopicSessionSlice =
 export interface CalendarGridContextType {
   // DOM ref to the current time bar element
   currentTimeElementRef: React.RefObject<HTMLDivElement> | null;
+  // Id of the dom element corresponding to the active popup element
+  activePopupElementId: string | null;
+  // Function which sets the active popup element id
+  setActivePopupElementId: (id: string) => void;
 
   // The bounds (beginning and end) of the date range that is being displayed
   displayDateBounds: { beginDate: Date; endDate: Date };

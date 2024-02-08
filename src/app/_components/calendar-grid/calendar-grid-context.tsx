@@ -27,20 +27,9 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   setCellHeightPx: () => {
     throw new Error("setCellHeightPx not implemented");
   },
-  displayDateBounds: getDisplayDateBounds(
-    CalendarGridDisplayMode.WEEK_DISPLAY,
-    new Date(),
-    DaysOfTheWeek.Monday,
-  ),
   setDisplayDateBounds: () => {
     throw new Error("setDisplayDateBounds not implemented");
   },
-  zoomLevel: 0,
-  topicSessionsQuery: null,
-  daySessionSliceMap: {},
-  cellHeightPx: 60,
-  currentTimeElementRef: null,
-  timeColumnRef: null,
   removeSessionSlicesFromMap: () => {
     throw new Error("removeSessionSlicesFromMap not implemented");
   },
@@ -53,6 +42,21 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   getSessionSlicesByTopicSessionId: () => {
     throw new Error("getSessionSlicesByTopicSessionId not implemented");
   },
+  setActivePopupElementId: () => {
+    throw new Error("setActivePopupElementId not implemented");
+  },
+  displayDateBounds: getDisplayDateBounds(
+    CalendarGridDisplayMode.WEEK_DISPLAY,
+    new Date(),
+    DaysOfTheWeek.Monday,
+  ),
+  zoomLevel: 0,
+  topicSessionsQuery: null,
+  daySessionSliceMap: {},
+  cellHeightPx: 60,
+  currentTimeElementRef: null,
+  activePopupElementId: null,
+  timeColumnRef: null,
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -83,6 +87,11 @@ export function CalendarGridProvider({
 
   // The zoom level
   const [zoomLevel, _setZoomLevel] = useState(1);
+
+  // ID of the dom element corresponding to the active popup element
+  const [activePopupElementId, setActivePopupElementId] = useState<
+    string | null
+  >(null);
 
   // Dom ref to the current time element
   const currentTimeElementRef = useRef<HTMLDivElement>(null);
@@ -175,6 +184,8 @@ export function CalendarGridProvider({
     cellHeightPx: cellHeightPx,
     setCellHeightPx: _setCellHeightPx,
     currentTimeElementRef,
+    activePopupElementId,
+    setActivePopupElementId,
     timeColumnRef,
     removeSessionSlicesFromMap: daySessionMap.removeSessionSlicesFromMap,
     addSessionSliceToMap: daySessionMap.addSessionSliceToMap,

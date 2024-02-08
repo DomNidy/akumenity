@@ -21,37 +21,22 @@ export function useTimeFromPosition({
     calendarTimeMS: number;
   } | null>(null);
 
-  // State meant to by updated by the onMouseEnter and onMouseLeave events of the grid column
-  const [cursorInColumn, setCursorInColumn] = useState(false);
-
   // Attatch event listeners to the grid column
   // Automatically update the cursorInColumn state based on the mouseenter and mouseleave events
   useEffect(() => {
     const gridColumn = gridColumnDomRef.current;
     if (!gridColumn) return;
 
-    gridColumn.addEventListener("mouseenter", () => setCursorInColumn(true));
-    gridColumn.addEventListener("mouseleave", () => {
-      setClickPos(null);
-      setCursorInColumn(false);
+    gridColumn.addEventListener("click", (e) => {
+      // Only update the click position if the user clicks on the grid column, not a child element / topic session
+      if (e.target !== gridColumn) return;
+      updateClickPos(e);
     });
-    gridColumn.addEventListener("click", (e) => updateClickPos(e));
 
     return () => {
-      gridColumn.removeEventListener("mouseenter", () =>
-        setCursorInColumn(true),
-      );
-      gridColumn.removeEventListener("mouseleave", () =>
-        setCursorInColumn(false),
-      );
       gridColumn.removeEventListener("click", (e) => updateClickPos(e));
     };
   }, [gridColumnDomRef]);
-
-  // Reset the click position when the zoom level or cell height changes
-  useEffect(() => {
-    setClickPos(null);
-  }, [zoomLevel, cellHeightPx]);
 
   // Function which returns the time based on the y position of the click
   function timeFromXYPosition(x: number, y: number) {
@@ -90,6 +75,5 @@ export function useTimeFromPosition({
 
   return {
     clickPos,
-    cursorInColumn,
   };
 }
