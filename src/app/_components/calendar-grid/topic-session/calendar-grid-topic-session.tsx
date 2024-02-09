@@ -29,7 +29,7 @@ export function CalendarGridTopicSession({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
         <div
           onMouseOver={() => {
             hoverContext.setHoveredCalendarItemId(topicSessionSlice.SK);

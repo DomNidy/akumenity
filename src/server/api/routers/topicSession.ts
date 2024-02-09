@@ -472,6 +472,43 @@ export const topicSessionRouter = createTRPCRouter({
           });
         }
 
+        // This is the topic that the user wants to change the session to
+        let updatedTopicTitle = null;
+
+        // If we requested to change the topic id, ensure that the topic exists, and get its title
+        if (input.updatedFields.Topic_ID) {
+          const topic = await ddbDocClient.send(
+            new GetCommand({
+              TableName: env.DYNAMO_DB_TABLE_NAME,
+              Key: {
+                PK: `${ctx.session.userId}`,
+                SK: input.updatedFields.Topic_ID,
+              },
+              AttributesToGet: [
+                dbConstants.itemTypes.topic.propertyNames.Title,
+              ],
+            }),
+          );
+
+          if (!topic.Item) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Topic does not exist",
+            });
+          }
+
+          if (!topic.Item.Title) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Requested to change to an invalid topic.",
+            });
+          } else {
+            updatedTopicTitle = topic.Item.Title as string;
+          }
+        }
+
+        console.log("updatedTopic", updatedTopicTitle);
+
         // Update the topic session
         const updateSessionCommand = new PutCommand({
           TableName: env.DYNAMO_DB_TABLE_NAME,
@@ -485,6 +522,12 @@ export const topicSessionRouter = createTRPCRouter({
             ...(input.updatedFields.startTimeMS
               ? { Session_Start: input.updatedFields.startTimeMS }
               : {}),
+
+            ...(input.updatedFields.Topic_ID
+              ? { Topic_ID: input.updatedFields.Topic_ID }
+              : {}),
+
+            ...(updatedTopicTitle ? { Topic_Title: updatedTopicTitle } : {}),
           } as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>,
         });
 

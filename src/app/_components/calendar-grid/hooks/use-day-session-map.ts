@@ -118,8 +118,6 @@ export function useDaySessionMap() {
       if (!data) return;
 
       data.forEach((topicSession) => {
-        console.log(topicSession, "topicSession in slice");
-
         // If the session has already been processed, skip it
         if (isSessionIdProcessed(topicSession.SK)) return;
 
@@ -140,14 +138,7 @@ export function useDaySessionMap() {
   // Returns undefined if the topic session id is not in the map
   const getSessionSlicesByTopicSessionId = useCallback(
     (topicSessionId: string) => {
-      console.log(
-        "Getting slices by topic session id",
-        topicSessionId,
-        processedTopicSessionIds,
-      );
       if (!processedTopicSessionIds.has(topicSessionId)) return undefined;
-
-      console.log("still in the function");
 
       const slices = Object.values(daySessionMap).flatMap(
         (day) => day.topicSessionSlices,

@@ -17,13 +17,27 @@ import {
 } from "../../ui/form";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { api } from "~/trpc/react";
+import { TopicSelectorMenu } from "../../my-topics/topic-selector-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 
 export function CalendarGridTopicSessionOptionsUpdateForm({
   topicSessionSlice,
 }: {
   topicSessionSlice: TopicSessionSlice;
 }) {
+  // TODO: Abstract into a hook that we can reuse
+  const usersTopics = api.topic.getTopics.useQuery({
+    limit: 50,
+  });
+
+  // Store the selected topic in the "change associated topic" input
+  const [selectedTopic, setSelectedTopic] = useState<{
+    label: string;
+    topicId: string;
+  } | null>(null);
+
   const topicSessionOptions = useTopicSessionOptions({
     topicSessionId: topicSessionSlice.SK,
   });
@@ -35,6 +49,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
       updatedFields: {
         startTimeMS: topicSessionSlice.Session_Start,
         endTimeMS: topicSessionSlice.Session_End ?? Date.now(),
+        Topic_ID: undefined,
       },
     },
   });
@@ -48,6 +63,13 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
       console.error(err);
     }
   }
+
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  // Because we update the seleced topic in a different component, we'll run an effect here to update our form state when that changes
+  useEffect(() => {
+    form.setValue("updatedFields.Topic_ID", selectedTopic?.topicId);
+  }, [selectedTopic]);
 
   useEffect(() => {
     // whenever form errors change, log them
@@ -94,11 +116,29 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
         <FormField
           control={form.control}
           name="updatedFields.Topic_ID"
-          render={({ field }) => (
+          render={({}) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>Change associated topic</FormLabel>
               <FormControl>
-                <Input {...field} type="text" />
+                <Popover open={popoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      onClick={() => setPopoverOpen(!popoverOpen)}
+                      role="combobox"
+                      aria-expanded={false}
+                      className="w-[250px] justify-between "
+                    >
+                      {selectedTopic?.label ?? "Select Topic"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[250px] p-0">
+                    <TopicSelectorMenu
+                      setPopoverOpen={setPopoverOpen}
+                      setSelectedTopic={setSelectedTopic}
+                      usersTopics={usersTopics.data?.topics}
+                    />
+                  </PopoverContent>
+                </Popover>
               </FormControl>
               <FormDescription>Topic ID</FormDescription>
             </FormItem>

@@ -19,6 +19,7 @@ export function useTimeFromPosition({
     x: number;
     y: number;
     calendarTimeMS: number;
+    event: MouseEvent;
   } | null>(null);
 
   // Attatch event listeners to the grid column
@@ -36,7 +37,7 @@ export function useTimeFromPosition({
     return () => {
       gridColumn.removeEventListener("click", (e) => updateClickPos(e));
     };
-  }, [gridColumnDomRef]);
+  }, [gridColumnDomRef, zoomLevel, cellHeightPx, columnDay]);
 
   // Function which returns the time based on the y position of the click
   function timeFromXYPosition(x: number, y: number) {
@@ -50,7 +51,6 @@ export function useTimeFromPosition({
     time.setMonth(columnDay.getMonth());
     time.setFullYear(columnDay.getFullYear());
 
-    // Log the time
     return time;
   }
 
@@ -70,6 +70,7 @@ export function useTimeFromPosition({
       calendarTimeMS,
       x,
       y,
+      event: e,
     });
   };
 

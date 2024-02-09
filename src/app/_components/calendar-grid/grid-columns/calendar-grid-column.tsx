@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { CalendarGridTopicSession } from "../topic-session/calendar-grid-topic-session";
 import { useCalendarGridColumn } from "~/app/_components/calendar-grid/hooks/use-calendar-grid-column";
 import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
-import CalendarGridColumnPopupMenu from "./calendar-grid-column-popup";
+import CalendarGridColumnPopupRenderer from "../popup/calendar-grid-column-popup-renderer";
 
 export function CalendarGridColumn({ day }: { day: Date }) {
   const { zoomLevel, cellHeightPx } = useCalendarGrid();
@@ -20,14 +20,13 @@ export function CalendarGridColumn({ day }: { day: Date }) {
   return (
     <div
       className={`relative flex flex-row border-[1px] bg-[#0D0D0D]`}
-      id={"id" + day.getTime().toString()}
       ref={gridColumnDomRef}
       style={{
         height: `${24 * zoomLevel * cellHeightPx}px`,
       }}
     >
       {/** Renders a box where the user clicked, along with the relative time (based on its positioning) */}
-      <CalendarGridColumnPopupMenu
+      <CalendarGridColumnPopupRenderer
         gridColumnDomRef={gridColumnDomRef}
         columnDay={day}
       />
