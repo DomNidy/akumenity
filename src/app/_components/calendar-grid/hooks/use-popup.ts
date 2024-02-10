@@ -64,6 +64,14 @@ export function usePopup({ ...props }: UsePopupProps) {
   // TODO: Review this, i think its actually redundant
   // Function which determines if the clicked element is a child of the popup, or the popup itself
   function isInPopupElement(e: MouseEvent) {
+    // If there is a parent element with the 'data-item-type="select-topic-menu"' attribute, return true
+    if ( 
+      e.target instanceof Element &&
+      e.target.closest(`[data-item-type="select-topic-menu"]`) !== null
+    ) {
+      console.log("Returning true, found selector menu");
+      return true;
+    }
     return (
       e.target instanceof Element && e.target.closest(`#${popupID}`) !== null
     );

@@ -10,6 +10,7 @@ import {
 import { type RouterOutputs } from "~/trpc/react";
 import { type Dispatch, type SetStateAction } from "react";
 
+// TODO: Further refine this component to be more generic, it is not ideal to need to pass in the setSelectedTopic and setPopoverOpen functions
 export function TopicSelectorMenu({
   usersTopics,
   setSelectedTopic,
@@ -25,22 +26,20 @@ export function TopicSelectorMenu({
   setPopoverOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   return (
-    <Command>
+    <Command data-item-type="select-topic-menu">
       <CommandInput placeholder="Search topic" />
-      <CommandEmpty>No topic found</CommandEmpty>
+      <CommandEmpty>No topics found</CommandEmpty>
       <CommandGroup>
         {usersTopics?.map((topic) => (
           <CommandItem
             className="cursor-pointer"
             key={topic.SK}
             value={topic.SK}
-            onSelect={(currentValue) => {
-              console.log(currentValue);
+            onSelect={() => {
               setSelectedTopic({
                 label: topic.Title,
                 topicId: topic.SK,
               });
-
               setPopoverOpen(false);
             }}
           >

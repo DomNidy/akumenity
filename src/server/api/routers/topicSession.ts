@@ -1,4 +1,5 @@
 import {
+  TopicSessionCreateNotActiveSchema,
   TopicSessionCreateSchema,
   TopicSessionGetSchema,
   TopicSessionGetSessionsForTopicSchema,
@@ -53,6 +54,7 @@ export const topicSessionRouter = createTRPCRouter({
     }
   }),
 
+  // Creates a new topic session, and sets it as active
   createTopicSession: protectedProcedure
     .input(TopicSessionCreateSchema)
     .mutation(async ({ ctx, input }) => {
@@ -135,6 +137,59 @@ export const topicSessionRouter = createTRPCRouter({
       }
     }),
 
+  // Creates a topic session, but the created session is not set as active
+  createTopicSessionNotActive: protectedProcedure
+    .input(TopicSessionCreateNotActiveSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // Get title of the topic using its topic id
+        const topicTitle = await ddbDocClient.send(
+          new GetCommand({
+            Key: {
+              PK: `${ctx.session.userId}`,
+              SK: `${input.Topic_ID}`,
+            },
+            AttributesToGet: ["Title"],
+            TableName: env.DYNAMO_DB_TABLE_NAME,
+          }),
+        );
+
+        // Create the topicSession object locally so we can parse it with zod to ensure it is valid
+        const topicSession = {
+          PK: `${ctx.session.userId}`,
+          SK: `${dbConstants.itemTypes.topicSession.typeName}${randomUUID()}`,
+          Session_End: input.endTimeMS,
+          Session_Start: input.startTimeMS,
+          Session_Status: "stopped",
+          Topic_ID: input.Topic_ID,
+          Topic_Title: topicTitle.Item?.Title as string,
+          [dbConstants.tables.prod.GSI1.partitionKey]: input.Topic_ID,
+          [dbConstants.tables.prod.GSI1.sortKey]: input.startTimeMS,
+        } as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
+
+        // Validate the topic session object
+        dbConstants.itemTypes.topicSession.itemSchema.parse(topicSession);
+
+        // Create the command to put the topic session in the database
+        const command = new PutCommand({
+          Item: topicSession,
+          TableName: env.DYNAMO_DB_TABLE_NAME,
+        });
+
+        await ddbDocClient.send(command);
+      } catch (err) {
+        console.error(err);
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create topic session, please try again",
+          cause: err,
+        });
+      }
+    }),
   endTopicSession: protectedProcedure.mutation(async ({ ctx }) => {
     try {
       // Create the query command to find the active topic session for the user

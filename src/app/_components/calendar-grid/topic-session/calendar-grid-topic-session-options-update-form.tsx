@@ -46,10 +46,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     resolver: zodResolver(TopicSessionUpdateSchema),
     defaultValues: {
       TopicSession_ID: topicSessionSlice.SK,
-      updatedFields: {
-        startTimeMS: topicSessionSlice.sliceStartMS,
-        endTimeMS: topicSessionSlice.sliceEndMS,
-      },
+      updatedFields: {},
     },
   });
 
@@ -78,17 +75,25 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
   // TODO: FormMessage is not showing the errors, figure out how react hook form works
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="updatedFields.startTimeMS"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel className="text-md font-semibold tracking-tight">
+                Start time
+              </FormLabel>
               <FormControl>
-                <Input {...field} type="number" />
+                <Input
+                  {...field}
+                  type="number"
+                  placeholder={`${topicSessionSlice.Session_Start}`}
+                />
               </FormControl>
-              <FormDescription>Start Time</FormDescription>
+              <FormDescription>
+                Change the time at which this session begun
+              </FormDescription>
             </FormItem>
           )}
         />
@@ -98,11 +103,19 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
           name="updatedFields.endTimeMS"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel className="text-md font-semibold tracking-tight">
+                End time
+              </FormLabel>
               <FormControl onError={(e) => console.log(e)}>
-                <Input {...field} type="number" />
+                <Input
+                  {...field}
+                  type="number"
+                  placeholder={`${topicSessionSlice.Session_End ?? Date.now()}`}
+                />
               </FormControl>
-              <FormDescription>End Time</FormDescription>
+              <FormDescription>
+                Change the time at which this session ended
+              </FormDescription>
               {/** TODO: Improve this & UX: Don't know why form message component is not able to read the context from FormField parent
                * (as it should bubble up the tree till it finds the context), so im just manually displaying the message here */}
               <FormMessage>
@@ -117,7 +130,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
           name="updatedFields.Topic_ID"
           render={({}) => (
             <FormItem>
-              <FormLabel className="m-0 p-0 text-lg font-semibold">
+              <FormLabel className="text-md font-semibold tracking-tight">
                 Change associated topic
               </FormLabel>
               <FormControl>
@@ -142,7 +155,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
                 </Popover>
               </FormControl>
               <FormDescription>
-                Update the topic which this session is asssociated with
+                Update the topic which this session is associated with
               </FormDescription>
             </FormItem>
           )}
@@ -158,7 +171,9 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
               })
             }
           >
-            <p className="cursor-pointer font-semibold text-destructive">Delete Session</p>
+            <p className="cursor-pointer font-semibold text-destructive">
+              Delete Session
+            </p>
           </Button>
         </div>
       </form>

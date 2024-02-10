@@ -105,3 +105,30 @@ export const TopicSessionUpdateSchema = z.object({
       },
     ),
 });
+
+export const TopicSessionCreateNotActiveSchema = z
+  .object({
+    Topic_ID: z
+      .string()
+      .startsWith(dbConstants.itemTypes.topic.typeName)
+      .min(1)
+      .max(128), // The id of the topic to create a session for
+    startTimeMS: z.number().min(0),
+    endTimeMS: z.number().min(0),
+  })
+  .refine(
+    (data) => {
+      // Ensure that the start time is before the end time
+      return data.startTimeMS < data.endTimeMS;
+    },
+    { message: "Start time must be before end time" },
+  )
+  .refine(
+    (data) => {
+      // Ensure that the end time would not cause the session to be longer than the maximum allowed duration
+      return data.endTimeMS - data.startTimeMS <= 1000 * 60 * 60 * 24 * 30;
+    },
+    {
+      message: "Session duration cannot be longer than 30 days",
+    },
+  );

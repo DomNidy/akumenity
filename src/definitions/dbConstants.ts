@@ -81,20 +81,3 @@ export const dbConstants = {
     },
   },
 } as const;
-
-// const exampleTopic = {
-//   PK: "user_12345",
-//   SK: "Topic|ABCDEF",
-//   Title: "My Topic",
-//   Description: "This is a description of my topic.",
-// } as z.infer<typeof dbConstants.itemTypes.topic.itemSchema>;
-
-// const exampleTopicSession = {
-//   PK: "user_12345",
-//   SK: "TopicSession|ABCDEF",
-//   Topic_Title: "My Topic",
-//   Topic_ID: "Topic|12349",
-//   Session_Start: 161800000000,
-//   Session_End: 1620000000000,
-//   Session_Status: "active",
-// } as z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema>;
