@@ -5,9 +5,6 @@ import { Card } from "../ui/card";
 import { timeSince } from "~/lib/utils";
 import { Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { api } from "~/trpc/react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCalendarGrid } from "../calendar-grid/hooks/use-calendar-grid";
 import { useTopicSessionOptions } from "~/app/hooks/use-topic-session-options";
 
 export default function Timeclock({
@@ -20,24 +17,6 @@ export default function Timeclock({
   const { endActiveTopicSessionMutation } = useTopicSessionOptions({
     topicSessionId: SK,
   });
-
-  const calendarGridContext = useCalendarGrid();
-
-  const stopSession = api.topicSession.endTopicSession.useMutation({
-    onSettled: () => {
-      calendarGridContext.removeSessionSlicesFromMap(SK);
-      calendarGridContext.markSessionIdAsUnprocessed(SK);
-
-      void queryClient.invalidateQueries([
-        ["topicSession", "getActiveTopicSession"],
-      ]);
-
-      void queryClient.invalidateQueries([
-        ["topicSession", "getTopicSessionsInDateRange"],
-      ]);
-    },
-  });
-  const queryClient = useQueryClient();
 
   const [timeElapsed, setTimeElapsed] = useState(Date.now() - Session_Start);
   const intervalRef = useRef<NodeJS.Timeout | undefined>();
@@ -81,7 +60,7 @@ export default function Timeclock({
               size={24}
               className="cursor-pointer rounded-full bg-red-500 p-1 hover:bg-red-400"
               onClick={() => {
-                stopSession.mutate();
+                endActiveTopicSessionMutation.mutate();
                 clearInterval(intervalRef.current);
                 setActive(false);
               }}

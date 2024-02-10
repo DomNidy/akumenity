@@ -73,21 +73,19 @@ export function usePopup({ ...props }: UsePopupProps) {
   // * Global event listener Add event listener to window to close the popup when the user clicks outside of it
   useEffect(() => {
     function closePopup(e: MouseEvent) {
-      console.log(popupID);
-      console.log("in grid column", isInGridColumn(e));
-      console.log("in popup element", isInPopupElement(e));
-
-      // When we click, and the popup is already active, and the click is not inside the popup, close the popup
-      if (isPopupActive && !isInPopupElement(e)) {
-        setIsPopupActive(false);
-        calendarGridContext.setActivePopupElementId("");
-      }
-
       // When we click, and the popup is not active, and its inside the grid column set it to active
       if (!isPopupActive && isInGridColumn(e)) {
         console.log("Opening");
         calendarGridContext.setActivePopupElementId(popupID);
         setIsPopupActive(true);
+        return;
+      }
+
+      // When we click, and the popup is already active, and the click is not inside the popup, close the popup
+      if (isPopupActive && !isInPopupElement(e)) {
+        calendarGridContext.setActivePopupElementId("");
+        setIsPopupActive(false);
+        return;
       }
     }
 

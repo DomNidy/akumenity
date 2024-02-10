@@ -47,9 +47,8 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     defaultValues: {
       TopicSession_ID: topicSessionSlice.SK,
       updatedFields: {
-        startTimeMS: topicSessionSlice.Session_Start,
-        endTimeMS: topicSessionSlice.Session_End ?? Date.now(),
-        Topic_ID: undefined,
+        startTimeMS: topicSessionSlice.sliceStartMS,
+        endTimeMS: topicSessionSlice.sliceEndMS,
       },
     },
   });
@@ -118,7 +117,9 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
           name="updatedFields.Topic_ID"
           render={({}) => (
             <FormItem>
-              <FormLabel>Change associated topic</FormLabel>
+              <FormLabel className="m-0 p-0 text-lg font-semibold">
+                Change associated topic
+              </FormLabel>
               <FormControl>
                 <Popover open={popoverOpen}>
                   <PopoverTrigger asChild>
@@ -126,12 +127,12 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
                       onClick={() => setPopoverOpen(!popoverOpen)}
                       role="combobox"
                       aria-expanded={false}
-                      className="w-[250px] justify-between "
+                      className="w-[250px] justify-between"
                     >
                       {selectedTopic?.label ?? "Select Topic"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[250px] p-0">
+                  <PopoverContent className="w-[300px] p-0">
                     <TopicSelectorMenu
                       setPopoverOpen={setPopoverOpen}
                       setSelectedTopic={setSelectedTopic}
@@ -140,22 +141,26 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
                   </PopoverContent>
                 </Popover>
               </FormControl>
-              <FormDescription>Topic ID</FormDescription>
+              <FormDescription>
+                Update the topic which this session is asssociated with
+              </FormDescription>
             </FormItem>
           )}
         />
 
-        <Button type="submit">Update</Button>
-        <Button
-          className="bg-transparent hover:bg-destructive/20"
-          onClick={() =>
-            topicSessionOptions.deleteTopicSessionMutation.mutate({
-              topicSessionId: topicSessionSlice.SK,
-            })
-          }
-        >
-          <p className="cursor-pointer text-destructive">Delete Session</p>
-        </Button>
+        <div className="flex justify-between">
+          <Button type="submit">Update</Button>
+          <Button
+            className="bg-transparent hover:bg-destructive/20"
+            onClick={() =>
+              topicSessionOptions.deleteTopicSessionMutation.mutate({
+                topicSessionId: topicSessionSlice.SK,
+              })
+            }
+          >
+            <p className="cursor-pointer font-semibold text-destructive">Delete Session</p>
+          </Button>
+        </div>
       </form>
       <FormMessage key={"root"}>
         {topicSessionOptions.updateTopicSessionMutation.error?.message}

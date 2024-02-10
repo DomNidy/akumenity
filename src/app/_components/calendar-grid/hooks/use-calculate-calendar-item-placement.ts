@@ -131,6 +131,7 @@ export function useCalculateCalendarItemVerticalPos({
       timeEnd,
       timeStart,
       liveTime,
+      liveTimeEnd,
       maxHeight,
       calendarGridContext.cellHeightPx,
       calendarGridContext.zoomLevel,
