@@ -13,6 +13,14 @@ interface UsePopupProps {
   columnDay: Date;
 }
 
+// Popup children item-type data attributes
+// Clicking on elements with these data attributes will not close the popup
+// Because certain elements in the popup are not direct children of the popup, we have to check for these data attributes (as closest would not work)
+const popupChildrenItemTypes = new Set([
+  "select-topic-menu",
+  "date-range-picker",
+]);
+
 /**
  * When passed a ref to a dom element, will listen for clicks on that element, and set the active popup element id to the specified id
  * @param popupID dom element id of the element we want to show as active when the user clicks on the gridColumnDomRef
@@ -61,20 +69,30 @@ export function usePopup({ ...props }: UsePopupProps) {
     return false;
   }
 
-  // TODO: Review this, i think its actually redundant
   // Function which determines if the clicked element is a child of the popup, or the popup itself
   function isInPopupElement(e: MouseEvent) {
+    // We have to check for these data attributes because certain elements in the popup are not direct children of the
     // If there is a parent element with the 'data-item-type="select-topic-menu"' attribute, return true
-    if ( 
+    if (
       e.target instanceof Element &&
-      e.target.closest(`[data-item-type="select-topic-menu"]`) !== null
+      (e.target.closest(`[data-item-type="select-topic-menu"]`) !== null ||
+        e.target.closest(`[data-item-type="date-range-picker"]`) !== null)
     ) {
       console.log("Returning true, found selector menu");
       return true;
     }
-    return (
-      e.target instanceof Element && e.target.closest(`#${popupID}`) !== null
-    );
+
+    if (
+      e.target instanceof Element &&
+      e.target.closest(`#${popupID}`) !== null
+    ) {
+      console.log("Returning true, found popup");
+      return true;
+    }
+
+    console.log(e.target);
+
+    return false;
   }
 
   // TODO: Fix down the line: Kind of performance heavy since there may be 7 of these, would be better to have a single one, and read from the context

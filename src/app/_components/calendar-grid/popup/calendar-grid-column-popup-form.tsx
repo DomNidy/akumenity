@@ -3,7 +3,7 @@
 
 import { useForm } from "react-hook-form";
 import { type useTimeFromPosition } from "../hooks/use-time-from-position";
-import { z } from "zod";
+import { type z } from "zod";
 import { TopicSessionCreateNotActiveSchema } from "~/definitions/topic-session-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "~/trpc/react";
@@ -14,13 +14,14 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "../../ui/form";
-import { Input } from "../../ui/input";
 import { useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { Button } from "../../ui/button";
 import { TopicSelectorMenu } from "../../my-topics/topic-selector-menu";
-
+import { useUserTopicsQuery } from "~/app/hooks/use-user-topics-query";
+import DateTimePicker from "../../date-time-picker/date-time-picker";
 /**
  * @param clickPos position that the user clicked on the grid column
  */
@@ -37,10 +38,7 @@ export function CalendarGridColumnPopupForm({
     },
   });
 
-  // TODO: Abstract into a hook that we can reuse
-  const usersTopics = api.topic.getTopics.useQuery({
-    limit: 50,
-  });
+  const usersTopics = useUserTopicsQuery();
 
   // Store the selected topic in the "change associated topic" input
   const [selectedTopic, setSelectedTopic] = useState<{
@@ -70,6 +68,12 @@ export function CalendarGridColumnPopupForm({
     }
   }
 
+  // log form errors
+
+  useEffect(() => {
+    console.log(form.formState.errors);
+  }, [form.formState.errors]);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -78,37 +82,45 @@ export function CalendarGridColumnPopupForm({
           name="startTimeMS"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Start time</FormLabel>
+              <FormLabel className="text-md font-semibold tracking-tight">
+                Start time
+              </FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  placeholder={`${clickPos?.calendarTimeMS}`}
+                <DateTimePicker
+                  setDate={(date) => {
+                    form.setValue("startTimeMS", date?.getTime() ?? Date.now());
+                  }}
                 />
               </FormControl>
               <FormDescription>
                 Change the time at which this session begun
               </FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
 
+        {/** Replace this with date time picker */}
+
         <FormField
           control={form.control}
           name="endTimeMS"
-          render={({ field }) => (
+          render={({}) => (
             <FormItem>
-              <FormLabel>End time</FormLabel>
+              <FormLabel className="text-md font-semibold tracking-tight">
+                End time
+              </FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  placeholder={`${clickPos?.calendarTimeMS}`}
+                <DateTimePicker
+                  setDate={(date) => {
+                    form.setValue("endTimeMS", date?.getTime() ?? Date.now());
+                  }}
                 />
               </FormControl>
               <FormDescription>
                 Change the time at which this session ends
               </FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -119,7 +131,7 @@ export function CalendarGridColumnPopupForm({
           render={({}) => (
             <FormItem>
               <FormLabel className="text-md font-semibold tracking-tight">
-                Change associated topic
+                Associated topic
               </FormLabel>
               <FormControl>
                 <Popover open={popoverOpen}>
@@ -143,8 +155,9 @@ export function CalendarGridColumnPopupForm({
                 </Popover>
               </FormControl>
               <FormDescription>
-                Update the topic which this session is associated with
+                Which topic should this session be associated with?
               </FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />

@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { TopicSelectorMenu } from "../../my-topics/topic-selector-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
+import { useUserTopicsQuery } from "~/app/hooks/use-user-topics-query";
 
 export function CalendarGridTopicSessionOptionsUpdateForm({
   topicSessionSlice,
@@ -28,9 +29,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
   topicSessionSlice: TopicSessionSlice;
 }) {
   // TODO: Abstract into a hook that we can reuse
-  const usersTopics = api.topic.getTopics.useQuery({
-    limit: 50,
-  });
+  const usersTopics = useUserTopicsQuery();
 
   // Store the selected topic in the "change associated topic" input
   const [selectedTopic, setSelectedTopic] = useState<{
@@ -46,7 +45,11 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     resolver: zodResolver(TopicSessionUpdateSchema),
     defaultValues: {
       TopicSession_ID: topicSessionSlice.SK,
-      updatedFields: {},
+      updatedFields: {
+        startTimeMS: topicSessionSlice.Session_Start,
+        endTimeMS: topicSessionSlice.Session_End ?? Date.now(),
+        Topic_ID: topicSessionSlice.Topic_ID,
+      },
     },
   });
 

@@ -28,10 +28,10 @@ export default function CalendarGridColumnPopupRenderer({
     <Popover open={isPopupActive}>
       {/** Anchor the popover content to click position */}
       <PopoverAnchor
+        className="w-full"
         data-calendar-grid-item-type="calendar-popover"
         style={{
           position: "absolute",
-          width: "100%",
           top: `${clickPos?.y ? clickPos.y - 20 : 0}px `,
         }}
       >

@@ -11,12 +11,11 @@ import Timeclock from "./timeclock";
 import { type z } from "zod";
 import { type dbConstants } from "~/definitions/dbConstants";
 import { TopicSelectorMenu } from "./topic-selector-menu";
+import { useUserTopicsQuery } from "~/app/hooks/use-user-topics-query";
 
 export default function TopicSessionManager() {
   // TODO: Implement infinite scroll (for requerying and adjusting the limit), or just refactor the endpoint to not even paginate user topics
-  const usersTopics = api.topic.getTopics.useQuery({
-    limit: 50,
-  });
+  const usersTopics = useUserTopicsQuery();
 
   const activeTopicSessionQuery =
     api.topicSession.getActiveTopicSession.useQuery();

@@ -113,15 +113,15 @@ export const TopicSessionCreateNotActiveSchema = z
       .startsWith(dbConstants.itemTypes.topic.typeName)
       .min(1)
       .max(128), // The id of the topic to create a session for
-    startTimeMS: z.number().min(0),
-    endTimeMS: z.number().min(0),
+    startTimeMS: z.coerce.number().min(0),
+    endTimeMS: z.coerce.number().min(0),
   })
   .refine(
     (data) => {
       // Ensure that the start time is before the end time
       return data.startTimeMS < data.endTimeMS;
     },
-    { message: "Start time must be before end time" },
+    { message: "Start time must be before end time", path: ["startTimeMS"] },
   )
   .refine(
     (data) => {
@@ -130,5 +130,6 @@ export const TopicSessionCreateNotActiveSchema = z
     },
     {
       message: "Session duration cannot be longer than 30 days",
+      path: ["endTimeMS"],
     },
   );
