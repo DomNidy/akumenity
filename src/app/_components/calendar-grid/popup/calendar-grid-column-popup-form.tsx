@@ -80,13 +80,14 @@ export function CalendarGridColumnPopupForm({
         <FormField
           control={form.control}
           name="startTimeMS"
-          render={({ field }) => (
+          render={({}) => (
             <FormItem>
               <FormLabel className="text-md font-semibold tracking-tight">
                 Start time
               </FormLabel>
               <FormControl>
                 <DateTimePicker
+                  defaultDate={new Date(clickPos?.calendarTimeMS ?? Date.now())}
                   setDate={(date) => {
                     form.setValue("startTimeMS", date?.getTime() ?? Date.now());
                   }}
@@ -112,6 +113,11 @@ export function CalendarGridColumnPopupForm({
               </FormLabel>
               <FormControl>
                 <DateTimePicker
+                  defaultDate={
+                    new Date(
+                      (clickPos?.calendarTimeMS ?? Date.now()) + 1000 * 60 * 15,
+                    )
+                  }
                   setDate={(date) => {
                     form.setValue("endTimeMS", date?.getTime() ?? Date.now());
                   }}
@@ -129,7 +135,7 @@ export function CalendarGridColumnPopupForm({
           control={form.control}
           name="Topic_ID"
           render={({}) => (
-            <FormItem>
+            <FormItem className="flex flex-col items-start">
               <FormLabel className="text-md font-semibold tracking-tight">
                 Associated topic
               </FormLabel>

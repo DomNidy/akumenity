@@ -98,32 +98,6 @@ export function formatTime(milliseconds: number): string {
   return formattedTime;
 }
 
-// Utility function that returns the time at which the week (in which the date passed as an argument falls) starts and ends.
-export function getWeekStartAndEndMS(date: Date) {
-  // Start with a date object at 12:00:00 AM on the given date
-  const _date = dayjs(date);
-
-  const startOf = _date.startOf("week");
-  const endOf = _date.endOf("week");
-
-  return {
-    startTimeMS: startOf.unix() * 1000,
-    endTimeMS: endOf.unix() * 1000,
-  };
-}
-
-// Utility function that returns a date from a day since unix epoch (January 1, 1970)
-export function getDateFromDaySinceUnixEpoch(day: number) {
-  return dayjs.unix(day * 24 * 60 * 60).toDate();
-}
-
-// Function which returns the week number (number of weeks that have occured since epoch) in which the date passed as an argument falls.
-export function getWeeksSinceUnixEpoch(date: Date) {
-  const { startTimeMS } = getWeekStartAndEndMS(date);
-
-  return Math.floor(startTimeMS / (7 * 24 * 60 * 60 * 1000)) + 1;
-}
-
 // Function which returns the days since unix epoch (January 1, 1970) for a given date
 export function getDaysSinceUnixEpoch(date: Date) {
   // Becuase the local timezone might not be UTC, we should add an offset so we get the correct day
@@ -219,6 +193,7 @@ export function getDisplayDateBounds(
       };
     case CalendarGridDisplayMode.WEEK_DISPLAY:
       // TODO: FIX THIS: On sundays, the following week is being displayed on initial load instead of the current week
+      // TODO: Believe it has to do with how we're adding days and setting start of week
       // Create a new date object at the beginning of the week
       const startWeek = dayjs(date)
         .startOf("week")

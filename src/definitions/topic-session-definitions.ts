@@ -110,7 +110,10 @@ export const TopicSessionCreateNotActiveSchema = z
   .object({
     Topic_ID: z
       .string()
-      .startsWith(dbConstants.itemTypes.topic.typeName)
+      .startsWith(
+        dbConstants.itemTypes.topic.typeName,
+        "Invalid Topic",
+      )
       .min(1)
       .max(128), // The id of the topic to create a session for
     startTimeMS: z.coerce.number().min(0),

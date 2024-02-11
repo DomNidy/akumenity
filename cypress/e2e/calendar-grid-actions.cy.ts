@@ -7,8 +7,8 @@ context("Calendar Grid Actions", () => {
     cy.clearTestTable();
   });
 
+  // Note: In this test, the date is only stubbed for the column header text, not the actual data dates are fetched for from server
   it("Displays the correct date range on sundays", () => {
-    // TODO: Seems stubbing the date is not working as the getDisplayDateBounds function returns the current date
     cy.login();
     // Stub the date to be a Sunday
     // Sun Feb 4th 2024
