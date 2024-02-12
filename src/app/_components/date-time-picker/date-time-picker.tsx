@@ -29,9 +29,6 @@ export default function DateTimePicker({ ...props }: DateTimePickerProps) {
   // If the calendar is open
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  // If the time input is open
-  const [timeOpen, setTimeOpen] = useState(false);
-
   // The actual time associated with the date
   const [date, _setDate] = useState<Date>(defaultDate);
   // Time input value
