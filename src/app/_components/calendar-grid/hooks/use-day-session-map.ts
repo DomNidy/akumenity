@@ -2,7 +2,7 @@
 import { useCallback, useState } from "react";
 import { getDaysSinceUnixEpoch, sliceTopicSession } from "~/lib/utils";
 import {
-  type CalendarGridContextType,
+  type CalendarGridContextData,
   type TopicSessionSlice,
 } from "../calendar-grid-definitions";
 import { type RouterOutputs } from "~/trpc/react";
@@ -10,7 +10,7 @@ import { type RouterOutputs } from "~/trpc/react";
 export function useDaySessionMap() {
   // If complexity grows too high and difficult to debug, we should move this to a reducer
   const [daySessionMap, setDaySessionMap] = useState<
-    CalendarGridContextType["daySessionSliceMap"]
+    CalendarGridContextData["daySessionSliceMap"]
   >({});
 
   // Store topic session ids that have already been added to the map

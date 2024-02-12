@@ -1,9 +1,9 @@
 "use client";
-import { CalendarGridColumnPopupForm } from "~/app/_components/calendar-grid/popup/calendar-grid-column-popup-form";
+import { CalendarPopupForm } from "~/app/_components/calendar-grid/popup/calendar-popup-form";
 
 export default function TestPage() {
   return (
-    <CalendarGridColumnPopupForm
+    <CalendarPopupForm
       clickPos={{
         calendarTimeMS: 1707926400939,
         x: 10,

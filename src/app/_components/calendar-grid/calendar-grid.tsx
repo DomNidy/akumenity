@@ -9,6 +9,7 @@ import { CalendarGridCurrentTimeBar } from "./calendar-grid-current-time-bar";
 import { CalendarGridTimeHeader } from "./time-header/calendar-grid-time-header";
 import { useOnInitialCalendarLoad } from "~/app/_components/calendar-grid/hooks/use-on-initial-calendar-load";
 import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
+import { CalendarGridPopupProvider } from "./popup/calendar-popup-context";
 
 // Responsible for rendering the calendar grid and its child components
 export function CalendarGrid() {
@@ -19,37 +20,39 @@ export function CalendarGrid() {
   const { isClient } = useOnInitialCalendarLoad();
 
   return (
-    <div className="mt-2 h-fit w-full rounded-lg" ref={calendarGridDomRef}>
-      <CalendarGridPreferenceEditor />
+    <CalendarGridPopupProvider calendarGridContext={calendarGridContext}>
+      <div className="mt-2 h-fit w-full rounded-lg" ref={calendarGridDomRef}>
+        <CalendarGridPreferenceEditor />
 
-      <p>Zoom level: {calendarGridContext.zoomLevel}</p>
-      <p>Cell height: {calendarGridContext.cellHeightPx}</p>
+        <p>Zoom level: {calendarGridContext.zoomLevel}</p>
+        <p>Cell height: {calendarGridContext.cellHeightPx}</p>
 
-      <CalendarGridControls />
+        <CalendarGridControls />
 
-      <p>
-        Sessions in this period:{" "}
-        {calendarGridContext.topicSessionsQuery?.data?.length ?? 0}
-      </p>
-      {isClient && <CalendarGridTimeHeader />}
-      <ScrollArea className="h-fit">
-        <ScrollBar className="z-[1]" />
-        {isClient ? (
-          <>
-            <div className="relative flex max-h-[900px] w-full">
-              <CalendarGridTimeColumn />
-              <CalendarGridColumnRenderer />
-              <CalendarGridCurrentTimeBar
-                calendarGridTimeColumnRef={calendarGridTimeColumnRef}
-              />
+        <p>
+          Sessions in this period:{" "}
+          {calendarGridContext.topicSessionsQuery?.data?.length ?? 0}
+        </p>
+        {isClient && <CalendarGridTimeHeader />}
+        <ScrollArea className="h-fit">
+          <ScrollBar className="z-[1]" />
+          {isClient ? (
+            <>
+              <div className="relative flex max-h-[900px] w-full">
+                <CalendarGridTimeColumn />
+                <CalendarGridColumnRenderer />
+                <CalendarGridCurrentTimeBar
+                  calendarGridTimeColumnRef={calendarGridTimeColumnRef}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex h-[900px] max-h-[900px] w-full items-center justify-center text-center text-3xl">
+              Loading calendar
             </div>
-          </>
-        ) : (
-          <div className="flex h-[900px] max-h-[900px] w-full items-center justify-center text-center text-3xl">
-            Loading calendar
-          </div>
-        )}
-      </ScrollArea>
-    </div>
+          )}
+        </ScrollArea>
+      </div>
+    </CalendarGridPopupProvider>
   );
 }

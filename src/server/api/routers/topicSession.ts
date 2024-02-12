@@ -179,6 +179,7 @@ export const topicSessionRouter = createTRPCRouter({
         await ddbDocClient.send(command);
       } catch (err) {
         console.error(err);
+        // We re-throw trpc errors since they will be transformed by the client
         if (err instanceof TRPCError) {
           throw err;
         }

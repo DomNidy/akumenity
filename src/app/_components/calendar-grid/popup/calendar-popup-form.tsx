@@ -1,8 +1,7 @@
 // Form which allows the user to insert a topic session at the selected time
 // Allow user to select a topic, and duration
-
+"use client";
 import { useForm } from "react-hook-form";
-import { type useTimeFromPosition } from "../hooks/use-time-from-position";
 import { type z } from "zod";
 import { TopicSessionCreateNotActiveSchema } from "~/definitions/topic-session-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,25 +19,26 @@ import { useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { Button } from "../../ui/button";
 import { TopicSelectorMenu } from "../../my-topics/topic-selector-menu";
-import { useUserTopicsQuery } from "~/app/hooks/use-user-topics-query";
+import { useTopicsQuery } from "~/app/hooks/use-topics-query";
 import DateTimePicker from "../../date-time-picker/date-time-picker";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+
 /**
- * @param clickPos position that the user clicked on the grid column
+ * @param clickTime Time where the calendar grid was clicked
  */
-export function CalendarGridColumnPopupForm({
-  clickPos,
-}: {
-  clickPos: ReturnType<typeof useTimeFromPosition>["clickPos"];
-}) {
+export function CalendarPopupForm({ clickTime }: { clickTime: Date }) {
   const form = useForm<z.infer<typeof TopicSessionCreateNotActiveSchema>>({
     resolver: zodResolver(TopicSessionCreateNotActiveSchema),
     defaultValues: {
-      startTimeMS: clickPos?.calendarTimeMS ?? Date.now(),
-      endTimeMS: (clickPos?.calendarTimeMS ?? Date.now()) + 1000 * 60 * 15,
+      startTimeMS: clickTime.getTime(),
+      endTimeMS: clickTime.getTime() + 1000 * 60 * 15,
     },
   });
 
-  const usersTopics = useUserTopicsQuery();
+  const queryClient = useQueryClient();
+
+  const usersTopics = useTopicsQuery();
 
   // Store the selected topic in the "change associated topic" input
   const [selectedTopic, setSelectedTopic] = useState<{
@@ -55,7 +55,24 @@ export function CalendarGridColumnPopupForm({
   }, [selectedTopic]);
 
   const createNotActiveTopicSession =
-    api.topicSession.createTopicSessionNotActive.useMutation();
+    api.topicSession.createTopicSessionNotActive.useMutation({
+      onError(error) {
+        if (error) {
+          toast.error("Failed to create topic session", {
+            description: error.message,
+            position: "top-right",
+            descriptionClassName: "text-muted-foreground/10",
+          });
+        }
+      },
+      onSettled() {
+        void queryClient.invalidateQueries([
+          ["topicSession", "getTopicSessionsInDateRange"],
+        ]);
+
+        setPopoverOpen(false);
+      },
+    });
 
   async function onSubmit(
     values: z.infer<typeof TopicSessionCreateNotActiveSchema>,
@@ -67,12 +84,6 @@ export function CalendarGridColumnPopupForm({
       console.error(err);
     }
   }
-
-  // log form errors
-
-  useEffect(() => {
-    console.log(form.formState.errors);
-  }, [form.formState.errors]);
 
   return (
     <Form {...form}>
@@ -87,7 +98,7 @@ export function CalendarGridColumnPopupForm({
               </FormLabel>
               <FormControl>
                 <DateTimePicker
-                  defaultDate={new Date(clickPos?.calendarTimeMS ?? Date.now())}
+                  defaultDate={clickTime}
                   setDate={(date) => {
                     form.setValue("startTimeMS", date?.getTime() ?? Date.now());
                   }}
@@ -113,11 +124,7 @@ export function CalendarGridColumnPopupForm({
               </FormLabel>
               <FormControl>
                 <DateTimePicker
-                  defaultDate={
-                    new Date(
-                      (clickPos?.calendarTimeMS ?? Date.now()) + 1000 * 60 * 15,
-                    )
-                  }
+                  defaultDate={new Date(clickTime.getTime() + 1000 * 60 * 15)}
                   setDate={(date) => {
                     form.setValue("endTimeMS", date?.getTime() ?? Date.now());
                   }}
@@ -143,7 +150,10 @@ export function CalendarGridColumnPopupForm({
                 <Popover open={popoverOpen}>
                   <PopoverTrigger>
                     <Button
-                      onClick={() => setPopoverOpen(!popoverOpen)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPopoverOpen(!popoverOpen);
+                      }}
                       role="combobox"
                       aria-expanded={false}
                       className="w-max justify-between"
@@ -168,7 +178,9 @@ export function CalendarGridColumnPopupForm({
           )}
         />
 
-        <Button type="submit">Create</Button>
+        <Button type="submit" disabled={createNotActiveTopicSession.isLoading}>
+          Create
+        </Button>
       </form>
     </Form>
   );

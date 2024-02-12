@@ -23,6 +23,21 @@ export enum CalendarGridDisplayMode {
   MONTH_DISPLAY = "month_display",
 }
 
+// TODO: Move this to a higher level in the file structure
+// The data-item-type attributes used to identify different types of dom elements in the calendar grid
+export enum DataItemTypeAttributes {
+  // Assigned to <CalendarGridColumn /> elements
+  CalendarGridColumn = "calendar-grid-column",
+  // Assigned to <DateTimePicker /> elements
+  DateTimePicker = "date-time-picker",
+  // Assigned to the <TopicSelectorMenu/> element
+  TopicSelectorMenu = "topic-selector-menu",
+  // Assigned to <CalendarPopup /> elements
+  CalendarPopup = "calendar-popup",
+  // Assigned to <CalendarGridColumnTimeAreaBox /> elements
+  CalendarGridColumnTimeAreaBox = "calendar-grid-column-time-area-box",
+}
+
 // We break down topic sessions into slices so that we can display sessions that span multiple days
 // This object is the same as a topic session, but with two new properties, sliceStartMS and sliceEndMS (which indicate the start and end of the slice in ms)
 export type TopicSessionSlice =
@@ -32,13 +47,15 @@ export type TopicSessionSlice =
   };
 
 // The type of the data stored in the context
-export interface CalendarGridContextType {
+export interface CalendarGridContextData {
   // DOM ref to the current time bar element
   currentTimeElementRef: React.RefObject<HTMLDivElement> | null;
+  // DOM ref to the active popup element (if it exists)
+  activePopupElementRef: React.RefObject<HTMLElement> | null;
   // Id of the dom element corresponding to the active popup element
   activePopupElementId: string | null;
   // Function which sets the active popup element id
-  setActivePopupElementId: (id: string) => void;
+  setActivePopupElementId: (id: string | null) => void;
 
   // The bounds (beginning and end) of the date range that is being displayed
   displayDateBounds: { beginDate: Date; endDate: Date };
@@ -54,11 +71,20 @@ export interface CalendarGridContextType {
   // Used to calculate the offset of the time header
   timeColumnRef: React.RefObject<HTMLDivElement> | null;
 
-  // Wrapper which controls the zoomLevel state
+  // Setter which controls the zoomLevel state
   setZoomLevel: (zoomLevel: number) => void;
   // This corresponds to the amount of cells needed to display a single hour
   // In other words, it is a cellToHourRatio. For example, if zoomLevel is 2, then 2 cells are needed to display a single hour (48 cells for 24 hours)
   zoomLevel: number;
+
+  // The height (in pixels) of a single cell
+  // This is important because it is used to calculate the height of the calendar grid and align the time column
+  cellHeightPx: number;
+  // Update the cell height
+  setCellHeightPx: (cellHeightPx: number) => void;
+
+  // Indicates the amount of minutes that a cell currently represents (based on the zoom level)
+  minutesPerCell: number;
 
   // An array of all topic sessions that have been fetched thus far
   // Our react query hook will handle the fetching and caching of this data
@@ -80,10 +106,4 @@ export interface CalendarGridContextType {
   getSessionSlicesByTopicSessionId: (
     topicSessionId: string,
   ) => TopicSessionSlice[] | undefined;
-
-  // The height (in pixels) of a single cell
-  // This is important because it is used to calculate the height of the calendar grid and align the time column
-  cellHeightPx: number;
-  // Update the cell height
-  setCellHeightPx: (cellHeightPx: number) => void;
 }

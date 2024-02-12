@@ -26,6 +26,7 @@ export function useTopicSessionOptions({
     setAssociatedSlices(slices);
   };
 
+  // Function which adds the snapshotted slices back to the map
   const addSnapshottedSlicesToMap = () => {
     if (!associatedSlices) return;
     associatedSlices.forEach((slice) => {

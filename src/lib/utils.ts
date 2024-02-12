@@ -4,7 +4,7 @@ import { type z } from "zod";
 import {
   type TopicSessionSlice,
   CalendarGridDisplayMode,
-  type CalendarGridContextType,
+  type CalendarGridContextData,
   type DaysOfTheWeek,
 } from "~/app/_components/calendar-grid/calendar-grid-definitions";
 import dayjs, { type Dayjs } from "dayjs";
@@ -97,15 +97,28 @@ export function formatTime(milliseconds: number): string {
 
   return formattedTime;
 }
+// Function which returns the timezone offset in miliseconds
+export function getTimezoneOffsetMS() {
+  return new Date().getTimezoneOffset() * 60 * 1000;
+}
 
+// TODO: This function is also running when we have a useRefreshInterval hook, so that suggests our CalendarContextProvider is being re-rendered unnecessarily, fix this
+// TODO: Write tests for this function, this is really important and what places the topic sessions into the correct spot in the day session map
 // Function which returns the days since unix epoch (January 1, 1970) for a given date
 export function getDaysSinceUnixEpoch(date: Date) {
-  // Becuase the local timezone might not be UTC, we should add an offset so we get the correct day
-  const timezoneOffsetMS = date.getTimezoneOffset() * 60 * 1000;
+  const daysSince = dayjs(date).diff(dayjs.unix(0), "day");
+  return daysSince;
+}
 
-  return Math.floor(
-    (date.getTime() - timezoneOffsetMS) / (24 * 60 * 60 * 1000),
-  );
+// TODO: Write tests for this
+// Function which returns the date from a daySinceUnixEpoch integer, basically the inverse of getDaysSinceUnixEpoch
+export function getDateFromDaysSinceUnixEpoch(daysSince: number) {
+  const date = dayjs
+    .unix(0)
+    .add(daysSince, "day")
+    .add(getTimezoneOffsetMS(), "ms")
+    .toDate();
+  return date;
 }
 
 // Function which creates TopicSessionSlice objects from a given TopicSession
@@ -181,7 +194,7 @@ export function getDisplayDateBounds(
   displayMode: CalendarGridDisplayMode,
   date: Date,
   weekStartsOn: DaysOfTheWeek,
-): CalendarGridContextType["displayDateBounds"] {
+): CalendarGridContextData["displayDateBounds"] {
   switch (displayMode) {
     case CalendarGridDisplayMode.DAY_DISPLAY:
       const startDay = dayjs(date).startOf("day").toDate();

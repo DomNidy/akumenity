@@ -69,10 +69,10 @@ const config = {
         },
         "calendar-grid-time-area-box-open": {
           from: { opacity: "0", scale: "0.85" },
-          to: { opacity: "1", scale: "1", cursor: "pointer" },
+          to: { opacity: "1", scale: "1" },
         },
         "calendar-grid-time-area-box-close": {
-          from: { opacity: "0.65", scale: "1", cursor: "pointer" },
+          from: { opacity: "0.65", scale: "1" },
           to: { opacity: "0", scale: "0.85" },
         },
       },

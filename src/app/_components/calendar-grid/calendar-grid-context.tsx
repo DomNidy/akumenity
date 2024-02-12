@@ -1,9 +1,9 @@
 "use client";
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { getDayjsUnitFromDisplayMode, getDisplayDateBounds } from "~/lib/utils";
 import { useDaySessionMap } from "~/app/_components/calendar-grid/hooks/use-day-session-map";
 import {
-  type CalendarGridContextType,
+  type CalendarGridContextData,
   CalendarGridDisplayMode,
   DaysOfTheWeek,
 } from "./calendar-grid-definitions";
@@ -13,7 +13,7 @@ import { HoveredCalendarItemProvider } from "./calendar-grid-hovered-topic-sessi
 import { useTopicSessionsQuery } from "~/app/hooks/use-topic-sessions-query";
 
 // The calendar grid and its child components read data from this context (avoiding prop drilling)
-export const CalendarGridContext = createContext<CalendarGridContextType>({
+export const CalendarGridContext = createContext<CalendarGridContextData>({
   incrementPage: () => {
     throw new Error("incrementPage not implemented");
   },
@@ -56,7 +56,9 @@ export const CalendarGridContext = createContext<CalendarGridContextType>({
   cellHeightPx: 60,
   currentTimeElementRef: null,
   activePopupElementId: null,
+  activePopupElementRef: null,
   timeColumnRef: null,
+  minutesPerCell: 0,
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -65,12 +67,13 @@ export function CalendarGridProvider({
 }: {
   children: React.ReactNode;
 }) {
+  console.log("Rendering CalendarGridProvider");
   // The user's display preferences (read from local storage)
   const userPreferences = useUserPreferences();
 
   // Bounds (date range) of the data being displayed
   const [displayDateBounds, _setDisplayDateBounds] = useState<
-    CalendarGridContextType["displayDateBounds"]
+    CalendarGridContextData["displayDateBounds"]
   >(
     getDisplayDateBounds(
       userPreferences.displayMode,
@@ -88,10 +91,19 @@ export function CalendarGridProvider({
   // The zoom level
   const [zoomLevel, _setZoomLevel] = useState(1);
 
+  // How many minutes a single cell represents
+  // We wrap this in useMemo to update the value when the zoom level changes
+  const minutesPerCell = useMemo(() => {
+    return 60 / zoomLevel;
+  }, [zoomLevel]);
+
   // ID of the dom element corresponding to the active popup element
   const [activePopupElementId, setActivePopupElementId] = useState<
     string | null
   >(null);
+
+  // Ref to the active popup element (if it exists)
+  const activePopupElementRef = useRef<HTMLElement | null>(null);
 
   // Dom ref to the current time element
   const currentTimeElementRef = useRef<HTMLDivElement>(null);
@@ -127,7 +139,7 @@ export function CalendarGridProvider({
   }, [userPreferences.displayMode, userPreferences.weekStartsOn]);
 
   // The context made available to child components
-  const value: CalendarGridContextType = {
+  const value: CalendarGridContextData = {
     decrementPage() {
       const newBounds = getDisplayDateBounds(
         userPreferences.displayMode,
@@ -185,11 +197,13 @@ export function CalendarGridProvider({
     setCellHeightPx: _setCellHeightPx,
     currentTimeElementRef,
     activePopupElementId,
+    activePopupElementRef,
     setActivePopupElementId,
     timeColumnRef,
     removeSessionSlicesFromMap: daySessionMap.removeSessionSlicesFromMap,
     addSessionSliceToMap: daySessionMap.addSessionSliceToMap,
     markSessionIdAsUnprocessed: daySessionMap.markSessionIdAsUnprocessed,
+    minutesPerCell,
     getSessionSlicesByTopicSessionId:
       daySessionMap.getSessionSlicesByTopicSessionId,
   };

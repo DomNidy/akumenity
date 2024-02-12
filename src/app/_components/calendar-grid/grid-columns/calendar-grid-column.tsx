@@ -4,7 +4,8 @@ import { useRef } from "react";
 import { CalendarGridTopicSession } from "../topic-session/calendar-grid-topic-session";
 import { useCalendarGridColumn } from "~/app/_components/calendar-grid/hooks/use-calendar-grid-column";
 import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
-import CalendarGridColumnPopupRenderer from "../popup/calendar-grid-column-popup-renderer";
+import { getDaysSinceUnixEpoch } from "~/lib/utils";
+import { DataItemTypeAttributes } from "../calendar-grid-definitions";
 
 export function CalendarGridColumn({ day }: { day: Date }) {
   const { zoomLevel, cellHeightPx } = useCalendarGrid();
@@ -20,16 +21,18 @@ export function CalendarGridColumn({ day }: { day: Date }) {
   return (
     <div
       className={`relative flex flex-row border-[1px] bg-[#0D0D0D]`}
+      data-item-type={DataItemTypeAttributes.CalendarGridColumn}
+      id={`${getDaysSinceUnixEpoch(day)}`}
       ref={gridColumnDomRef}
       style={{
         height: `${24 * zoomLevel * cellHeightPx}px`,
       }}
     >
       {/** Renders a box where the user clicked, along with the relative time (based on its positioning) */}
-      <CalendarGridColumnPopupRenderer
+      {/* <CalendarPopup
         gridColumnDomRef={gridColumnDomRef}
         columnDay={day}
-      />
+      /> */}
 
       {/** Map out topic sessions for this column */}
       {columnTopicSessionSlices?.map((topicSessionSlice) => {

@@ -1,4 +1,3 @@
-
 import { CalendarGrid } from "../_components/calendar-grid/calendar-grid";
 import MyTopics from "../_components/my-topics/my-topics";
 import TopicSessionManager from "../_components/my-topics/topic-session-manager";
