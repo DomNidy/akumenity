@@ -18,8 +18,6 @@ export type GridColumnClick = {
 export type PopupData = {
   // Element that we should render the popup inside of (intended to be a grid column element)
   popupPortalElement: HTMLElement;
-  // Ref to the popup element
-  popupDomRef: React.RefObject<HTMLDivElement>;
   // The time that the user clicked (on the calendar)
   clickTime: Date;
   // The x position of the click
@@ -30,5 +28,5 @@ export type PopupData = {
 
 export type CalendarPopupProps = Pick<
   PopupData,
-  "clientX" | "clientY" | "clickTime" | "popupPortalElement" | "popupDomRef"
+  "clientX" | "clientY" | "clickTime" | "popupPortalElement"
 >;

@@ -23,16 +23,21 @@ import { useTopicsQuery } from "~/app/hooks/use-topics-query";
 import DateTimePicker from "../../date-time-picker/date-time-picker";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCalendarPopup } from "../hooks/use-calendar-popup";
 
 /**
  * @param clickTime Time where the calendar grid was clicked
  */
-export function CalendarPopupForm({ clickTime }: { clickTime: Date }) {
+export function CalendarPopupForm() {
+  const { currentPopupData } = useCalendarPopup();
+
   const form = useForm<z.infer<typeof TopicSessionCreateNotActiveSchema>>({
     resolver: zodResolver(TopicSessionCreateNotActiveSchema),
     defaultValues: {
-      startTimeMS: clickTime.getTime(),
-      endTimeMS: clickTime.getTime() + 1000 * 60 * 15,
+      startTimeMS: currentPopupData?.clickTime.getTime() ?? Date.now(),
+      endTimeMS: currentPopupData
+        ? currentPopupData.clickTime.getTime() + 1000 * 60 * 15
+        : Date.now() + 1000 * 60 * 15,
     },
   });
 
@@ -98,7 +103,7 @@ export function CalendarPopupForm({ clickTime }: { clickTime: Date }) {
               </FormLabel>
               <FormControl>
                 <DateTimePicker
-                  defaultDate={clickTime}
+                  defaultDate={currentPopupData?.clickTime ?? new Date()}
                   setDate={(date) => {
                     form.setValue("startTimeMS", date?.getTime() ?? Date.now());
                   }}
@@ -124,7 +129,13 @@ export function CalendarPopupForm({ clickTime }: { clickTime: Date }) {
               </FormLabel>
               <FormControl>
                 <DateTimePicker
-                  defaultDate={new Date(clickTime.getTime() + 1000 * 60 * 15)}
+                  defaultDate={
+                    new Date(
+                      currentPopupData
+                        ? currentPopupData.clickTime.getTime() + 1000 * 60 * 15
+                        : Date.now() + 1000 * 60 * 15,
+                    )
+                  }
                   setDate={(date) => {
                     form.setValue("endTimeMS", date?.getTime() ?? Date.now());
                   }}

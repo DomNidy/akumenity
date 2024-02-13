@@ -27,9 +27,19 @@ export interface CalendarGridPopupContextProps {
   >;
 }
 
+export type CalendarGridPopupContextData = {
+  // The current popup data
+  currentPopupData: PopupData | null;
+  // Ref to the active popup dom element (if it exists)
+  popupDomRef: React.RefObject<HTMLDivElement> | null;
+};
+
 // Initialize the context
-// TODO: Add methods for managing popup state here in this context
-export const CalendarGridPopupContext = createContext<null>(null);
+export const CalendarGridPopupContext =
+  createContext<CalendarGridPopupContextData>({
+    currentPopupData: null,
+    popupDomRef: null,
+  });
 
 export function CalendarGridPopupProvider({
   children,
@@ -89,7 +99,6 @@ export function CalendarGridPopupProvider({
         // Set popup data
         setCurrentPopupData({
           popupPortalElement: columnClick.columnDomElement,
-          popupDomRef: popupDomRef,
           clickTime: clickTime,
           clientX: columnClick.clientX,
           clientY: columnClick.clientY,
@@ -129,12 +138,14 @@ export function CalendarGridPopupProvider({
   }, [handleClick]);
 
   return (
-    <CalendarGridPopupContext.Provider value={null}>
+    <CalendarGridPopupContext.Provider
+      value={{
+        currentPopupData,
+        popupDomRef,
+      }}
+    >
       {currentPopupData?.popupPortalElement &&
-        createPortal(
-          <CalendarPopup {...currentPopupData} ref={popupDomRef} />,
-          currentPopupData.popupPortalElement,
-        )}
+        createPortal(<CalendarPopup />, currentPopupData.popupPortalElement)}
 
       {children}
     </CalendarGridPopupContext.Provider>
