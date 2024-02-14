@@ -24,68 +24,71 @@ export function getTimeFromPosition({
   >;
 }) {
   const { columnDate, columnDomElement } = gridColumnClickData;
-  console.log(
-    "getTimeFromPosition called",
-    gridColumnClickData,
-    calendarGridContext,
-    "gridColumnClickData and calendarGridContext",
-  );
 
   // Create a new date, with the time set to the beginning of the columnDay (so we can simply add the calculated offset later)
-  const columnBeginTime = new Date(columnDate).setHours(0, 0, 0, 0);
+  const columnBeginTime = new Date(columnDate);
+  // Set the time to the beginning of the day
+  columnBeginTime.setHours(0, 0, 0, 0);
 
   // Get coordinates of the click relative to the grid column
   const { y } = getLocalXYPosition({
     clickedElement: columnDomElement,
-    clientX: gridColumnClickData.clientX,
-    clientY: gridColumnClickData.clientY,
+    offsetX: gridColumnClickData.offsetX,
+    offsetY: gridColumnClickData.offsetY,
   });
 
-  // Calculate the "y cell" coordinate of the click (how many cells from the top of the column the click was)
-  const yCellPosition = Math.floor(y / calendarGridContext.cellHeightPx);
+  // Calculate the amount of cells from the top of the grid column that the click occured
+  const yCellsFromTop =
+    (columnDomElement.clientHeight - y) / calendarGridContext.cellHeightPx;
 
   // Calculate the difference between the time associated with our click, and the beginning of the column
-  const minutesSinceColumnStart =
-    calendarGridContext.minutesPerCell * yCellPosition;
+  const minutesSinceColumnStart = Math.abs(
+    calendarGridContext.minutesPerCell * yCellsFromTop,
+  );
 
   // Create the date object associated with the click
   const clickTime = new Date(columnBeginTime);
-  console.log(clickTime, "before set hours click time");
   clickTime.setHours(0, minutesSinceColumnStart, 0, 0);
 
-  console.log(calendarGridContext, "context in getTimeFromPosition");
-  console.log(minutesSinceColumnStart, "minutes since column start");
-  console.log(columnBeginTime, "column begin time");
-  console.log(clickTime, "computed click time");
+  console.debug("getTimeFromPosition calendarGridContext", calendarGridContext);
+  console.debug("getTimeFromPosition gridColumnClickData", gridColumnClickData);
+  console.debug(minutesSinceColumnStart, "minutes since column start");
+  console.debug(minutesSinceColumnStart, "minutes since column start");
+  console.debug(columnBeginTime, "column begin time");
+  console.debug(clickTime, "computed click time");
   return clickTime;
 }
 
-// * Note: Unexpected behavior may occur if clientX and clientY occur outside of the passed dom element's bounding rect
+// * Note: Unexpected behavior may occur if offsetX and offsetY's coordinates are not relative to the passed dom element
+// * Note: Could refactor this to receive an event in the future
 /**
  * Function which returns the x and y position of a click event relative to a dom element
- * @param {any} clientX The clientX position of a click event
- * @param {any} clientY The clientY position of a click event
+ * @param {any} offsetX The offsetX position of a click (should be relative to the passed dom element)
+ * @param {any} offsetY The clientY position of a click event
  * @param {any} clickedElement The dom element that was clicked on
  * @returns {any} The x and y position of the click event relative to the dom element
  */
 function getLocalXYPosition({
-  clientX,
-  clientY,
+  offsetX,
+  offsetY,
   clickedElement,
 }: {
-  clientX: number;
-  clientY: number;
+  offsetX: number;
+  offsetY: number;
   clickedElement: Element;
 }) {
   // Get the bounding rect of the clicked element
   const boundingRect = clickedElement.getBoundingClientRect();
 
+  console.log("bounding rect", boundingRect, offsetX, offsetY);
+
   return {
-    x: clientX - boundingRect.left,
-    y: clientY - boundingRect.top,
+    x: boundingRect.width - offsetX,
+    y: boundingRect.height - offsetY,
   };
 }
 
+// TODO: Write tests for this
 /**
  * Checks if the mouse event occured inside the provided element or its children
  *
@@ -97,12 +100,11 @@ function clickedInsideElement(
   element: HTMLElement | null | undefined,
   e: MouseEvent,
 ) {
-  console.log("element", element);
-  console.log("e.target", e.target);
   if (!element) return false;
   return element.contains(e.target as Node);
 }
 
+// TODO: Write tests for this
 // Function which returns true if the popup occured in a child element of the popup,
 // including elements that are not direct children (like the topic selector menu with its data-item-type attribute)
 export function clickedInsidePopup(element: HTMLElement | null, e: MouseEvent) {
@@ -125,16 +127,16 @@ export function clickedInsidePopup(element: HTMLElement | null, e: MouseEvent) {
   for (const dataItemType of allowedDataItemTypes) {
     const selector = `[data-item-type="${dataItemType}"]`;
 
-    console.log("Check : Checking for", selector);
+    console.debug("Check : Checking for", selector);
     const found = target.closest(selector);
 
-    console.log("Check : Found", found);
+    console.debug("Check : Found", found);
 
     if (target.closest(`[data-item-type="${dataItemType}"]`)) {
-      console.log("Check : Found topic selector menu");
+      console.debug("Check : Found topic selector menu");
       return true;
     } else {
-      console.log(`Check : Did not find ${dataItemType} menu`);
+      console.debug(`Check : Did not find ${dataItemType} menu`);
     }
   }
 
@@ -164,11 +166,11 @@ export function getGridColumnClickData(e: MouseEvent): GridColumnClick | null {
 
   // If the click event did not occur inside a grid column, or the column does not have an id, return null
   if (!gridColumnId || !gridColumnElement || !isHTMLElement) {
-    console.log("click event", e);
-    console.log("gridColumnId", gridColumnId);
-    console.log("gridColumnElement", gridColumnElement);
-    console.log("isHTMLElement", isHTMLElement);
-    console.log(
+    console.debug("click event", e);
+    console.debug("gridColumnId", gridColumnId);
+    console.debug("gridColumnElement", gridColumnElement);
+    console.debug("isHTMLElement", isHTMLElement);
+    console.debug(
       "Did not occur inside grid column or column does not have id, or the gridColumnElement is not an instance of HTMLElement",
     );
     return null;
@@ -178,7 +180,7 @@ export function getGridColumnClickData(e: MouseEvent): GridColumnClick | null {
     columnDomElement: gridColumnElement,
     columnDate: getDateFromDaysSinceUnixEpoch(parseInt(gridColumnId)),
     columnId: gridColumnId,
-    clientX: e.clientX,
-    clientY: e.clientY,
+    offsetX: e.offsetX,
+    offsetY: e.offsetY,
   } as GridColumnClick;
 }

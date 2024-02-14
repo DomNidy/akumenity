@@ -12,6 +12,7 @@ import {
   getGridColumnClickData,
   getTimeFromPosition,
 } from "./calendar-popup-helpers";
+import { CalendarGridColumnTimeAreaBox } from "./calendar-grid-column-time-area-box";
 
 // Props passed to the context provider
 export interface CalendarGridPopupContextProps {
@@ -24,6 +25,7 @@ export interface CalendarGridPopupContextProps {
     | "cellHeightPx"
     | "minutesPerCell"
     | "activePopupElementRef"
+    | "scrollAreaElementRef"
   >;
 }
 
@@ -32,6 +34,8 @@ export type CalendarGridPopupContextData = {
   currentPopupData: PopupData | null;
   // Ref to the active popup dom element (if it exists)
   popupDomRef: React.RefObject<HTMLDivElement> | null;
+  // Ref to the active time area box dom element (if it exists)
+  timeAreaBoxDomRef: React.RefObject<HTMLDivElement> | null;
 };
 
 // Initialize the context
@@ -39,6 +43,7 @@ export const CalendarGridPopupContext =
   createContext<CalendarGridPopupContextData>({
     currentPopupData: null,
     popupDomRef: null,
+    timeAreaBoxDomRef: null,
   });
 
 export function CalendarGridPopupProvider({
@@ -56,6 +61,33 @@ export function CalendarGridPopupProvider({
 
   // Reference to the popup DOM element
   const popupDomRef = useRef<HTMLDivElement>(null);
+
+  // Reference to the time area box DOM element
+  const timeAreaBoxDomRef = useRef<HTMLDivElement>(null);
+
+  // TODO: Get this working, just close the popup when we scroll
+  // Close the popup on scroll
+  const handleScroll = useCallback(() => {
+    console.log("Scrolling");
+    setCurrentPopupData(null);
+  }, []);
+
+  // Add window scroll event listener when the component mounts
+  useEffect(() => {
+    console.log("Adding scroll event listener");
+    // TODO: Instead of adding this to window, add this to the scroll area element, (from the calendar grid context)
+    calendarGridContext.scrollAreaElementRef?.current?.addEventListener(
+      "scroll",
+      handleScroll,
+    );
+    return () => {
+      console.log("Removing scroll event listener");
+      calendarGridContext.scrollAreaElementRef?.current?.removeEventListener(
+        "scroll",
+        handleScroll,
+      );
+    };
+  }, [handleScroll, calendarGridContext.scrollAreaElementRef?.current]);
 
   // Wrapped in useCallback because we only want to re-define this when the desired context values change
   // This is also a relatively expensive function to create, so we want to avoid re-creating it when we don't need to
@@ -98,10 +130,8 @@ export function CalendarGridPopupProvider({
 
         // Set popup data
         setCurrentPopupData({
-          popupPortalElement: columnClick.columnDomElement,
           clickTime: clickTime,
-          clientX: columnClick.clientX,
-          clientY: columnClick.clientY,
+          ...columnClick,
         });
         return;
       }
@@ -123,7 +153,7 @@ export function CalendarGridPopupProvider({
       calendarGridContext.cellHeightPx,
       calendarGridContext.minutesPerCell,
       calendarGridContext.zoomLevel,
-      currentPopupData?.popupPortalElement,
+      currentPopupData?.columnDomElement,
     ],
   );
 
@@ -142,10 +172,25 @@ export function CalendarGridPopupProvider({
       value={{
         currentPopupData,
         popupDomRef,
+        timeAreaBoxDomRef,
       }}
     >
-      {currentPopupData?.popupPortalElement &&
-        createPortal(<CalendarPopup />, currentPopupData.popupPortalElement)}
+      {/* We want to portal the popup into the floating portal */}
+      {currentPopupData?.columnDomElement &&
+        createPortal(<CalendarPopup />, document.body)}
+
+      {/* We want to portal the grid column time area box into the grid column */}
+      {currentPopupData?.columnDomElement &&
+        createPortal(
+          <CalendarGridColumnTimeAreaBox
+            ref={timeAreaBoxDomRef}
+            className={`absolute z-[1] h-32 w-full`}
+            style={{
+              top: `${currentPopupData.offsetY}px`,
+            }}
+          />,
+          currentPopupData.columnDomElement,
+        )}
 
       {children}
     </CalendarGridPopupContext.Provider>

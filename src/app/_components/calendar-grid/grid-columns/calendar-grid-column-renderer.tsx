@@ -5,6 +5,7 @@ import { calculateGridColumnCount } from "~/lib/utils";
 import dayjs from "dayjs";
 import { CalendarGridColumn } from "./calendar-grid-column";
 import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
+import { DataItemTypeAttributes } from "../calendar-grid-definitions";
 
 // This component is responsible for determining what date each column represents, then rendering out the columns for those dates
 export function CalendarGridColumnRenderer() {
@@ -24,11 +25,7 @@ export function CalendarGridColumnRenderer() {
         const columnDay = dayjs(
           calendarGridContext.displayDateBounds.beginDate,
         ).add(index, "day");
-        return (
-          <div key={index} className="w-full">
-            <CalendarGridColumn day={columnDay.toDate()} />
-          </div>
-        );
+        return <CalendarGridColumn day={columnDay.toDate()} key={index}  />;
       })}
     </>
   );

@@ -10,6 +10,7 @@ import { CalendarGridTimeHeader } from "./time-header/calendar-grid-time-header"
 import { useOnInitialCalendarLoad } from "~/app/_components/calendar-grid/hooks/use-on-initial-calendar-load";
 import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
 import { CalendarGridPopupProvider } from "./popup/calendar-popup-context";
+import { DataItemTypeAttributes } from "./calendar-grid-definitions";
 
 // Responsible for rendering the calendar grid and its child components
 export function CalendarGrid() {
@@ -34,11 +35,17 @@ export function CalendarGrid() {
           {calendarGridContext.topicSessionsQuery?.data?.length ?? 0}
         </p>
         {isClient && <CalendarGridTimeHeader />}
-        <ScrollArea className="h-fit">
+        <ScrollArea
+          className="h-fit"
+          data-item-type={DataItemTypeAttributes.CalendarGridScrollArea}
+        >
           <ScrollBar className="z-[1]" />
           {isClient ? (
             <>
-              <div className="relative flex max-h-[900px] w-full">
+              <div
+                className="relative flex max-h-[900px] w-full"
+                ref={calendarGridContext.scrollAreaElementRef}
+              >
                 <CalendarGridTimeColumn />
                 <CalendarGridColumnRenderer />
                 <CalendarGridCurrentTimeBar

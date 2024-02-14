@@ -59,6 +59,7 @@ export const CalendarGridContext = createContext<CalendarGridContextData>({
   activePopupElementRef: null,
   timeColumnRef: null,
   minutesPerCell: 0,
+  scrollAreaElementRef: null,
 });
 
 // This component wraps & provides the context to the calendar grid and its child components
@@ -96,6 +97,8 @@ export function CalendarGridProvider({
   const minutesPerCell = useMemo(() => {
     return 60 / zoomLevel;
   }, [zoomLevel]);
+
+  const scrollAreaElementRef = useRef<HTMLDivElement>(null);
 
   // ID of the dom element corresponding to the active popup element
   const [activePopupElementId, setActivePopupElementId] = useState<
@@ -199,6 +202,7 @@ export function CalendarGridProvider({
     activePopupElementId,
     activePopupElementRef,
     setActivePopupElementId,
+    scrollAreaElementRef,
     timeColumnRef,
     removeSessionSlicesFromMap: daySessionMap.removeSessionSlicesFromMap,
     addSessionSliceToMap: daySessionMap.addSessionSliceToMap,

@@ -7,16 +7,18 @@ import { DataItemTypeAttributes } from "../calendar-grid-definitions";
 export const CalendarGridColumnTimeAreaBox = forwardRef<
   HTMLDivElement,
   HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+>(({ className, children, ...props }, ref) => {
   return (
     <div
       data-item-type={DataItemTypeAttributes.CalendarGridColumnTimeAreaBox}
       ref={ref}
       className={cn(
         className,
-        "absolute h-12 w-full  rounded-xl bg-white bg-opacity-15  p-1",
+        "m-0 h-12  w-full rounded-xl bg-white bg-opacity-15  p-1",
       )}
       {...props}
-    ></div>
+    >
+      {children}
+    </div>
   );
 });

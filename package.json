@@ -16,6 +16,7 @@
     "@aws-sdk/client-dynamodb": "^3.478.0",
     "@aws-sdk/lib-dynamodb": "^3.484.0",
     "@clerk/nextjs": ">=4.29.3",
+    "@floating-ui/react": "^0.26.9",
     "@hookform/resolvers": "^3.3.3",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-context-menu": "^2.1.5",

@@ -7,26 +7,23 @@ export type GridColumnClick = {
   // The id of the grid column dom element, provided here for convenience (this corresponds to the number of days since the unix epoch)
   columnId: string;
   // The grid column dom element that we clicked inside of
+  // We will portal grid area boxes into this element
   columnDomElement: HTMLElement;
-  // X position of the click
+  // X position of the click, we use this to render the time area box on the grid column
+  offsetX: number;
+  // Y position of the click, we use this to render the time area box on the grid column
+  offsetY: number;
+  // The clientX of the click event (relative to the viewport)
   clientX: number;
-  // Y position of the click
+  // The clientY of the click event (relative to the viewport)
   clientY: number;
 };
 
 // TODO: Move this to a proper location
-export type PopupData = {
-  // Element that we should render the popup inside of (intended to be a grid column element)
-  popupPortalElement: HTMLElement;
+export type PopupData = Pick<
+  GridColumnClick,
+  "columnDomElement" | "offsetX" | "offsetY" | "clientX" | "clientY"
+> & {
   // The time that the user clicked (on the calendar)
   clickTime: Date;
-  // The x position of the click
-  clientX: number;
-  // The y position of the click
-  clientY: number;
 };
-
-export type CalendarPopupProps = Pick<
-  PopupData,
-  "clientX" | "clientY" | "clickTime" | "popupPortalElement"
->;

@@ -20,7 +20,7 @@ export function CalendarGridColumn({ day }: { day: Date }) {
 
   return (
     <div
-      className={`relative flex flex-row border-[1px] bg-[#0D0D0D]`}
+      className={`relative flex w-full flex-row border-[1px] bg-[#0D0D0D]`}
       data-item-type={DataItemTypeAttributes.CalendarGridColumn}
       id={`${getDaysSinceUnixEpoch(day)}`}
       ref={gridColumnDomRef}
@@ -28,12 +28,6 @@ export function CalendarGridColumn({ day }: { day: Date }) {
         height: `${24 * zoomLevel * cellHeightPx}px`,
       }}
     >
-      {/** Renders a box where the user clicked, along with the relative time (based on its positioning) */}
-      {/* <CalendarPopup
-        gridColumnDomRef={gridColumnDomRef}
-        columnDay={day}
-      /> */}
-
       {/** Map out topic sessions for this column */}
       {columnTopicSessionSlices?.map((topicSessionSlice) => {
         return (

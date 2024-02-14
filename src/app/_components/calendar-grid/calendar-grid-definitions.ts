@@ -36,6 +36,8 @@ export enum DataItemTypeAttributes {
   CalendarPopup = "calendar-popup",
   // Assigned to <CalendarGridColumnTimeAreaBox /> elements
   CalendarGridColumnTimeAreaBox = "calendar-grid-column-time-area-box",
+  // Assigned to the Calendar grid scroll area parent element
+  CalendarGridScrollArea = "calendar-grid-scroll-area",
 }
 
 // We break down topic sessions into slices so that we can display sessions that span multiple days
@@ -54,6 +56,10 @@ export interface CalendarGridContextData {
   activePopupElementRef: React.RefObject<HTMLElement> | null;
   // Id of the dom element corresponding to the active popup element
   activePopupElementId: string | null;
+
+  // Ref to the scroll area (where the calendar grid columns are rendered inside)
+  scrollAreaElementRef: React.RefObject<HTMLDivElement> | null;
+
   // Function which sets the active popup element id
   setActivePopupElementId: (id: string | null) => void;
 
