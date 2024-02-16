@@ -65,30 +65,6 @@ export function CalendarGridPopupProvider({
   // Reference to the time area box DOM element
   const timeAreaBoxDomRef = useRef<HTMLDivElement>(null);
 
-  // TODO: Get this working, just close the popup when we scroll
-  // Close the popup on scroll
-  const handleScroll = useCallback(() => {
-    console.log("Scrolling");
-    setCurrentPopupData(null);
-  }, []);
-
-  // Add window scroll event listener when the component mounts
-  useEffect(() => {
-    console.log("Adding scroll event listener");
-    // TODO: Instead of adding this to window, add this to the scroll area element, (from the calendar grid context)
-    calendarGridContext.scrollAreaElementRef?.current?.addEventListener(
-      "scroll",
-      handleScroll,
-    );
-    return () => {
-      console.log("Removing scroll event listener");
-      calendarGridContext.scrollAreaElementRef?.current?.removeEventListener(
-        "scroll",
-        handleScroll,
-      );
-    };
-  }, [handleScroll, calendarGridContext.scrollAreaElementRef?.current]);
-
   // Wrapped in useCallback because we only want to re-define this when the desired context values change
   // This is also a relatively expensive function to create, so we want to avoid re-creating it when we don't need to
   // Ran when the user clicks on the document
@@ -137,8 +113,6 @@ export function CalendarGridPopupProvider({
       }
 
       // When we reach this point, we know that we clicked outside the active popup, (and that we have an active popup), we should close it
-      // TODO: Close active popup
-      console.log("Closing active popup");
       calendarGridContext.setActivePopupElementId(null);
       setCurrentPopupData(null);
 
@@ -159,10 +133,10 @@ export function CalendarGridPopupProvider({
 
   // Add click event listener when the component mounts, and when the context values change
   useEffect(() => {
-    console.log("Adding click event listener");
+    console.debug("Adding click event listener");
     window.addEventListener("click", handleClick);
     return () => {
-      console.log("Removing click event listener");
+      console.debug("Removing click event listener");
       window.removeEventListener("click", handleClick);
     };
   }, [handleClick]);

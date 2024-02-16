@@ -96,11 +96,13 @@ function getLocalXYPosition({
  * @param e - The mouse event.
  * @returns True if the element contains the target of the mouse event, false otherwise.
  */
-function clickedInsideElement(
+export function clickedInsideElement(
   element: HTMLElement | null | undefined,
   e: MouseEvent,
 ) {
-  if (!element) return false;
+  if (!element) {
+    return false;
+  }
   return element.contains(e.target as Node);
 }
 

@@ -1,11 +1,7 @@
 /// <reference types="cypress" />
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  BatchWriteCommand,
-  DynamoDBDocumentClient,
-  ScanCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 export const dbClient = new DynamoDBClient({
   region: Cypress.env("DYNAMO_DB_REGION") as string,

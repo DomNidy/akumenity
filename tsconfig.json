@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["jest"],
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -29,6 +30,7 @@
       "~/*": ["./src/*"]
     }
   },
+
   "include": [
     ".eslintrc.cjs",
     "next-env.d.ts",
@@ -38,5 +40,5 @@
     "**/*.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "cypress", "cypress.config.ts"]
 }
