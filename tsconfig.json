@@ -40,5 +40,11 @@
     "**/*.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "cypress", "cypress.config.ts"]
+  "exclude": [
+    "node_modules",
+    "cypress",
+    "cypress/cypress.config.ts",
+    "cypress.config.ts",
+    "coverage"
+  ]
 }
