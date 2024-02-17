@@ -21,13 +21,13 @@ import { useEffect, useState } from "react";
 import { TopicSelectorMenu } from "../../my-topics/topic-selector-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { useTopicsQuery } from "~/app/hooks/use-topics-query";
+import DateTimePicker from "../../date-time-picker/date-time-picker";
 
 export function CalendarGridTopicSessionOptionsUpdateForm({
   topicSessionSlice,
 }: {
   topicSessionSlice: TopicSessionSlice;
 }) {
-  // TODO: Abstract into a hook that we can reuse
   const usersTopics = useTopicsQuery();
 
   // Store the selected topic in the "change associated topic" input
@@ -36,6 +36,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     topicId: string;
   } | null>(null);
 
+  // Exposes mutation functions for updating and deleting topic sessions
   const topicSessionOptions = useTopicSessionOptions({
     topicSessionId: topicSessionSlice.SK,
   });
@@ -62,6 +63,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     }
   }
 
+  // If the topic selector popover is open or not
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   // Because we update the seleced topic in a different component, we'll run an effect here to update our form state when that changes
@@ -69,28 +71,23 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     form.setValue("updatedFields.Topic_ID", selectedTopic?.topicId);
   }, [selectedTopic]);
 
-  useEffect(() => {
-    // whenever form errors change, log them
-    console.log(form.formState.errors);
-  }, [form.formState.errors]);
-
-  // TODO: FormMessage is not showing the errors, figure out how react hook form works
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="updatedFields.startTimeMS"
-          render={({ field }) => (
+          render={({}) => (
             <FormItem>
               <FormLabel className="text-md font-semibold tracking-tight">
                 Start time
               </FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  placeholder={`${topicSessionSlice.Session_Start}`}
+                <DateTimePicker
+                  defaultDate={new Date(topicSessionSlice.Session_Start)}
+                  setDate={(date) => {
+                    form.setValue("updatedFields.startTimeMS", date?.getTime());
+                  }}
                 />
               </FormControl>
               <FormDescription>
@@ -103,16 +100,22 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
         <FormField
           control={form.control}
           name="updatedFields.endTimeMS"
-          render={({ field }) => (
+          render={({}) => (
             <FormItem>
               <FormLabel className="text-md font-semibold tracking-tight">
                 End time
               </FormLabel>
               <FormControl onError={(e) => console.log(e)}>
-                <Input
-                  {...field}
-                  type="number"
-                  placeholder={`${topicSessionSlice.Session_End ?? Date.now()}`}
+                <DateTimePicker
+                  defaultDate={
+                    new Date(topicSessionSlice.Session_End ?? Date.now())
+                  }
+                  setDate={(date) => {
+                    form.setValue(
+                      "updatedFields.endTimeMS",
+                      date?.getTime() ?? Date.now(),
+                    );
+                  }}
                 />
               </FormControl>
               <FormDescription>

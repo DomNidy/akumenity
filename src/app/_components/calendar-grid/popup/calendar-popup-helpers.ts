@@ -68,7 +68,7 @@ export function getTimeFromPosition({
  * @param {any} clickedElement The dom element that was clicked on
  * @returns {any} The x and y position of the click event relative to the dom element
  */
-function getLocalXYPosition({
+export function getLocalXYPosition({
   offsetX,
   offsetY,
   clickedElement,

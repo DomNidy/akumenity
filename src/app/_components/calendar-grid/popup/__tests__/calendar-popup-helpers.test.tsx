@@ -2,26 +2,26 @@
 import { render, screen, createEvent, fireEvent } from "@testing-library/react";
 import { clickedInsideElement } from "../calendar-popup-helpers";
 
-const Page = () => {
-  return (
-    <main>
-      <div data-testid="target-div">
-        <p>Target element</p>
-        <div data-testid="target-child-div">
-          <p data-testid="target-child-div-p">Nested target element</p>
-        </div>
-      </div>
-      <div data-testid="other-div">
-        <p>Some other element</p>
-        <div data-testid="other-child-div">
-          <p data-testid="other-child-div-p">Nested other element</p>
-        </div>
-      </div>
-    </main>
-  );
-};
-
 describe("clickedInsideElement", () => {
+  const Page = () => {
+    return (
+      <main>
+        <div data-testid="target-div">
+          <p>Target element</p>
+          <div data-testid="target-child-div">
+            <p data-testid="target-child-div-p">Nested target element</p>
+          </div>
+        </div>
+        <div data-testid="other-div">
+          <p>Some other element</p>
+          <div data-testid="other-child-div">
+            <p data-testid="other-child-div-p">Nested other element</p>
+          </div>
+        </div>
+      </main>
+    );
+  };
+
   test("Returns true if the passed element was the one clicked", () => {
     const page = <Page />;
     render(page);
@@ -97,3 +97,39 @@ describe("clickedInsideElement", () => {
     expect(result).toBe(false);
   });
 });
+
+// describe("getLocalXYPosition", () => {
+//   const Page = () => {
+//     return (
+//       <div>
+//         <div className="relative h-64 w-32" data-testid="target-div">
+//           <h1 className="text-3xl">Header text</h1>
+//           <p className="text-lg">
+//             Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias
+//             voluptatem et laborum expedita impedit magni non ab consequuntur
+//             eaque tempore obcaecati cupiditate nisi error dolore laudantium,
+//             beatae molestias harum similique?
+//           </p>
+//         </div>
+//       </div>
+//     );
+//   };
+//   test("Returns the x and y position of the click event relative to the dom element", () => {
+//     const page = <Page />;
+//     render(page);
+
+//     const targetElement = screen.getByTestId("target-div");
+
+//     // Click event
+//     const clickEvent = createEvent.click(targetElement) as MouseEvent;
+//     // Fire the click event on the target element
+//     fireEvent(targetElement, clickEvent);
+
+//     const result = getLocalXYPosition({
+//       offsetX: clickEvent.offsetX,
+//       offsetY: clickEvent.offsetY,
+//       clickedElement: targetElement,
+//     });
+
+//   });
+// });
