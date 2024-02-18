@@ -40,11 +40,7 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
           ?.topicSessionSlices ?? [],
       ),
     );
-  }, [
-    calendarGridContext.daySessionSliceMap,
-    calendarGridContext.topicSessionsQuery?.data,
-    day,
-  ]);
+  }, [calendarGridContext.topicSessionsQuery?.data, day]);
 
   // Responsible for assigning inner column indexes, so that sessions which overlap can be offset later on in rendering
   function assignInnerColIndex(

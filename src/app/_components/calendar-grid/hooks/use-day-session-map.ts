@@ -30,6 +30,8 @@ export function useDaySessionMap() {
       // If the session has already been processed, don't add it to the map
       if (isSessionIdProcessed(slice.SK)) {
         return;
+      } else {
+        markSessionIdAsProcessed(slice.SK, new Set([dayOfSlice]));
       }
 
       // Add the slice to the map
@@ -142,7 +144,7 @@ export function useDaySessionMap() {
         return map;
       });
     },
-    [setProcessedTopicSessionIds],
+    [setProcessedTopicSessionIds, processedTopicSessionIds],
   );
 
   //* Function which takes in an array of topic sessions, slices them, and adds them to the daySessionMap
@@ -155,20 +157,24 @@ export function useDaySessionMap() {
       return;
     }
 
+    // IF already processed, skip
+
     data.forEach((topicSession) => {
       // If the session has already been processed, skip it
       if (isSessionIdProcessed(topicSession.SK)) {
         console.debug(
           `Topic session ${topicSession.SK} has already been processed`,
         );
+        // go to next iteration
         return;
       }
 
       // Create a set to store days that this session has slices for
       const sliceDays = new Set<number>();
+      const slices = sliceTopicSession(topicSession);
 
       // Slice topic session can return multiple slices if the session spans multiple days
-      sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
+      slices.forEach((topicSessionSlice) => {
         // Add the day of the slice to the set
         sliceDays.add(
           getDaysSinceUnixEpoch(new Date(topicSessionSlice.sliceStartMS)),

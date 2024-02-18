@@ -195,7 +195,7 @@ Cypress.Commands.add(
       cy.get("[data-item-type=date-time-picker-button]").eq(0).click();
     });
     if (startsPrevMonth) {
-      cy.get(".left-1").click();
+      cy.get("button[name=previous-month]").click();
       cy.get("[role=gridcell]").contains(startDay).click();
     } else {
       // get button with role
@@ -208,7 +208,8 @@ Cypress.Commands.add(
       cy.get("[data-item-type=date-time-picker-button]").eq(2).click();
     });
     if (endsNextMonth) {
-      cy.get(".right-1").click();
+      // get button with name='next-month'
+      cy.get('button[name="next-month"]').click();
       cy.get("[role=gridcell]").contains(endDay).click();
     } else {
       cy.get("[role=gridcell]").contains(endDay).click();

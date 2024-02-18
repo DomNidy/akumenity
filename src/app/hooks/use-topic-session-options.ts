@@ -50,7 +50,13 @@ export function useTopicSessionOptions({
       },
       // When the mutation fails, we should add the topic session back to the daysessionmap
       onError: () => {
-        if (!associatedSlices) return;
+        if (!associatedSlices) {
+          console.error(
+            "Delete topic session failed, but we have no associated (optimistic) slices to remove from the map",
+          );
+          return;
+        }
+
         // Add all slices back to the map
         addSnapshottedSlicesToMap();
         toast("Failed to delete session");
@@ -60,6 +66,10 @@ export function useTopicSessionOptions({
       // We'll invalidate the active topic session query (incase the deleted session was the active one)
       onSuccess: () => {
         toast("Session deleted");
+      },
+      onSettled: () => {
+        // * This is important, we invalidate all queries of this type because we don't know which query the deleted session was returned from
+        // We have room to improve this, maybe we can use reactquery's custom query key to invalidate only the query that was affected
         void queryClient.invalidateQueries(
           [["topicSession", "getTopicSessionsInDateRange"]],
           {

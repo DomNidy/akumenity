@@ -125,6 +125,7 @@ export function getDateFromDaysSinceUnixEpoch(daysSince: number) {
 export function sliceTopicSession(
   topicSession: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"][0],
 ): TopicSessionSlice[] {
+  console.debug("slicing topic session", topicSession);
   // If this topic session spans multiple days, we need to split it into multiple slices
   // We do this by calculating the number of days between the start and end of the session
   // Then we create a slice for each day, and set the start and end times accordingly
@@ -133,8 +134,20 @@ export function sliceTopicSession(
     ? new Date(topicSession.Session_End)
     : new Date();
 
+  console.debug(sessionEnd, "session end");
+
   // if sessionEnd is not on a different day than sessionStart, early return a single slice
-  if (sessionStart.getDay() === sessionEnd.getDay()) {
+  if (
+    sessionStart.getMonth() === sessionEnd.getMonth() &&
+    sessionStart.getDate() === sessionEnd.getDate()
+  ) {
+    console.debug(
+      "returning single slice",
+      sessionStart.getMonth(),
+      sessionEnd.getMonth(),
+      sessionStart.getDate(),
+      sessionEnd.getDate(),
+    );
     return [
       {
         ...topicSession,
@@ -143,6 +156,7 @@ export function sliceTopicSession(
       },
     ];
   }
+  console.debug("still goiin");
 
   // This only runs when the passed session spans multiple days
   const slices: TopicSessionSlice[] = [];
