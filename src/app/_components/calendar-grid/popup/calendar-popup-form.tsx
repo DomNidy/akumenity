@@ -29,7 +29,7 @@ import { useCalendarPopup } from "../hooks/use-calendar-popup";
  * @param clickTime Time where the calendar grid was clicked
  */
 export function CalendarPopupForm() {
-  const { currentPopupData } = useCalendarPopup();
+  const { currentPopupData, closePopup } = useCalendarPopup();
 
   const form = useForm<z.infer<typeof TopicSessionCreateNotActiveSchema>>({
     resolver: zodResolver(TopicSessionCreateNotActiveSchema),
@@ -59,6 +59,7 @@ export function CalendarPopupForm() {
     form.setValue("Topic_ID", selectedTopic?.topicId ?? "");
   }, [selectedTopic]);
 
+  // TODO: Extract to hook
   const createNotActiveTopicSession =
     api.topicSession.createTopicSessionNotActive.useMutation({
       onError(error) {
@@ -71,11 +72,15 @@ export function CalendarPopupForm() {
         }
       },
       onSettled() {
-        void queryClient.invalidateQueries([
-          ["topicSession", "getTopicSessionsInDateRange"],
-        ]);
+        void queryClient.invalidateQueries(
+          [["topicSession", "getTopicSessionsInDateRange"]],
+          {
+            type: "all",
+          },
+        );
 
         setPopoverOpen(false);
+        closePopup();
       },
     });
 
@@ -159,7 +164,7 @@ export function CalendarPopupForm() {
               </FormLabel>
               <FormControl>
                 <Popover open={popoverOpen}>
-                  <PopoverTrigger>
+                  <PopoverTrigger asChild>
                     <Button
                       onClick={(e) => {
                         e.preventDefault();

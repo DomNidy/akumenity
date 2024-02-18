@@ -36,6 +36,8 @@ export type CalendarGridPopupContextData = {
   popupDomRef: React.RefObject<HTMLDivElement> | null;
   // Ref to the active time area box dom element (if it exists)
   timeAreaBoxDomRef: React.RefObject<HTMLDivElement> | null;
+  // Update the current popup data (set to null to close the popup)
+  closePopup: () => void;
 };
 
 // Initialize the context
@@ -44,6 +46,9 @@ export const CalendarGridPopupContext =
     currentPopupData: null,
     popupDomRef: null,
     timeAreaBoxDomRef: null,
+    closePopup: () => {
+      throw new Error("closePopup not implemented");
+    },
   });
 
 export function CalendarGridPopupProvider({
@@ -147,6 +152,10 @@ export function CalendarGridPopupProvider({
         currentPopupData,
         popupDomRef,
         timeAreaBoxDomRef,
+        closePopup: () => {
+          setCurrentPopupData(null);
+          calendarGridContext.setActivePopupElementId(null);
+        },
       }}
     >
       {/* We want to portal the popup into the floating portal */}

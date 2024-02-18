@@ -1,18 +1,20 @@
 {
+  "extends": "../tsconfig.json",
   "files": [
     "e2e/calendar-grid-actions.cy.ts",
     "e2e/topic-manager-actions.cy.ts",
     "./support/commands.ts",
     "./support/component.ts",
-    "./support/e2e.ts"
+    "./support/e2e.ts",
+    "../cypress.config.ts"
   ],
 
-  "extends": "../tsconfig.json",
   "compilerOptions": {
     "types": ["cypress"]
   },
   "include": [
     "**/*.ts",
+    "../cypress.config.ts",
     "e2e/calendar-grid-actions.cy.ts",
     "e2e/topic-manager-actions.cy.ts"
   ]

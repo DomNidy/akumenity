@@ -134,7 +134,7 @@ export function sliceTopicSession(
     : new Date();
 
   // if sessionEnd is not on a different day than sessionStart, early return a single slice
-  if (sessionStart.getUTCDate() === sessionEnd.getUTCDate()) {
+  if (sessionStart.getDay() === sessionEnd.getDay()) {
     return [
       {
         ...topicSession,

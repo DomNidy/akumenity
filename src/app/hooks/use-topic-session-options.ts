@@ -20,7 +20,7 @@ export function useTopicSessionOptions({
 
   // Function which gets the topic sessions associated with session id, and updates the associated slices
   const snapshotSlices = () => {
-    console.log("Snapshotting slices");
+    console.debug("Snapshotting slices");
     const slices =
       calendarGridContext.getSessionSlicesByTopicSessionId(topicSessionId);
     setAssociatedSlices(slices);
@@ -28,6 +28,7 @@ export function useTopicSessionOptions({
 
   // Function which adds the snapshotted slices back to the map
   const addSnapshottedSlicesToMap = () => {
+    console.log("Adding to map");
     if (!associatedSlices) return;
     associatedSlices.forEach((slice) => {
       calendarGridContext.addSessionSliceToMap(slice);
@@ -54,12 +55,17 @@ export function useTopicSessionOptions({
         addSnapshottedSlicesToMap();
         toast("Failed to delete session");
       },
+      // * Note: This is an important query invalidation, responsible for invalidating the query for the range which contains the start of the deleted session
+      // * We invalidate all queries of this type because we don't know which query the deleted session was returned from
       // We'll invalidate the active topic session query (incase the deleted session was the active one)
       onSuccess: () => {
         toast("Session deleted");
-        void queryClient.invalidateQueries([
-          ["topicSession", "getActiveTopicSession"],
-        ]);
+        void queryClient.invalidateQueries(
+          [["topicSession", "getTopicSessionsInDateRange"]],
+          {
+            type: "all",
+          },
+        );
       },
     });
 
@@ -74,7 +80,7 @@ export function useTopicSessionOptions({
         calendarGridContext.removeSessionSlicesFromMap(topicSessionId);
 
         // * We might run into issues here due to reacts async state updates
-        // Optimistically update the topic session slices in the daysessionmap
+        // Add new optimistic slices to the daysessionmap
         associatedSlices?.forEach((slice) => {
           calendarGridContext.addSessionSliceToMap({
             ...slice,
@@ -92,15 +98,18 @@ export function useTopicSessionOptions({
         toast(err.message);
       },
       onSuccess: () => {
+        console.debug("Updated topic session, on success");
         toast("Session updated");
-        calendarGridContext.removeSessionSlicesFromMap(topicSessionId);
 
         void queryClient.invalidateQueries([
           ["topicSession", "getActiveTopicSession"],
         ]);
-        void queryClient.invalidateQueries([
-          ["topicSession", "getTopicSessionsInDateRange"],
-        ]);
+        void queryClient.invalidateQueries(
+          [["topicSession", "getTopicSessionsInDateRange"]],
+          {
+            type: "all",
+          },
+        );
       },
     });
 

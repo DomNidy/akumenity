@@ -49,6 +49,7 @@ export function TopicColorSelector({
           (colorCode, idx) => {
             return (
               <div
+                data-testid={`color-selector-${colorCode}`}
                 tabIndex={idx + 1}
                 key={colorCode}
                 className={`col-span-1  h-5 w-5 rounded-full ${getLabelColor(

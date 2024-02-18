@@ -63,6 +63,7 @@ export default function DateTimePicker({ ...props }: DateTimePickerProps) {
       <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
         <PopoverTrigger asChild>
           <Button
+            data-item-type={DataItemTypeAttributes.DateTimePickerButton}
             variant={"outline"}
             onClick={() => setCalendarOpen(true)}
             className={cn(
@@ -99,6 +100,7 @@ export default function DateTimePicker({ ...props }: DateTimePickerProps) {
       <Popover>
         <PopoverTrigger asChild>
           <Button
+            data-item-type={DataItemTypeAttributes.DateTimePickerButton}
             variant={"outline"}
             className="w-full justify-start text-left"
           >

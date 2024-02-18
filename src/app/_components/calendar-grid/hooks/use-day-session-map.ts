@@ -14,9 +14,10 @@ export function useDaySessionMap() {
   >({});
 
   // Store topic session ids that have already been added to the map
+  // The value is an array of ints which correspond to days that this session has slices for
   const [processedTopicSessionIds, setProcessedTopicSessionIds] = useState<
-    Set<string>
-  >(new Set());
+    Record<string, Set<number>>
+  >({});
 
   // useCallback to memoize the function so that it is not recreated on every render
   const addSessionSliceToMap = useCallback(
@@ -29,8 +30,6 @@ export function useDaySessionMap() {
       // If the session has already been processed, don't add it to the map
       if (isSessionIdProcessed(slice.SK)) {
         return;
-      } else {
-        markSessionIdAsProcessed(slice.SK);
       }
 
       // Add the slice to the map
@@ -59,94 +58,168 @@ export function useDaySessionMap() {
   // This will cause new slices to be created from this topic sessions data
   const markSessionIdAsUnprocessed = useCallback(
     (topicSessionId: string) => {
-      setProcessedTopicSessionIds((prevSet) => {
-        const set = new Set(prevSet);
-        set.delete(topicSessionId);
-        return set;
+      setProcessedTopicSessionIds((prevMap) => {
+        const map = { ...prevMap };
+
+        // Delete the topic session id from the map
+        delete map[topicSessionId];
+
+        return map;
       });
     },
     [setProcessedTopicSessionIds],
   );
 
+  // TODO: Refactor this to only iterate over the days that the session has slices for (using the processedTopicSessionIds map)
+  // When the processedTopicSessionIds map changes, we should redefine this function (as in the dependency array of the useCallback hook)
   // Function which removes all topic session slices associated with a topic session id from the map
   const removeSessionSlicesFromMap = useCallback(
     (topicSessionId: string) => {
+      // Ensure the session is in the processed topic session ids map
+      if (!processedTopicSessionIds.hasOwnProperty(topicSessionId)) {
+        console.error(
+          `Tried to remove topic session ${topicSessionId} from the processed topic session ids map, but it has not been processed!`,
+        );
+        return;
+      }
+
+      // Get the days that this session has slices for
+      const sliceDays = processedTopicSessionIds[topicSessionId];
+      if (sliceDays?.size === 0 || !sliceDays) {
+        console.error(
+          `Tried to remove topic session ${topicSessionId} from the processed topic session ids map, but it has no slices, or evaluated to undefined!: sliceDays: ${JSON.stringify(
+            sliceDays,
+          )}`,
+        );
+        return;
+      }
+
+      // Remove the session from the processed topic session ids map
       markSessionIdAsUnprocessed(topicSessionId);
+
+      // Remove the slices from the map
       setDaySessionMap((prevMap) => {
         const map = { ...prevMap };
 
-        Object.keys(map).forEach((day) => {
-          map[Number(day)] = {
+        // Iterate over each day this session has slices for, and filter them out
+        for (const day of sliceDays) {
+          console.debug("Removing slices for day", day);
+          console.debug(`${JSON.stringify(map[day])} day `);
+          map[day] = {
             topicSessionSlices:
-              map[Number(day)]?.topicSessionSlices.filter(
+              map[day]?.topicSessionSlices.filter(
                 (slice) => slice.SK !== topicSessionId,
               ) ?? [],
-            day: map[Number(day)]?.day ?? new Date(),
+            day: map[day]?.day ?? new Date(),
           };
-        });
+        }
 
         return map;
       });
     },
-    [setDaySessionMap],
+    [setDaySessionMap, processedTopicSessionIds, markSessionIdAsUnprocessed],
   );
 
   // Function which returns true or false depending on whether a session has already been processed (sliced and added to the map)
   const isSessionIdProcessed = useCallback(
     (topicSessionId: string) => {
-      return processedTopicSessionIds.has(topicSessionId);
+      return processedTopicSessionIds.hasOwnProperty(topicSessionId);
     },
     [processedTopicSessionIds],
   );
 
-  // Function which adds a topic session id to the processedTopicSessionIds set
+  /**
+   * Function which receives a topic session id, and an array of days for which this session has slices, and adds it to the processedTopicSessionIds
+   * @param {any} topicSessionId:string The id of the topic session
+   * @param {any} sliceDays:Set<number> A set of integers which correspond to days that this session has slices for
+   * @returns {any}
+   */
   const markSessionIdAsProcessed = useCallback(
-    (topicSessionId: string) => {
-      setProcessedTopicSessionIds((prevSet) => {
-        const set = new Set(prevSet);
-        set.add(topicSessionId);
-        return set;
+    (topicSessionId: string, sliceDays: Set<number>) => {
+      setProcessedTopicSessionIds((prev) => {
+        const map = { ...prev, [topicSessionId]: sliceDays };
+
+        return map;
       });
     },
     [setProcessedTopicSessionIds],
   );
 
   //* Function which takes in an array of topic sessions, slices them, and adds them to the daySessionMap
-  const sliceAndAddTopicSessionsToMap = useCallback(
-    (data: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"]) => {
-      // If there is no data, return
-      if (!data) return;
+  const sliceAndAddTopicSessionsToMap = (
+    data: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"],
+  ) => {
+    // If there is no data, return
+    if (!data) {
+      console.error("No data provided to sliceAndAddTopicSessionsToMap");
+      return;
+    }
 
-      data.forEach((topicSession) => {
-        // If the session has already been processed, skip it
-        if (isSessionIdProcessed(topicSession.SK)) return;
+    data.forEach((topicSession) => {
+      // If the session has already been processed, skip it
+      if (isSessionIdProcessed(topicSession.SK)) {
+        console.debug(
+          `Topic session ${topicSession.SK} has already been processed`,
+        );
+        return;
+      }
 
-        // Slice topic session can return multiple slices if the session spans multiple days
-        sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
-          addSessionSliceToMap(topicSessionSlice);
-        });
+      // Create a set to store days that this session has slices for
+      const sliceDays = new Set<number>();
 
-        // Mark the session as processed
-        // This means it wont be re-added to the map from following queries unless it is marked as unprocessed
-        markSessionIdAsProcessed(topicSession.SK);
+      // Slice topic session can return multiple slices if the session spans multiple days
+      sliceTopicSession(topicSession).forEach((topicSessionSlice) => {
+        // Add the day of the slice to the set
+        sliceDays.add(
+          getDaysSinceUnixEpoch(new Date(topicSessionSlice.sliceStartMS)),
+        );
+        // Add the slice to the map
+        addSessionSliceToMap(topicSessionSlice);
       });
-    },
-    [addSessionSliceToMap, isSessionIdProcessed, markSessionIdAsProcessed],
-  );
+
+      // Mark the session as processed
+      // This means it wont be re-added to the map from following queries unless it is marked as unprocessed
+      markSessionIdAsProcessed(topicSession.SK, sliceDays);
+    });
+  };
 
   // Function which returns all session slices associated with a topic session id
   // Returns undefined if the topic session id is not in the map
   const getSessionSlicesByTopicSessionId = useCallback(
     (topicSessionId: string) => {
-      if (!processedTopicSessionIds.has(topicSessionId)) return undefined;
+      console.log("getSessionSlicesByTopicSessionId");
+      if (!processedTopicSessionIds.hasOwnProperty(topicSessionId))
+        return undefined;
 
-      const slices = Object.values(daySessionMap).flatMap(
-        (day) => day.topicSessionSlices,
+      // Get all days which this session has slices for
+      const sliceDays = processedTopicSessionIds[topicSessionId];
+      console.debug(
+        `Slice days associated with topic session ${topicSessionId}`,
+        sliceDays,
       );
 
-      return slices.filter((slice) => slice.SK === topicSessionId);
+      // Create an array to store the slices
+      const slices: TopicSessionSlice[] = [];
+
+      // Iterate over each day and get the slices matching the topic session id
+      sliceDays?.forEach((day) => {
+        // Get the slices for this day
+        const _slices = daySessionMap[day]?.topicSessionSlices.filter(
+          (slice) => slice.SK === topicSessionId,
+        );
+
+        console.debug("Grabbed slice from day", day, _slices);
+        slices.push(...(_slices ?? []));
+      });
+
+      console.debug(
+        `Found ${slices.length} sessions associated with ${topicSessionId}`,
+        slices,
+      );
+
+      return slices;
     },
-    [daySessionMap],
+    [daySessionMap, processedTopicSessionIds],
   );
 
   return {

@@ -33,6 +33,10 @@ export function TopicSelectorMenu({
       <CommandGroup>
         {usersTopics?.map((topic) => (
           <CommandItem
+            data-testid={`topic-selector-menu-item-${topic.Title.replace(
+              " ",
+              "-",
+            )}`}
             className="cursor-pointer"
             key={topic.SK}
             value={topic.SK}

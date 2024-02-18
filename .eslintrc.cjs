@@ -2,7 +2,7 @@
 const config = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: true,
+    project: ["./tsconfig.json", "./cypress/tsconfig.json"],
   },
   plugins: ["@typescript-eslint"],
   extends: [
@@ -32,6 +32,7 @@ const config = {
       },
     ],
   },
+
 };
 
 module.exports = config;

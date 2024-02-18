@@ -14,6 +14,7 @@ export const TopicLabel = forwardRef<HTMLDivElement, TopicLabelProps>(
   ({ colorCode, ...props }, ref) => (
     <div
       ref={ref}
+      data-testid="topic-label"
       className={`h-5 w-5 rounded-full ${getLabelColor(colorCode ?? "blue")}`}
       {...props}
     />

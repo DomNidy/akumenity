@@ -28,6 +28,8 @@ export enum CalendarGridDisplayMode {
 export enum DataItemTypeAttributes {
   // Assigned to <CalendarGridColumn /> elements
   CalendarGridColumn = "calendar-grid-column",
+  // Assigned to the button that triggers date time picker calendar
+  DateTimePickerButton = "date-time-picker-button",
   // Assigned to <DateTimePicker /> elements
   DateTimePicker = "date-time-picker",
   // Assigned to the <TopicSelectorMenu/> element
