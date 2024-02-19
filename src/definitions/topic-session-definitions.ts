@@ -74,8 +74,7 @@ export const TopicSessionUpdateSchema = z.object({
         .string()
         .startsWith(dbConstants.itemTypes.topic.typeName)
         .min(1)
-        .max(128)
-        .optional(),
+        .max(128),
       startTimeMS: z.coerce.number().min(0).optional(),
       endTimeMS: z.coerce.number().min(0).optional(),
     })
@@ -110,10 +109,7 @@ export const TopicSessionCreateNotActiveSchema = z
   .object({
     Topic_ID: z
       .string()
-      .startsWith(
-        dbConstants.itemTypes.topic.typeName,
-        "Invalid Topic",
-      )
+      .startsWith(dbConstants.itemTypes.topic.typeName, "Invalid Topic")
       .min(1)
       .max(128), // The id of the topic to create a session for
     startTimeMS: z.coerce.number().min(0),

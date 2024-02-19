@@ -68,6 +68,7 @@ export function useTopicSessionOptions({
         toast("Session deleted");
       },
       onSettled: () => {
+        setAssociatedSlices(undefined);
         // * This is important, we invalidate all queries of this type because we don't know which query the deleted session was returned from
         // We have room to improve this, maybe we can use reactquery's custom query key to invalidate only the query that was affected
         void queryClient.invalidateQueries(
@@ -83,6 +84,7 @@ export function useTopicSessionOptions({
     api.topicSession.updateTopicSession.useMutation({
       mutationKey: ["topicSession", "updateTopicSession"],
       onMutate: async (variables) => {
+        console.log(variables);
         // Update the slices before we update the topic session
         snapshotSlices();
 
@@ -120,6 +122,9 @@ export function useTopicSessionOptions({
             type: "all",
           },
         );
+      },
+      onSettled: () => {
+        setAssociatedSlices(undefined);
       },
     });
 

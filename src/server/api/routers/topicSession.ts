@@ -531,8 +531,10 @@ export const topicSessionRouter = createTRPCRouter({
         // This is the topic that the user wants to change the session to
         let updatedTopicTitle = null;
 
+        console.log(input.updatedFields.Topic_ID, parsedSession.Topic_ID);
+
         // If we requested to change the topic id, ensure that the topic exists, and get its title
-        if (input.updatedFields.Topic_ID) {
+        if (input.updatedFields.Topic_ID !== parsedSession.Topic_ID) {
           const topic = await ddbDocClient.send(
             new GetCommand({
               TableName: env.DYNAMO_DB_TABLE_NAME,
@@ -579,7 +581,7 @@ export const topicSessionRouter = createTRPCRouter({
               ? { Session_Start: input.updatedFields.startTimeMS }
               : {}),
 
-            ...(input.updatedFields.Topic_ID
+            ...(input.updatedFields.Topic_ID !== parsedSession.Topic_ID
               ? { Topic_ID: input.updatedFields.Topic_ID }
               : {}),
 

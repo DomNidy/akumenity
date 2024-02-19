@@ -135,6 +135,7 @@ Cypress.Commands.add(
 );
 
 // Creates a topic session with specified start and end times, and associated topic
+// colIndex - the column we should click on to open the calendar popup
 // startDayOffset - the number of days from the current day to start the session (-1 for yesterday, 0 for today, 1 for tomorrow, etc.)
 // endDayOffset - the number of days from the current day to end the session (-1 for yesterday, 0 for today, 1 for tomorrow, etc.)
 // * Note: The endTime and startTime should be in the format "HH:MM"
@@ -195,11 +196,11 @@ Cypress.Commands.add(
       cy.get("[data-item-type=date-time-picker-button]").eq(0).click();
     });
     if (startsPrevMonth) {
-      cy.get("button[name=previous-month]").click();
-      cy.get("[role=gridcell]").contains(startDay).click();
+      cy.get('button[name="previous-month"]').click();
+      cy.get('button[name="day"]').contains(startDay).click();
     } else {
       // get button with role
-      cy.get("[role=gridcell]").contains(startDay).click();
+      cy.get('button[name="day"]').contains(startDay).click();
     }
 
     // Focus popup and open the end time picker calendar
@@ -209,10 +210,10 @@ Cypress.Commands.add(
     });
     if (endsNextMonth) {
       // get button with name='next-month'
-      cy.get('button[name="next-month"]').click();
-      cy.get("[role=gridcell]").contains(endDay).click();
+      cy.get('button[name="next-month"]').click().wait(2000);
+      cy.get('button[name="day"]').contains(endDay).click();
     } else {
-      cy.get("[role=gridcell]").contains(endDay).click();
+      cy.get('button[name="day"]').contains(endDay).click();
     }
 
     // Find the calendar-popup element (has data-item-type: data-item-type="calendar-popup")
@@ -222,11 +223,11 @@ Cypress.Commands.add(
       cy.get("[data-item-type=date-time-picker-button]").eq(1).click();
       // Input field should be autofocused after clicking the date time picker button
       // Type in the date,then hit escape to close the date time picker
-      cy.focused().type(startTime).wait(120);
+      cy.focused().type(startTime);
 
       // Click the end time time picker button
       cy.get("[data-item-type=date-time-picker-button]").eq(3).click();
-      cy.focused().type(endTime).wait(120);
+      cy.focused().type(endTime);
     });
 
     cy.get("button[type=submit]").click();

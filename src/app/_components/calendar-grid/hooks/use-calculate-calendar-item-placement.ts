@@ -187,7 +187,11 @@ export function useCalculateCalendarItemHorizontalPos({
   // Whenever the local max or inner column index changes, recompute the width
   useEffect(() => {
     setItemWidth(calculateWidth());
-  }, [localMaxInnerColIndex, gridColumnRef]);
+  }, [
+    localMaxInnerColIndex,
+    gridColumnRef.current?.clientWidth,
+    columnInnerColIndex,
+  ]);
 
   // Calculate the width this topic session should be (in pixels)
   // Used to fill the remaining space of the column

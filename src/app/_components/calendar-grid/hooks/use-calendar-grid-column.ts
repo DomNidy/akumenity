@@ -31,6 +31,7 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
 
   //* Important, this updates the column (and the topic session slices in this column) when the day or data changes
   //* Maybe we can target the specific data for a day instead of the whole map
+  //* Watch for changes to the daysession map as we add optimistically to it
   useEffect(() => {
     // Whenever the daySessionSliceMap changes, read the new topic sessions
     // transform them into CalendarGridTopicSessionSliceItem and assign them an innerColIndex, then set the state
@@ -40,7 +41,12 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
           ?.topicSessionSlices ?? [],
       ),
     );
-  }, [calendarGridContext.topicSessionsQuery?.data, day]);
+  }, [
+    calendarGridContext.topicSessionsQuery?.data,
+    day,
+    calendarGridContext.daySessionSliceMap[getDaysSinceUnixEpoch(day)]
+      ?.topicSessionSlices,
+  ]);
 
   // Responsible for assigning inner column indexes, so that sessions which overlap can be offset later on in rendering
   function assignInnerColIndex(

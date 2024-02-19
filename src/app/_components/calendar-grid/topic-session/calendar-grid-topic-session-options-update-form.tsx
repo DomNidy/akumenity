@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "../../ui/form";
 import { Button } from "../../ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TopicSelectorMenu } from "../../my-topics/topic-selector-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { useTopicsQuery } from "~/app/hooks/use-topics-query";
@@ -64,15 +64,20 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
 
   // If the topic selector popover is open or not
   const [popoverOpen, setPopoverOpen] = useState(false);
+  // Ref to the popover content (so we can close it when clicking outside of it)
+  const popoverContentRef = useRef(null);
 
   // Because we update the seleced topic in a different component, we'll run an effect here to update our form state when that changes
   useEffect(() => {
-    form.setValue("updatedFields.Topic_ID", selectedTopic?.topicId);
+    form.setValue(
+      "updatedFields.Topic_ID",
+      selectedTopic?.topicId ?? topicSessionSlice.Topic_ID,
+    );
   }, [selectedTopic]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-max space-y-4 ">
         <FormField
           control={form.control}
           name="updatedFields.startTimeMS"
@@ -104,7 +109,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
               <FormLabel className="text-md font-semibold tracking-tight">
                 End time
               </FormLabel>
-              <FormControl onError={(e) => console.log(e)}>
+              <FormControl>
                 <DateTimePicker
                   defaultDate={
                     new Date(topicSessionSlice.Session_End ?? Date.now())
@@ -133,7 +138,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
           control={form.control}
           name="updatedFields.Topic_ID"
           render={({}) => (
-            <FormItem>
+            <FormItem className="flex flex-col items-start">
               <FormLabel className="text-md font-semibold tracking-tight">
                 Change associated topic
               </FormLabel>
@@ -144,13 +149,17 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
                       onClick={() => setPopoverOpen(!popoverOpen)}
                       role="combobox"
                       aria-expanded={false}
-                      className="w-[250px] justify-between"
+                      className="w-max justify-between"
                     >
                       {selectedTopic?.label ?? "Select Topic"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0">
+                  <PopoverContent
+                    className="w-[300px] p-0"
+                    ref={popoverContentRef}
+                  >
                     <TopicSelectorMenu
+                      popoverContentRef={popoverContentRef}
                       setPopoverOpen={setPopoverOpen}
                       setSelectedTopic={setSelectedTopic}
                       usersTopics={usersTopics.data?.topics}

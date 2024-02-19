@@ -4,11 +4,12 @@ import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { cn } from "~/lib/utils";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { Input } from "../ui/input";
 import { DataItemTypeAttributes } from "../calendar-grid/calendar-grid-definitions";
 import { getHHMMStringFromDate } from "./date-time-picker-helpers";
+import { MenuClose } from "../ui/menu-close";
 
 interface DateTimePickerProps {
   // This is the default selected time of the datepicker
@@ -28,6 +29,8 @@ export default function DateTimePicker({ ...props }: DateTimePickerProps) {
 
   // If the calendar is open
   const [calendarOpen, setCalendarOpen] = useState(false);
+  // If the time input is open
+  const [timeOpen, setTimeOpen] = useState(false);
 
   // The actual time associated with the date
   const [date, _setDate] = useState<Date>(defaultDate);
@@ -51,9 +54,6 @@ export default function DateTimePicker({ ...props }: DateTimePickerProps) {
       hours,
       minutes,
     );
-
-    console.log(newSelectedDate);
-
     _setDate(newSelectedDate);
     setDate(newSelectedDate);
   };
@@ -97,7 +97,7 @@ export default function DateTimePicker({ ...props }: DateTimePickerProps) {
           />
         </PopoverContent>
       </Popover>
-      <Popover>
+      <Popover open={timeOpen} onOpenChange={setTimeOpen}>
         <PopoverTrigger asChild>
           <Button
             data-item-type={DataItemTypeAttributes.DateTimePickerButton}
@@ -107,8 +107,22 @@ export default function DateTimePicker({ ...props }: DateTimePickerProps) {
             <p>{format(date, "p")}</p>
           </Button>
         </PopoverTrigger>
-        <PopoverContent>
-          <Input type="time" value={timeValue} onChange={handleTimeChange} />
+        <PopoverContent className="m-0 flex flex-row justify-between p-2">
+          <Input
+            className="flex-1"
+            type="time"
+            value={timeValue}
+            onChange={handleTimeChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setTimeOpen(false);
+              }
+            }}
+          />
+          <MenuClose
+            className="ml-1.5 self-start"
+            onClick={() => setTimeOpen(false)}
+          />
         </PopoverContent>
       </Popover>
     </div>

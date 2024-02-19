@@ -40,9 +40,9 @@ context("Calendar Grid Actions", () => {
       cy.topicPageCreateTopic("Topic B", "red");
       cy.topicPageCreateTopic("Topic C", "green");
 
-      cy.createTopicSession("00:00", "17:00", "Topic A", 0, -5, 20);
-      cy.createTopicSession("02:00", "02:30", "Topic B", 2, 2, 7);
-      cy.createTopicSession("14:00", "23:00", "Topic C", 1, 1, 1);
+      cy.createTopicSession("00:00", "17:00", "Topic A", 0, 0, 5);
+      cy.createTopicSession("02:00", "02:30", "Topic B", 2, 2, 2);
+      cy.createTopicSession("14:00", "23:00", "Topic C", 1, 1, 6);
 
       // cy.get("[data-item-type=calendar-grid-column]")
       //   .eq(0)

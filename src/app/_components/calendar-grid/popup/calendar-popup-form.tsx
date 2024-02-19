@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../../ui/form";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { Button } from "../../ui/button";
 import { TopicSelectorMenu } from "../../my-topics/topic-selector-menu";
@@ -53,6 +53,8 @@ export function CalendarPopupForm() {
 
   // if the popover to select a topic is open or not
   const [popoverOpen, setPopoverOpen] = useState(false);
+  // ref to the popover (so we can close it when clicking outside of it)
+  const popoverContentRef = useRef(null);
 
   // Because we update the seleced topic in a different component, we'll run an effect here to update our form state when that changes
   useEffect(() => {
@@ -163,7 +165,7 @@ export function CalendarPopupForm() {
                 Associated topic
               </FormLabel>
               <FormControl>
-                <Popover open={popoverOpen}>
+                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       onClick={(e) => {
@@ -177,8 +179,9 @@ export function CalendarPopupForm() {
                       {selectedTopic?.label ?? "Select Topic"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent>
+                  <PopoverContent ref={popoverContentRef}>
                     <TopicSelectorMenu
+                      popoverContentRef={popoverContentRef}
                       setPopoverOpen={setPopoverOpen}
                       setSelectedTopic={setSelectedTopic}
                       usersTopics={usersTopics.data?.topics}
