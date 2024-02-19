@@ -1,6 +1,6 @@
 "use client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
@@ -42,6 +42,7 @@ export default function TopicSessionManager() {
     label: string;
     topicId: string;
   } | null>(null);
+  const popoverContentRef = useRef(null);
 
   return (
     <Card className="w-fit space-x-2 space-y-2 p-2">
@@ -57,8 +58,9 @@ export default function TopicSessionManager() {
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[250px] p-0">
+        <PopoverContent className="w-[250px] p-0" ref={popoverContentRef}>
           <TopicSelectorMenu
+            popoverContentRef={popoverContentRef}
             usersTopics={usersTopics.data?.topics}
             setSelectedTopic={setSelectedTopic}
             setPopoverOpen={setPopoverOpen}
