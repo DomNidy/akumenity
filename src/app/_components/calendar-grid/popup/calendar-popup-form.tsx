@@ -24,6 +24,7 @@ import DateTimePicker from "../../date-time-picker/date-time-picker";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCalendarPopup } from "../hooks/use-calendar-popup";
+import { MenuClose } from "../../ui/menu-close";
 
 /**
  * @param clickTime Time where the calendar grid was clicked
@@ -99,7 +100,8 @@ export function CalendarPopupForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-max space-y-4">
+      <MenuClose onClick={closePopup} className="absolute right-2" />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-max space-y-4 ">
         <FormField
           control={form.control}
           name="startTimeMS"

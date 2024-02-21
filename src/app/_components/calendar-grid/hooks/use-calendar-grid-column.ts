@@ -33,6 +33,7 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
   //* Maybe we can target the specific data for a day instead of the whole map
   //* Watch for changes to the daysession map as we add optimistically to it
   useEffect(() => {
+    console.debug("useCalendarGridColumn useEffect");
     // Whenever the daySessionSliceMap changes, read the new topic sessions
     // transform them into CalendarGridTopicSessionSliceItem and assign them an innerColIndex, then set the state
     setColumnTopicSessionSlices(
@@ -42,8 +43,8 @@ export function useCalendarGridColumn({ day }: { day: Date }) {
       ),
     );
   }, [
-    calendarGridContext.topicSessionsQuery?.data,
     day,
+    calendarGridContext.topicSessionsQuery?.data,
     calendarGridContext.daySessionSliceMap[getDaysSinceUnixEpoch(day)]
       ?.topicSessionSlices,
   ]);

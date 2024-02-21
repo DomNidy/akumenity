@@ -18,6 +18,8 @@ export function CalendarGrid() {
   const calendarGridDomRef = useRef<HTMLDivElement>(null);
   const calendarGridTimeColumnRef = useRef<HTMLDivElement>(null);
 
+  console.log("rendering calendar grid");
+
   const { isClient } = useOnInitialCalendarLoad();
 
   return (
@@ -44,7 +46,6 @@ export function CalendarGrid() {
             <>
               <div
                 className="relative flex max-h-[900px] w-full"
-                ref={calendarGridContext.scrollAreaElementRef}
               >
                 <CalendarGridTimeColumn />
                 <CalendarGridColumnRenderer />

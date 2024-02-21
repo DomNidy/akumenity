@@ -28,7 +28,7 @@ export function useTopicSessionOptions({
 
   // Function which adds the snapshotted slices back to the map
   const addSnapshottedSlicesToMap = () => {
-    console.log("Adding to map");
+    console.debug("Adding to map", associatedSlices);
     if (!associatedSlices) return;
     associatedSlices.forEach((slice) => {
       calendarGridContext.addSessionSliceToMap(slice);
@@ -84,46 +84,31 @@ export function useTopicSessionOptions({
     api.topicSession.updateTopicSession.useMutation({
       mutationKey: ["topicSession", "updateTopicSession"],
       onMutate: async (variables) => {
-        console.log(variables);
-        // Update the slices before we update the topic session
-        snapshotSlices();
+        console.debug(variables);
 
         // Remove the topic session from the daysessionmap
         calendarGridContext.removeSessionSlicesFromMap(topicSessionId);
-
-        // * We might run into issues here due to reacts async state updates
-        // Add new optimistic slices to the daysessionmap
-        associatedSlices?.forEach((slice) => {
-          calendarGridContext.addSessionSliceToMap({
-            ...slice,
-            ...variables.updatedFields,
-          });
-        });
       },
       onError: (err) => {
         // If the mutation fails, we should add the topic session back to the daysessionmap
         calendarGridContext.markSessionIdAsUnprocessed(topicSessionId);
-
-        // Add all slices back to the map
-        addSnapshottedSlicesToMap();
 
         toast(err.message);
       },
       onSuccess: () => {
         console.debug("Updated topic session, on success");
         toast("Session updated");
-
-        void queryClient.invalidateQueries([
+      },
+      onSettled: async () => {
+        await queryClient.invalidateQueries([
           ["topicSession", "getActiveTopicSession"],
         ]);
-        void queryClient.invalidateQueries(
+        await queryClient.invalidateQueries(
           [["topicSession", "getTopicSessionsInDateRange"]],
           {
             type: "all",
           },
         );
-      },
-      onSettled: () => {
         setAssociatedSlices(undefined);
       },
     });

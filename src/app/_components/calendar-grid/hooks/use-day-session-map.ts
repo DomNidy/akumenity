@@ -69,7 +69,7 @@ export function useDaySessionMap() {
         return map;
       });
     },
-    [setProcessedTopicSessionIds],
+    [setProcessedTopicSessionIds, processedTopicSessionIds],
   );
 
   // TODO: Refactor this to only iterate over the days that the session has slices for (using the processedTopicSessionIds map)

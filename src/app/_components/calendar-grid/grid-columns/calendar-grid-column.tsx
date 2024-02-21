@@ -3,13 +3,18 @@
 import { useRef } from "react";
 import { CalendarGridTopicSession } from "../topic-session/calendar-grid-topic-session";
 import { useCalendarGridColumn } from "~/app/_components/calendar-grid/hooks/use-calendar-grid-column";
-import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calendar-grid";
 import { getDaysSinceUnixEpoch } from "~/lib/utils";
 import { DataItemTypeAttributes } from "../calendar-grid-definitions";
 
-export function CalendarGridColumn({ day }: { day: Date }) {
-  const { zoomLevel, cellHeightPx } = useCalendarGrid();
-
+export function CalendarGridColumn({
+  day,
+  zoomLevel,
+  cellHeightPx,
+}: {
+  day: Date;
+  zoomLevel: number;
+  cellHeightPx: number;
+}) {
   // ref to the gridcolumn so we can get its height
   const gridColumnDomRef = useRef<HTMLDivElement>(null);
 

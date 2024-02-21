@@ -24,8 +24,6 @@ export interface CalendarGridPopupContextProps {
     | "zoomLevel"
     | "cellHeightPx"
     | "minutesPerCell"
-    | "activePopupElementRef"
-    | "scrollAreaElementRef"
   >;
 }
 

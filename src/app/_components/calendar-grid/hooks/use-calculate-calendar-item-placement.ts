@@ -1,6 +1,13 @@
 // Custom hook which calculates the placement, width, and height of a topic session
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import {
+  Ref,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import dayjs from "dayjs";
 import { calculateTopicSessionHeightInPixels } from "~/lib/utils";
 import { useRefreshLiveTopicSessions } from "../../../hooks/use-refresh-live-topic-sessions";
@@ -39,6 +46,8 @@ export function useCalculateCalendarItemPlacement({
     sliceEndMS,
     sliceStartMS,
   } = props;
+
+  console.log("useCalculateCalendarItemPlacement", columnDomRef);
 
   const horizontalPositioning = useCalculateCalendarItemHorizontalPos({
     gridColumnRef: columnDomRef,
@@ -162,17 +171,37 @@ export function useCalculateCalendarItemHorizontalPos({
   ...props
 }: CalculateCalendarItemHorizontalPosProps) {
   const { columnInnerColIndex, gridColumnRef, localMaxInnerColIndex } = props;
-  const [itemWidth, setItemWidth] = useState(calculateWidth());
+  const [itemWidth, setItemWidth] = useState(
+    calculateWidth(localMaxInnerColIndex ?? undefined, gridColumnRef),
+  );
 
   const itemLeftOffset = useMemo(
-    () => calculateLeftOffset(),
-    [gridColumnRef, columnInnerColIndex, itemWidth, localMaxInnerColIndex],
+    () => calculateLeftOffset(itemWidth, columnInnerColIndex ?? undefined),
+    [
+      gridColumnRef,
+      columnInnerColIndex,
+      itemWidth,
+      localMaxInnerColIndex,
+      gridColumnRef.current?.clientWidth,
+    ],
   );
+
+  // TODO: The issue causing the offsets to be incorrect is related to
+  // TODO: The useEffect adding a resize observer, and the use effect that recalculates the width when the local max inner col index changes
 
   // Add a resize observer to recompute the width when the column width changes
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
-      setItemWidth(calculateWidth());
+      const newWidth = calculateWidth(
+        localMaxInnerColIndex ?? undefined,
+        gridColumnRef,
+      );
+
+      if (newWidth !== itemWidth) {
+        setItemWidth(
+          calculateWidth(localMaxInnerColIndex ?? undefined, gridColumnRef),
+        );
+      }
     });
 
     if (gridColumnRef.current) {
@@ -186,17 +215,23 @@ export function useCalculateCalendarItemHorizontalPos({
 
   // Whenever the local max or inner column index changes, recompute the width
   useEffect(() => {
-    setItemWidth(calculateWidth());
-  }, [
-    localMaxInnerColIndex,
-    gridColumnRef.current?.clientWidth,
-    columnInnerColIndex,
-  ]);
+    setItemWidth(
+      calculateWidth(localMaxInnerColIndex ?? undefined, gridColumnRef),
+    );
+  }, [localMaxInnerColIndex, columnInnerColIndex]);
 
   // Calculate the width this topic session should be (in pixels)
   // Used to fill the remaining space of the column
-  function calculateWidth() {
-    if (!gridColumnRef.current) return 5;
+  function calculateWidth(
+    localMaxInnerColIndex?: number,
+    gridColumnRef?: RefObject<HTMLDivElement>,
+  ) {
+    console.debug(
+      "calculateWidth",
+      gridColumnRef?.current,
+      localMaxInnerColIndex,
+    );
+    if (!gridColumnRef?.current) return 5;
     return (
       gridColumnRef.current.clientWidth /
       Math.max(1 + (localMaxInnerColIndex ?? 0), 1)
@@ -204,7 +239,16 @@ export function useCalculateCalendarItemHorizontalPos({
   }
 
   // Calculate the left offset of this topic session (in pixels) based on the inner column index
-  function calculateLeftOffset() {
+  function calculateLeftOffset(
+    itemWidth: number,
+    columnInnerColIndex?: number,
+  ) {
+    console.debug(
+      "calculateLeftOffset",
+      gridColumnRef.current,
+      columnInnerColIndex,
+    );
+
     if (!columnInnerColIndex) return 0;
 
     // Calculate the left offset of this topic session based on the inner column index

@@ -565,7 +565,6 @@ export const topicSessionRouter = createTRPCRouter({
           }
         }
 
-        console.log("updatedTopic", updatedTopicTitle);
 
         // Update the topic session
         const updateSessionCommand = new PutCommand({

@@ -54,13 +54,9 @@ export type TopicSessionSlice =
 export interface CalendarGridContextData {
   // DOM ref to the current time bar element
   currentTimeElementRef: React.RefObject<HTMLDivElement> | null;
-  // DOM ref to the active popup element (if it exists)
-  activePopupElementRef: React.RefObject<HTMLElement> | null;
+
   // Id of the dom element corresponding to the active popup element
   activePopupElementId: string | null;
-
-  // Ref to the scroll area (where the calendar grid columns are rendered inside)
-  scrollAreaElementRef: React.RefObject<HTMLDivElement> | null;
 
   // Function which sets the active popup element id
   setActivePopupElementId: (id: string | null) => void;
