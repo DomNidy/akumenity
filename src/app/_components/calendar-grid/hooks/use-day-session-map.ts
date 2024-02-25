@@ -52,7 +52,12 @@ export function useDaySessionMap() {
         return map;
       });
     },
-    [setDaySessionMap],
+    [
+      setDaySessionMap,
+      daySessionMap,
+      processedTopicSessionIds,
+      setProcessedTopicSessionIds,
+    ],
   );
 
   // Function used to mark a topic session as unprocessed
