@@ -7,7 +7,7 @@ import { useCalendarGrid } from "~/app/_components/calendar-grid/hooks/use-calen
 export function CalendarGridTimeColumn() {
   const calendarGridContext = useCalendarGrid();
   return (
-    <div className="flex flex-col" ref={calendarGridContext.timeColumnRef}>
+    <div className="flex bg-red-400 flex-col" ref={calendarGridContext.timeColumnRef}>
       {[...Array(24 * calendarGridContext.zoomLevel).keys()].map(
         (value, index) => {
           const rowTime = new Date();

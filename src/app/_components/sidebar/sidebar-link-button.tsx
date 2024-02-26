@@ -27,7 +27,7 @@ export function SidebarLinkButton({
           <Link
             href={href}
             className={cn(
-              "my-1 z-50 flex flex-row items-center justify-between gap-2 rounded-lg border border-none border-input bg-background px-4 py-2 hover:bg-accent hover:text-accent-foreground",
+              "z-50 my-1 flex flex-row items-center justify-between gap-2 rounded-lg border border-none border-input bg-background px-4 py-2 hover:bg-accent hover:text-accent-foreground",
               className,
             )}
           >

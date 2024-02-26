@@ -107,9 +107,10 @@ export const topicRouter = createTRPCRouter({
         console.log("Creating topic");
         const findTopics = new QueryCommand({
           TableName: env.DYNAMO_DB_TABLE_NAME,
-          KeyConditionExpression: `${dbConstants.tables.prod.partitionKey} = :user_id`,
+          KeyConditionExpression: `${dbConstants.tables.prod.partitionKey} = :user_id AND begins_with(${dbConstants.tables.prod.sortKey}, :topic_id)`,
           ExpressionAttributeValues: {
             ":user_id": ctx.session?.userId,
+            ":topic_id": dbConstants.itemTypes.topic.typeName,
           },
           ProjectionExpression: "Title",
           ConsistentRead: true,
@@ -117,6 +118,8 @@ export const topicRouter = createTRPCRouter({
 
         // Run the query to find duplicates
         const topics = await ddbDocClient.send(findTopics);
+
+        console.log("Found topics", topics);
 
         if (
           !!topics.Count &&

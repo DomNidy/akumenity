@@ -12,7 +12,7 @@ export default function Sidebar() {
   const user = useUser();
 
   return (
-    <div className="fixed left-0 top-0 h-screen sm:w-24 w-14 overflow-x-hidden">
+    <div className="fixed left-0 top-0 h-screen sm:w-24 w-14 overflow-x-hidden z-50">
       <div className="h-full cursor-default gap-2 border border-input bg-background p-2">
         <div className="flex flex-col items-center rounded-md border border-x-0 border-input p-1">
           {!user.isLoaded ? <UserRoundIcon /> : <UserButton />}
