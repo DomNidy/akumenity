@@ -42,7 +42,7 @@ export function CalendarGrid() {
           <ScrollBar className="z-[1]" />
           {isClient ? (
             <>
-              <div className="relative flex max-h-[900px] w-full z-0">
+              <div className="relative z-0 flex max-h-[900px] w-full">
                 <CalendarGridTimeColumn />
                 <CalendarGridColumnRenderer />
                 <CalendarGridCurrentTimeBar

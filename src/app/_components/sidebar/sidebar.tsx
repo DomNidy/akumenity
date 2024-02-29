@@ -12,7 +12,7 @@ export default function Sidebar() {
   const user = useUser();
 
   return (
-    <div className="fixed left-0 top-0 z-50 h-screen w-14 overflow-x-hidden sm:w-24">
+    <div className="fixed left-0 top-0 z-[10] h-screen w-14 overflow-x-hidden sm:w-24">
       <div className="h-full cursor-default gap-2 border border-input bg-background p-2">
         <div className="flex flex-col items-center rounded-md border border-x-0 border-input p-1">
           {!user.isLoaded ? <UserRoundIcon /> : <UserButton />}
@@ -24,7 +24,7 @@ export default function Sidebar() {
             <BookType />
           </SidebarLinkButton>
 
-          <SidebarLinkButton href="/dashboard" label="Activity">
+          <SidebarLinkButton href="/dashboard/sessions" label="Sessions">
             <BarChart2Icon />
           </SidebarLinkButton>
         </div>

@@ -1,6 +1,6 @@
 // This component provides the UI for updating the color of a topic
 
-import { type Dispatch, type SetStateAction } from "react";
+import { forwardRef, type Dispatch, type SetStateAction } from "react";
 import { type z } from "zod";
 import { dbConstants } from "~/definitions/dbConstants";
 import { getLabelColor } from "~/lib/utils";

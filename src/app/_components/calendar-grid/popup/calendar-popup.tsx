@@ -21,7 +21,7 @@ export function CalendarPopup() {
       ref={refs.setFloating}
       onClick={(e) => e.stopPropagation()}
       data-item-type={DataItemTypeAttributes.CalendarPopup}
-      className=" z-[4] w-max animate-calendar-grid-time-area-box-open rounded-md border bg-popover p-4 text-popover-foreground shadow-md  outline-none"
+      className=" z-10 w-max animate-calendar-grid-time-area-box-open rounded-md border bg-popover p-4 text-popover-foreground shadow-md  outline-none"
       style={{
         ...floatingStyles,
       }}
