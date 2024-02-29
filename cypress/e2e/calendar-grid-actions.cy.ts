@@ -7,27 +7,49 @@ context("Calendar Grid Actions", () => {
     cy.clearTestTable();
   });
 
-  // // Note: In this test, the date is only stubbed for the column header text, not the actual data dates are fetched for from server
-  // it("Displays the correct date range on sundays", () => {
-  //   cy.login();
-  //   // Stub the date to be a Sunday
-  //   // Sun Feb 4th 2024
-  //   const mockedDate = new Date(2024, 1, 4);
-  //   cy.clock(mockedDate);
+  // Note: In this test, the date is only stubbed for the column header text, not the actual data dates are fetched for from server
+  it("Displays the correct date range when weekStartsOn = Monday, and the current day is Sunday (last day of the week)", () => {
+    cy.login();
+    // Stub the date to be a Sunday
+    // Sun Feb 4th 2024
+    const mockedDate = new Date(2024, 1, 4);
+    cy.clock(mockedDate);
 
-  //   // Get div elements with the data-time-header-cell attribute
-  //   // Check if they output the correct date range
-  //   cy.get("[data-time-header-cell]")
-  //     .should("have.length", 7)
-  //     .children("h2")
-  //     .each(($el, index) => {
-  //       if (index < 4) {
-  //         cy.wrap($el).should("contain.text", "Feb");
-  //       } else {
-  //         cy.wrap($el).should("contain.text", "Mar");
-  //       }
-  //     });
-  // });
+    // The first column should be: Mon Jan 29 2024, as our weeks start on mondays by default
+    // Get div elements with the data-time-header-cell attribute
+    // Check if they output the correct date range
+    cy.get("[data-time-header-cell]")
+      .should("have.length", 7)
+      .children("h2")
+      .first()
+      .should("have.text", "Mon Jan 29 2024");
+  });
+
+  it("Displays the correct date range when weekStartsOn = Monday, and the current day is Wednesday", () => {
+    cy.login();
+    // Wed Jan 31st 2024
+    const mockedDate = new Date(2024, 0, 31);
+    cy.clock(mockedDate);
+
+    cy.get("[data-time-header-cell]")
+      .should("have.length", 7)
+      .children("h2")
+      .first()
+      .should("have.text", "Mon Jan 29 2024");
+  });
+
+  it("Displays the correct date range when weekStartsOn = Monday, and the current day is Monday", () => {
+    cy.login();
+    // Mon Jan 29th 2024
+    const mockedDate = new Date(2024, 0, 29);
+    cy.clock(mockedDate);
+
+    cy.get("[data-time-header-cell]")
+      .should("have.length", 7)
+      .children("h2")
+      .first()
+      .should("have.text", "Mon Jan 29 2024");
+  });
 
   it("Invalidates caches and displays the correct layout when updating a session that begins on another page", () => {
     // Click on first grid column with data-item-type: data-item-type="calendar-grid-column"

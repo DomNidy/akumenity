@@ -5,7 +5,7 @@ import {
   type TopicSessionSlice,
   CalendarGridDisplayMode,
   type CalendarGridContextData,
-  type DaysOfTheWeek,
+  DaysOfTheWeek,
 } from "~/app/_components/calendar-grid/calendar-grid-definitions";
 import dayjs, { type Dayjs } from "dayjs";
 import { type dbConstants } from "~/definitions/dbConstants";
@@ -223,6 +223,7 @@ export function getDisplayDateBounds(
       // TODO: Believe it has to do with how we're adding days and setting start of week
       // Create a new date object at the beginning of the week
       const startWeek = dayjs(date)
+        .subtract(weekStartsOn, "d")
         .startOf("week")
         .add(weekStartsOn, "d")
         .toDate();

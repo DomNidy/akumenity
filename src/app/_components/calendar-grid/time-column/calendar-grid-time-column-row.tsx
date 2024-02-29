@@ -15,7 +15,7 @@ export const CalendarGridTimeColumnRow = forwardRef<
   <div
     ref={ref}
     id={rowIndex.toString()}
-    className={cn("w-full bg-blue-800", props.className)}
+    className={cn("bg-blue-800 ", props.className)}
     style={{
       height: `${cellHeightPx}px`,
       maxHeight: `${cellHeightPx}px`,
@@ -23,6 +23,6 @@ export const CalendarGridTimeColumnRow = forwardRef<
     }}
     {...props}
   >
-    <p className="cursor-default">{timeString}</p>{" "}
+    <p className="cursor-default tracking-tightest ">{timeString}</p>{" "}
   </div>
 ));

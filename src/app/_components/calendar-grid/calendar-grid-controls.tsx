@@ -10,7 +10,7 @@ export function CalendarGridControls() {
   const userPreferences = useUserPreferences();
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex  flex-col-reverse gap-2">
       <div className="flex flex-row justify-between">
         <Button
           className="aspect-square p-0"
@@ -71,44 +71,46 @@ export function CalendarGridControls() {
         </Button>
       </div>
 
-      <Button
-        className="mt-2"
-        onClick={() => {
-          calendarGridContext.setCellHeightPx(60);
-          calendarGridContext.setZoomLevel(1);
-        }}
-      >
-        Reset view
-      </Button>
+      <div className="flex flex-row gap-2">
+        <Button
+          className="mt-2 w-fit"
+          onClick={() => {
+            calendarGridContext.setCellHeightPx(60);
+            calendarGridContext.setZoomLevel(1);
+          }}
+        >
+          Reset view
+        </Button>
 
-      <Button
-        className="mt-2"
-        onClick={() => {
-          const date = new Date();
+        <Button
+          className="mt-2 w-fit"
+          onClick={() => {
+            const date = new Date();
 
-          // Calculate the bounds of the current time
-          const newBounds = getDisplayDateBounds(
-            userPreferences.displayMode,
-            date,
-            userPreferences.weekStartsOn,
-          );
+            // Calculate the bounds of the current time
+            const newBounds = getDisplayDateBounds(
+              userPreferences.displayMode,
+              date,
+              userPreferences.weekStartsOn,
+            );
 
-          // Set the display bounds to the current time
-          calendarGridContext.setDisplayDateBounds(
-            newBounds.beginDate,
-            newBounds.endDate,
-          );
+            // Set the display bounds to the current time
+            calendarGridContext.setDisplayDateBounds(
+              newBounds.beginDate,
+              newBounds.endDate,
+            );
 
-          // Scroll to the current time element
-          calendarGridContext.currentTimeElementRef?.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "center",
-          });
-        }}
-      >
-        Go to current time
-      </Button>
+            // Scroll to the current time element
+            calendarGridContext.currentTimeElementRef?.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "center",
+            });
+          }}
+        >
+          Go to current time
+        </Button>
+      </div>
     </div>
   );
 }

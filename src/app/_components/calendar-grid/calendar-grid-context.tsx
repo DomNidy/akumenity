@@ -101,7 +101,6 @@ export function CalendarGridProvider({
     string | null
   >(null);
 
-
   // Dom ref to the current time element
   const currentTimeElementRef = useRef<HTMLDivElement>(null);
 
