@@ -16,16 +16,16 @@ export default function SessionsPage() {
     },
   );
 
-  console.log(sessions.data);
-
   return (
-    <div>
-      <SessionTable
-        columns={sessionTableColumns}
-        data={sessionsToSessionTableItems(
-          sessions.data?.pages.flatMap((page) => page.topicSessions) ?? [],
-        )}
-      />
+    <div className="flex items-center justify-center">
+      <div className="w-fit">
+        <SessionTable
+          columns={sessionTableColumns}
+          data={sessionsToSessionTableItems(
+            sessions.data?.pages.flatMap((page) => page.topicSessions) ?? [],
+          )}
+        />
+      </div>
     </div>
   );
 }

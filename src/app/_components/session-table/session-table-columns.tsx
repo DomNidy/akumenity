@@ -4,21 +4,39 @@ import { type ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import type { SessionTableItem } from "./session-table-definitions";
 import { TopicLabel } from "../my-topics/topic-label";
 import { formatTime } from "~/lib/utils";
+import { Button } from "../ui/button";
+import { ArrowUpDown } from "lucide-react";
+import { Checkbox } from "../ui/checkbox";
 
 // Helper function to create columns
 const columnHelper = createColumnHelper<SessionTableItem>();
 
+// The icon to display for sorting
+const SortIcon = () => <ArrowUpDown className="ml-2 h-4 w-4" />;
+
 export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
   // Display column to display checkbox
   columnHelper.display({
-    id: "actions",
-    header: () => <h3 className="font-semibold tracking-tight">Select</h3>,
-    cell: (props) => (
-      <div
-        className="h-6 w-6 cursor-pointer rounded-lg bg-red-400"
-        {...props}
-      ></div>
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
     ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
   }),
   columnHelper.group({
     header: "Topic",
@@ -46,7 +64,19 @@ export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
     columns: [
       columnHelper.accessor("sessionStartMS", {
         id: "Start Time",
-        header: "Start Time",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              Start Time
+              <SortIcon />
+            </Button>
+          );
+        },
         cell: (props) => (
           <h3>
             {new Date(props.row.original.sessionStartMS).toLocaleString()}
@@ -55,7 +85,19 @@ export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
       }),
       columnHelper.accessor("sessionEndMS", {
         id: "End Time",
-        header: "End Time",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              End Time
+              <SortIcon />
+            </Button>
+          );
+        },
         cell: (props) => (
           <h3>{new Date(props.row.original.sessionEndMS).toLocaleString()}</h3>
         ),
@@ -63,7 +105,19 @@ export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
 
       columnHelper.accessor("sessionDurationMS", {
         id: "Duration",
-        header: "Duration",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              Duration
+              <SortIcon />
+            </Button>
+          );
+        },
         cell: (props) => (
           <h3>{formatTime(props.row.original.sessionDurationMS)}</h3>
         ),

@@ -37,7 +37,6 @@ export const topicRouter = createTRPCRouter({
             },
             ConsistentRead: false,
             Limit: input?.limit ? input.limit : undefined,
-
             ExclusiveStartKey: input?.cursor ? { ...input.cursor } : undefined,
           }),
         );

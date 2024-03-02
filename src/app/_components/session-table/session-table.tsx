@@ -5,6 +5,9 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  getPaginationRowModel,
+  type SortingState,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 
 import {
@@ -15,6 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { Button } from "../ui/button";
+import { useState } from "react";
 
 interface SessionTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -25,10 +30,20 @@ export function SessionTable<TData, TValue>({
   columns,
   data,
 }: SessionTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "Start Time", desc: true },
+  ]);
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+
+    state: {
+      sorting,
+    },
   });
 
   return (
@@ -73,6 +88,25 @@ export function SessionTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
+      <div className="flex w-full flex-1 justify-end gap-2 p-2 ">
+        <Button
+          variant={"outline"}
+          className="font-semibold"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Prev
+        </Button>
+
+        <Button
+          className="font-semibold "
+          variant={"outline"}
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }
