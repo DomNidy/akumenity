@@ -1,6 +1,7 @@
 import {
   TopicSessionCreateNotActiveSchema,
   TopicSessionCreateSchema,
+  TopicSessionGetPaginatedRequest,
   TopicSessionGetSchema,
   TopicSessionGetSessionsForTopicSchema,
   TopicSessionUpdateSchema,
@@ -245,6 +246,117 @@ export const topicSessionRouter = createTRPCRouter({
       });
     }
   }),
+
+  // Endpoint which supports paginated queries for topic sessions
+  getTopicSessionsPaginated: protectedProcedure
+    .input(TopicSessionGetPaginatedRequest)
+    .query(async ({ ctx, input }) => {
+      try {
+        // Create the query command to get the topic sessions
+        const queryCommand = new QueryCommand({
+          TableName: env.DYNAMO_DB_TABLE_NAME,
+          KeyConditionExpression: `PK = :pk and begins_with(SK, :sk)`,
+          Limit: input.limit,
+          ScanIndexForward: false,
+          ExpressionAttributeValues: {
+            ":pk": `${ctx.session.userId}`,
+            ":sk": `${dbConstants.itemTypes.topicSession.typeName}`,
+          },
+          ExclusiveStartKey: input.cursor
+            ? {
+                PK: `${ctx.session.userId}`,
+                SK: input.cursor,
+              }
+            : undefined,
+        });
+
+        const result = await ddbDocClient.send(queryCommand);
+
+        // Find the colorcode associated with each topic
+        const topicIDS = new Set<string>();
+        result?.Items?.forEach((item) => {
+          topicIDS.add(item.Topic_ID as string);
+        });
+
+        // Get the colorcode for each topic
+        const colorCodeQueryCommand = new BatchGetCommand({
+          RequestItems: {
+            [env.DYNAMO_DB_TABLE_NAME]: {
+              Keys: Array.from(topicIDS).map((id) => ({
+                PK: `${ctx.session.userId}`,
+                SK: id,
+              })),
+              ProjectionExpression: `${dbConstants.itemTypes.topic.propertyNames.ColorCode}, ${dbConstants.tables.prod.sortKey} `,
+            },
+          },
+        });
+
+        // Send the query to get the colorcodes
+        const colorCodeResult = await ddbDocClient.send(colorCodeQueryCommand);
+
+        // Return the sessions with their colorcodes
+        const sessions = result.Items?.map((session) => {
+          return {
+            ...((session?.PK as string) && { PK: session.PK as string }),
+
+            ...((session?.SK as string) && { SK: session.SK as string }),
+
+            ...((session?.Topic_Title as string) && {
+              Topic_Title: session.Topic_Title as string,
+            }),
+            ...((session?.Topic_ID as string) && {
+              Topic_ID: session.Topic_ID as string,
+            }),
+            ...((session?.Session_Start as number) && {
+              Session_Start: session.Session_Start as number,
+            }),
+            ...((session?.Session_End as number) && {
+              Session_End: session.Session_End as number,
+            }),
+
+            ...((session?.Session_Status as string) && {
+              Session_Status: session.Session_Status as string,
+            }),
+
+            ColorCode:
+              (colorCodeResult?.Responses?.[env.DYNAMO_DB_TABLE_NAME]?.find(
+                (item) => item.SK === session.Topic_ID,
+              )?.ColorCode as string) ?? "blue",
+          };
+        }) as (z.infer<typeof dbConstants.itemTypes.topicSession.itemSchema> & {
+          ColorCode: z.infer<
+            typeof dbConstants.itemTypes.topic.itemSchema.shape.ColorCode
+          >;
+        })[];
+
+        // if the count is greater than the limit, there are more topics to get, otherwise dont return a cursor
+        const lastKey =
+          input?.limit &&
+          result.Count &&
+          result.Count >= input.limit &&
+          result.LastEvaluatedKey
+            ? result.LastEvaluatedKey
+            : null;
+
+        return {
+          topicSessions: sessions.map((session) => ({
+            ...session,
+          })),
+          cursor: lastKey,
+        };
+      } catch (err) {
+        console.error(err);
+        if (err instanceof TRPCError) {
+          throw err;
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to get topic sessions, please try again",
+          cause: err,
+        });
+      }
+    }),
 
   getTopicSessionsInDateRange: protectedProcedure
     .input(TopicSessionGetSchema)
@@ -564,7 +676,6 @@ export const topicSessionRouter = createTRPCRouter({
             updatedTopicTitle = topic.Item.Title as string;
           }
         }
-
 
         // Update the topic session
         const updateSessionCommand = new PutCommand({

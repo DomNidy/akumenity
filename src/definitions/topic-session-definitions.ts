@@ -132,3 +132,14 @@ export const TopicSessionCreateNotActiveSchema = z
       path: ["endTimeMS"],
     },
   );
+
+// Get TopicSessionGetPaaginated
+export const TopicSessionGetPaginatedRequest = z.object({
+  cursor: z
+    .object({
+      User_ID: z.string(),
+      TopicSession_ID: z.string(),
+    })
+    .nullish(),
+  limit: z.number().min(1).max(100).optional(),
+});

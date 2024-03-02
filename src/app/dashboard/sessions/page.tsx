@@ -5,23 +5,26 @@ import { sessionTableColumns } from "~/app/_components/session-table/session-tab
 import { sessionsToSessionTableItems } from "~/app/_components/session-table/session-table-utils";
 import { api } from "~/trpc/react";
 
-// The time that the user loaded the sessions page
-const endTimeMS = Date.now();
-
 export default function SessionsPage() {
   // TODO: Implement pagination on the session table component and the query
-  const sessions = api.topicSession.getTopicSessionsInDateRange.useQuery({
-    dateRange: {
-      startTimeMS: 0,
-      endTimeMS: endTimeMS,
+  const sessions = api.topicSession.getTopicSessionsPaginated.useInfiniteQuery(
+    {
+      limit: 25,
     },
-  });
+    {
+      getNextPageParam: (lastPage) => lastPage.cursor,
+    },
+  );
+
+  console.log(sessions.data);
 
   return (
     <div>
       <SessionTable
         columns={sessionTableColumns}
-        data={sessionsToSessionTableItems(sessions.data)}
+        data={sessionsToSessionTableItems(
+          sessions.data?.pages.flatMap((page) => page.topicSessions) ?? [],
+        )}
       />
     </div>
   );
