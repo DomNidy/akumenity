@@ -1,4 +1,5 @@
 import {
+  TopicSessionBulkDeleteSchema,
   TopicSessionCreateNotActiveSchema,
   TopicSessionCreateSchema,
   TopicSessionGetPaginatedRequest,
@@ -247,6 +248,8 @@ export const topicSessionRouter = createTRPCRouter({
     }
   }),
 
+  // Endpoint which delets topic sessions in bulk
+
   // Endpoint which supports paginated queries for topic sessions
   getTopicSessionsPaginated: protectedProcedure
     .input(TopicSessionGetPaginatedRequest)
@@ -265,7 +268,7 @@ export const topicSessionRouter = createTRPCRouter({
           ExclusiveStartKey: input.cursor
             ? {
                 PK: `${ctx.session.userId}`,
-                SK: input.cursor,
+                SK: input.cursor.TopicSession_ID,
               }
             : undefined,
         });
@@ -338,11 +341,20 @@ export const topicSessionRouter = createTRPCRouter({
             ? result.LastEvaluatedKey
             : null;
 
+        // TODO: Review this an ensure that the cursor is always either null or the correct shape
+        // The cursor to the next page
+        const cursor: z.infer<
+          typeof TopicSessionGetPaginatedRequest.shape.cursor
+        > = {
+          User_ID: lastKey?.PK as string,
+          TopicSession_ID: lastKey?.SK as string,
+        };
+
         return {
           topicSessions: sessions.map((session) => ({
             ...session,
           })),
-          cursor: lastKey,
+          cursor,
         };
       } catch (err) {
         console.error(err);
@@ -534,6 +546,7 @@ export const topicSessionRouter = createTRPCRouter({
         });
       }
     }),
+  // Deletes a single topic session
   deleteTopicSession: protectedProcedure
     .input(
       z.object({
@@ -591,6 +604,13 @@ export const topicSessionRouter = createTRPCRouter({
           cause: err,
         });
       }
+    }),
+
+  // Delets a batch of topic sessions
+  deleteTopicSessions: protectedProcedure
+    .input(TopicSessionBulkDeleteSchema)
+    .mutation(async ({ ctx, input }) => {
+      console.log(input);
     }),
 
   updateTopicSession: protectedProcedure

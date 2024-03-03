@@ -24,15 +24,24 @@ import { useState } from "react";
 interface SessionTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+
+  // Function which fetches the next page of data (relative to the react query hook)
+  fetchNextPage: () => void;
+
+  // Function which fetches the previous page of data (relative to the react query hook)
+  fetchPreviousPage: () => void;
 }
 
 export function SessionTable<TData, TValue>({
   columns,
   data,
+  fetchNextPage,
+  fetchPreviousPage,
 }: SessionTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "Start Time", desc: true },
   ]);
+
   const table = useReactTable({
     data,
     columns,
@@ -40,7 +49,6 @@ export function SessionTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
-
     state: {
       sorting,
     },
@@ -92,16 +100,22 @@ export function SessionTable<TData, TValue>({
         <Button
           variant={"outline"}
           className="font-semibold"
-          onClick={() => table.previousPage()}
+          onClick={() => {
+            fetchPreviousPage();
+            table.previousPage();
+          }}
           disabled={!table.getCanPreviousPage()}
         >
           Prev
         </Button>
 
         <Button
-          className="font-semibold "
+          className="font-semibold"
           variant={"outline"}
-          onClick={() => table.nextPage()}
+          onClick={() => {
+            fetchNextPage();
+            table.nextPage();
+          }}
           disabled={!table.getCanNextPage()}
         >
           Next

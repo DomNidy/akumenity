@@ -9,10 +9,10 @@ export default function SessionsPage() {
   // TODO: Implement pagination on the session table component and the query
   const sessions = api.topicSession.getTopicSessionsPaginated.useInfiniteQuery(
     {
-      limit: 25,
+      limit: 30,
     },
     {
-      getNextPageParam: (lastPage) => lastPage.cursor,
+      getNextPageParam: (lastPage) => lastPage.cursor ?? null,
     },
   );
 
@@ -20,6 +20,8 @@ export default function SessionsPage() {
     <div className="flex items-center justify-center">
       <div className="w-fit">
         <SessionTable
+          fetchPreviousPage={sessions.fetchPreviousPage}
+          fetchNextPage={sessions.fetchNextPage}
           columns={sessionTableColumns}
           data={sessionsToSessionTableItems(
             sessions.data?.pages.flatMap((page) => page.topicSessions) ?? [],

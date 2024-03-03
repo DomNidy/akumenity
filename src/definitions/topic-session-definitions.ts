@@ -133,7 +133,7 @@ export const TopicSessionCreateNotActiveSchema = z
     },
   );
 
-// Get TopicSessionGetPaaginated
+// Request payload schema for getting paginated topic sessions
 export const TopicSessionGetPaginatedRequest = z.object({
   cursor: z
     .object({
@@ -142,4 +142,18 @@ export const TopicSessionGetPaginatedRequest = z.object({
     })
     .nullish(),
   limit: z.number().min(1).max(100).optional(),
+});
+
+// Request payload schema for a bulk topic session delete
+export const TopicSessionBulkDeleteSchema = z.object({
+  TopicSession_IDs: z
+    .array(
+      z
+        .string()
+        .startsWith(dbConstants.itemTypes.topicSession.typeName)
+        .min(1)
+        .max(128),
+    )
+    .min(1, "Must provide at least one topic session to delete")
+    .max(5, "Cannot delete more than 5 topic sessions at once"),
 });
