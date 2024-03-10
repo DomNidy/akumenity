@@ -63,7 +63,6 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
   async function onSubmit(values: z.infer<typeof TopicSessionUpdateSchema>) {
     // If the form values are the same as the initial values, don't submit as nothing has changed
     if (equal(values, initialFormValues)) {
-      console.debug("No changes made");
       form.setError("root", {
         type: "value",
         message: "No changes made",
@@ -192,7 +191,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
             </FormItem>
           )}
         />
-        
+
         <FormMessage>{form.formState.errors.root?.message}</FormMessage>
         <FormMessage>
           {topicSessionOptions.updateTopicSessionMutation.error?.message}

@@ -7,12 +7,13 @@ import { formatTime } from "~/lib/utils";
 import { Button } from "../ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
+import { SessionTableFilterCombobox } from "./session-table-filter-combobox";
 
 // Helper function to create columns
 const columnHelper = createColumnHelper<SessionTableItem>();
 
 // The icon to display for sorting
-const SortIcon = () => <ArrowUpDown className="ml-2 h-4 w-4" />;
+const SortIcon = () => <ArrowUpDown className="inset-0 m-auto h-4 w-4" />;
 
 export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
   // Display column to display checkbox
@@ -43,7 +44,35 @@ export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
     columns: [
       columnHelper.accessor("topicName", {
         id: "Topic",
-        header: "Topic Name",
+        enableColumnFilter: true,
+        filterFn: "arrIncludesSome",
+        header: ({ column, table }) => {
+          return (
+            <div className="flex flex-row items-center gap-2">
+              <p>Topic</p>
+              <div className="flex">
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                  }
+                >
+                  <SortIcon />
+                </Button>
+              </div>
+
+              <SessionTableFilterCombobox
+                setFilterValue={column.setFilterValue}
+                filterOptionsArray={table
+                  .getCoreRowModel()
+                  .rows.map((item) => ({
+                    key: item.getValue(column.id),
+                    value: item.getValue(column.id),
+                  }))}
+              />
+            </div>
+          );
+        },
         cell: (props) => (
           <div className="flex flex-row gap-2">
             <TopicLabel colorCode={props.row.original.topicColorCode} />
@@ -55,6 +84,7 @@ export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
       columnHelper.accessor("topicSessionId", {
         id: "Session ID",
         header: "Session ID",
+        enableColumnFilter: false,
         cell: (props) => <h3>{props.row.original.topicSessionId}</h3>,
       }),
     ],
@@ -67,6 +97,7 @@ export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
         header: ({ column }) => {
           return (
             <Button
+              className="gap-2"
               variant="ghost"
               onClick={() =>
                 column.toggleSorting(column.getIsSorted() === "asc")
@@ -88,6 +119,7 @@ export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
         header: ({ column }) => {
           return (
             <Button
+              className="gap-2"
               variant="ghost"
               onClick={() =>
                 column.toggleSorting(column.getIsSorted() === "asc")
@@ -108,6 +140,7 @@ export const sessionTableColumns: ColumnDef<SessionTableItem>[] = [
         header: ({ column }) => {
           return (
             <Button
+              className="gap-2"
               variant="ghost"
               onClick={() =>
                 column.toggleSorting(column.getIsSorted() === "asc")

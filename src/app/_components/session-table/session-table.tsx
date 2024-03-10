@@ -8,6 +8,8 @@ import {
   getPaginationRowModel,
   type SortingState,
   getSortedRowModel,
+  type ColumnFiltersState,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 
 import {
@@ -20,10 +22,11 @@ import {
 } from "../ui/table";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import { type SessionTableItem } from "./session-table-definitions";
 
-interface SessionTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface SessionTableProps<TValue> {
+  columns: ColumnDef<SessionTableItem, TValue>[];
+  data: SessionTableItem[];
 
   // Function which fetches the next page of data (relative to the react query hook)
   fetchNextPage: () => void;
@@ -32,25 +35,31 @@ interface SessionTableProps<TData, TValue> {
   fetchPreviousPage: () => void;
 }
 
-export function SessionTable<TData, TValue>({
+export function SessionTable<TValue>({
   columns,
   data,
   fetchNextPage,
   fetchPreviousPage,
-}: SessionTableProps<TData, TValue>) {
+}: SessionTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "Start Time", desc: true },
   ]);
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+
     state: {
       sorting,
+      columnFilters,
     },
   });
 
