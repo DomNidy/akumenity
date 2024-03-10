@@ -248,8 +248,6 @@ export const topicSessionRouter = createTRPCRouter({
     }
   }),
 
-  // Endpoint which delets topic sessions in bulk
-
   // Endpoint which supports paginated queries for topic sessions
   getTopicSessionsPaginated: protectedProcedure
     .input(TopicSessionGetPaginatedRequest)

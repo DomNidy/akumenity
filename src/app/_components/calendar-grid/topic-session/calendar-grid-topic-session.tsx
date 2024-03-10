@@ -31,12 +31,12 @@ export function CalendarGridTopicSession({
 
   const hoverContext = useHoveredCalendarItem();
 
-  console.log(
-    "CalendarGridTopicSession rendered",
-    topicSessionPlacement,
-    topicSessionSlice.Topic_Title,
-    topicSessionSlice.SK,
-  );
+  // console.log(
+  //   "CalendarGridTopicSession rendered",
+  //   topicSessionPlacement,
+  //   topicSessionSlice.Topic_Title,
+  //   topicSessionSlice.SK,
+  // );
 
   // TODO: This onClick is higher in the tree and thus is ran first.
   return (

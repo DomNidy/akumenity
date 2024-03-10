@@ -16,11 +16,12 @@ import {
   FormMessage,
 } from "../../ui/form";
 import { Button } from "../../ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { TopicSelectorMenu } from "../../my-topics/topic-selector-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { useTopicsQuery } from "~/app/hooks/use-topics-query";
 import DateTimePicker from "../../date-time-picker/date-time-picker";
+import equal from "fast-deep-equal";
 
 export function CalendarGridTopicSessionOptionsUpdateForm({
   topicSessionSlice,
@@ -40,20 +41,36 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
     topicSessionId: topicSessionSlice.SK,
   });
 
-  const form = useForm<z.infer<typeof TopicSessionUpdateSchema>>({
-    resolver: zodResolver(TopicSessionUpdateSchema),
-    defaultValues: {
+  // Memoize the initial form values so we can check if they've changed before submitting
+  const initialFormValues = useMemo<
+    z.infer<typeof TopicSessionUpdateSchema>
+  >(() => {
+    return {
       TopicSession_ID: topicSessionSlice.SK,
       updatedFields: {
         startTimeMS: topicSessionSlice.Session_Start,
         endTimeMS: topicSessionSlice.Session_End ?? Date.now(),
         Topic_ID: topicSessionSlice.Topic_ID,
       },
-    },
+    };
+  }, [topicSessionSlice]);
+
+  const form = useForm<z.infer<typeof TopicSessionUpdateSchema>>({
+    resolver: zodResolver(TopicSessionUpdateSchema),
+    defaultValues: initialFormValues,
   });
 
   async function onSubmit(values: z.infer<typeof TopicSessionUpdateSchema>) {
-    console.log("submitting");
+    // If the form values are the same as the initial values, don't submit as nothing has changed
+    if (equal(values, initialFormValues)) {
+      console.debug("No changes made");
+      form.setError("root", {
+        type: "value",
+        message: "No changes made",
+      });
+      return;
+    }
+
     try {
       console.log(values);
       await topicSessionOptions.updateTopicSessionMutation.mutateAsync(values);
@@ -97,6 +114,7 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
               <FormDescription>
                 Change the time at which this session begun
               </FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -170,9 +188,15 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
               <FormDescription>
                 Update the topic which this session is associated with
               </FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
+        
+        <FormMessage>{form.formState.errors.root?.message}</FormMessage>
+        <FormMessage>
+          {topicSessionOptions.updateTopicSessionMutation.error?.message}
+        </FormMessage>
 
         <div className="flex justify-between">
           <Button type="submit">Update</Button>
@@ -190,9 +214,6 @@ export function CalendarGridTopicSessionOptionsUpdateForm({
           </Button>
         </div>
       </form>
-      <FormMessage key={"root"}>
-        {topicSessionOptions.updateTopicSessionMutation.error?.message}
-      </FormMessage>
     </Form>
   );
 }
