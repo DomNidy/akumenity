@@ -116,8 +116,10 @@ export function getDateFromDaysSinceUnixEpoch(daysSince: number) {
   const date = dayjs
     .unix(0)
     .add(daysSince, "day")
+    .add(1, "d")
     .add(getTimezoneOffsetMS(), "ms")
     .toDate();
+  console.debug(daysSince, date);
   return date;
 }
 
@@ -125,7 +127,6 @@ export function getDateFromDaysSinceUnixEpoch(daysSince: number) {
 export function sliceTopicSession(
   topicSession: RouterOutputs["topicSession"]["getTopicSessionsInDateRange"][0],
 ): TopicSessionSlice[] {
-  console.debug("slicing topic session", topicSession);
   // If this topic session spans multiple days, we need to split it into multiple slices
   // We do this by calculating the number of days between the start and end of the session
   // Then we create a slice for each day, and set the start and end times accordingly
