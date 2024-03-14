@@ -22,7 +22,7 @@ export function CalendarGrid() {
 
   return (
     <CalendarGridPopupProvider calendarGridContext={calendarGridContext}>
-      <div className="mt-2 h-fit w-full rounded-lg" ref={calendarGridDomRef}>
+      <div className="mt-2 h-fit w-full rounded-lg " ref={calendarGridDomRef}>
         <CalendarGridPreferenceEditor />
 
         <p>Zoom level: {calendarGridContext.zoomLevel}</p>
@@ -42,7 +42,12 @@ export function CalendarGrid() {
           <ScrollBar className="z-[1]" />
           {isClient ? (
             <>
-              <div className="relative z-0 flex max-h-[900px] w-full">
+              <div
+                className="relative z-0 flex  w-full"
+                style={{
+                  maxHeight: "calc(80vh - 120px)",
+                }}
+              >
                 <CalendarGridTimeColumn />
                 <CalendarGridColumnRenderer />
                 <CalendarGridCurrentTimeBar

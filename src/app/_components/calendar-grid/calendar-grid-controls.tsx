@@ -10,8 +10,8 @@ export function CalendarGridControls() {
   const userPreferences = useUserPreferences();
 
   return (
-    <div className="flex  flex-col-reverse gap-2">
-      <div className="flex flex-row justify-between">
+    <div className="flex  gap-2">
+      <div className="flex flex-row justify-between gap-2">
         <Button
           className="aspect-square p-0"
           onClick={() => {
@@ -29,7 +29,7 @@ export function CalendarGridControls() {
           <ChevronRight />
         </Button>
       </div>
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row justify-between gap-2">
         <Button
           className="aspect-square p-0"
           onClick={() => {
@@ -47,7 +47,7 @@ export function CalendarGridControls() {
           <ZoomIn />
         </Button>
       </div>
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row justify-between gap-2">
         <Button
           className="aspect-square p-0"
           disabled={calendarGridContext.cellHeightPx <= 6}
@@ -71,9 +71,9 @@ export function CalendarGridControls() {
         </Button>
       </div>
 
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row justify-between gap-2">
         <Button
-          className="mt-2 w-fit"
+          className=" w-fit"
           onClick={() => {
             calendarGridContext.setCellHeightPx(60);
             calendarGridContext.setZoomLevel(1);
@@ -83,7 +83,7 @@ export function CalendarGridControls() {
         </Button>
 
         <Button
-          className="mt-2 w-fit"
+          className=" w-fit"
           onClick={() => {
             const date = new Date();
 
