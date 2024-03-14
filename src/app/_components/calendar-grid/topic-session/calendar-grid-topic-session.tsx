@@ -6,7 +6,7 @@ import { CalendarGridTopicSessionPopoverContent } from "./calendar-grid-topic-se
 import { CalendarGridTopicSessionBodyContent } from "./calendar-grid-topic-session-body-content";
 import { type CalendarGridTopicSessionSliceItem } from "~/app/_components/calendar-grid/hooks/use-calendar-grid-column";
 import { useHoveredCalendarItem } from "../calendar-grid-hovered-topic-session-context";
-import { useCalendarGrid } from "../hooks/use-calendar-grid";
+import { useCalendarPopup } from "../hooks/use-calendar-popup";
 
 // The component places a topic session on the calendar grid
 // innerColumnIndex: When we have overlapping elements, the inner column index determines which the order in which elements are rendered left to right
@@ -17,9 +17,6 @@ export function CalendarGridTopicSession({
   topicSessionSlice: CalendarGridTopicSessionSliceItem;
   columnDomRef: React.RefObject<HTMLDivElement>;
 }) {
-  // TODO: Only used here because of hack
-  const calendarGridContext = useCalendarGrid();
-
   const topicSessionPlacement = useCalculateCalendarItemPlacement({
     columnDomRef,
     sliceStartMS: topicSessionSlice.sliceStartMS,
@@ -30,26 +27,15 @@ export function CalendarGridTopicSession({
   });
 
   const hoverContext = useHoveredCalendarItem();
+  const { closePopup } = useCalendarPopup();
 
-  // console.log(
-  //   "CalendarGridTopicSession rendered",
-  //   topicSessionPlacement,
-  //   topicSessionSlice.Topic_Title,
-  //   topicSessionSlice.SK,
-  // );
-
-  // TODO: This onClick is higher in the tree and thus is ran first.
   return (
     <Popover>
       <PopoverTrigger
         asChild
         onClick={(e) => {
           e.stopPropagation();
-          // TODO: WARNING THIS IS ULTRA HACKY (REMOVE THIS)
-          // TODO: It is not ideal to handle this here, but works for now
-          // TODO: This code ensures that the popup element is closed when the user clicks on the calendar grid
-          // TODO: Would be ideal to handle this with DOM events
-          calendarGridContext.setActivePopupElementId("");
+          closePopup();
         }}
       >
         <div

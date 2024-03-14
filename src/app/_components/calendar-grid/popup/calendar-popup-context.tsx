@@ -93,11 +93,11 @@ export function CalendarGridPopupProvider({
 
       // Did we click inside the active popup element?
       const clickedInPopup = clickedInsidePopup(popupDomRef.current, e);
-      console.log("clickedInsidePopup", clickedInPopup);
+      console.debug("clickedInsidePopup", clickedInPopup);
 
       // If we clicked inside the active popup, we don't want to do anything
       if (clickedInPopup) {
-        console.log("Clicked inside active popup, doing nothing");
+        console.debug("Clicked inside active popup, doing nothing");
         return;
       }
 
@@ -105,7 +105,7 @@ export function CalendarGridPopupProvider({
       // If not, create one
       if (!calendarGridContext.activePopupElementId) {
         calendarGridContext.setActivePopupElementId(columnClick.columnId);
-        console.log("Creating new popup");
+        console.debug("Creating new popup");
 
         // Set popup data
         setCurrentPopupData({
